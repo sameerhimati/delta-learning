@@ -305,6 +305,75 @@ async def watchlist():
     return {"videos": await rank_videos()}
 
 
+@router.get("/discover")
+async def discover(max_goals: int = 3, per_goal: int = 3):
+    """Real videos OUTSIDE the ingested corpus for goals this corpus does not cover.
+
+    /watchlist ranks the four videos we ingested; when a stated goal has zero coverage it
+    has nothing to offer. This is the other half of that answer.
+    """
+    _require_neo4j()
+    from app.discover import discover_for_goals
+    return await discover_for_goals(max_goals, per_goal)
+
+
+@router.get("/discover/{goal}")
+async def discover_goal(goal: str, per_goal: int = 3):
+    """Outside-corpus recommendations for one named goal or topic."""
+    _require_neo4j()
+    from app.discover import discover_for_goal
+    return await discover_for_goal(goal, per_goal)
+
+
+@router.get("/curriculum")
+async def curriculum(goal: str | None = None, max_units: int = 12):
+    """An ordered path through the corpus, skipping what the viewer already knows.
+
+    /watchlist ranks whole videos and learning_frontier ranks loose terms; neither is a
+    path. This groups the corpus into units and orders them by where each is first taught.
+    """
+    _require_neo4j()
+    from app.curriculum import build_curriculum
+    return await build_curriculum(goal, max_units)
+
+
+@router.get("/coverage")
+async def coverage():
+    """How much of each stated goal this corpus can actually teach."""
+    _require_neo4j()
+    from app.curriculum import coverage_report
+    return await coverage_report()
+
+
+class IngestRequest(BaseModel):
+    url: str
+    resolve: bool = True
+
+
+@router.post("/ingest")
+async def ingest(request: IngestRequest):
+    """Ingest a video from a URL. Returns immediately with a job to poll.
+
+    Closes the loop /discover opens: the corpus can admit a gap, then grow to cover it.
+    """
+    _require_neo4j()
+    from app.ingest_api import start_ingest
+    result = await start_ingest(request.url, resolve=request.resolve)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+@router.get("/ingest/{job_id}")
+async def ingest_status(job_id: str):
+    """Poll an ingest job. Indexing plus analysis runs for minutes, so this is async."""
+    from app.ingest_api import get_job
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"No ingest job '{job_id}'.")
+    return job
+
+
 @router.post("/search")
 async def search(request: SearchRequest):
     """Live multimodal search over the raw videos via TwelveLabs (Marengo)."""

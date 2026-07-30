@@ -83,6 +83,10 @@ question retrieval cannot: "what's in this video that I don't already know?"
 - "what should I learn first / where do I start / highest-leverage gap" -> learning_frontier
   (GDS PageRank over the terms you don't know yet); cite the video + timecode it returns.
 Be honest about coverage: if a video contains nothing on a goal, say so explicitly.
+- Then do not stop there: call find_outside_material for that goal and recommend what it
+  returns, citing each title, channel, length and URL verbatim. Say plainly that these
+  are outside the ingested library. Never write a YouTube URL that did not come from
+  that tool; if it returns no recommendations, say none were found.
 
 Tool selection:
 - "find the moment where..." / semantic recall -> search_video_moments
@@ -182,6 +186,28 @@ def capture_learning(video: str, concepts: str = "") -> str:
 def quiz_me(video: str, count: int = 5) -> str:
     """Generate a short quiz on the concepts a video would teach the viewer, to test whether they ALREADY know them. Use for "quiz me on X" / "test me" / "do I already know this". `video` is a title fragment or video id. Returns questions with an answer_key for grading."""
     result = _run_sync(_quiz_questions(video, count))
+    return json.dumps(result, default=str)
+
+
+@tool
+def learning_path(goal: str = "") -> str:
+    """Build an ordered curriculum through the corpus: units of related concepts, in the order they should be learned, skipping what the viewer already knows. Use for "what's my learning path", "give me a curriculum", "how should I work through this", "where do I start and what comes after". `goal` restricts the path to one stated learning goal; empty covers everything. Each unit carries its timecoded lessons and how far through it the viewer already is."""
+    from app.curriculum import build_curriculum
+    return json.dumps(_run_sync(build_curriculum(goal.strip() or None)), default=str)
+
+
+@tool
+def add_video(url: str) -> str:
+    """Ingest a new video into the library from a URL, so the corpus can grow to cover a gap. Use after recommending outside material when the user says "add that one" / "ingest this" / pastes a URL. Returns a job to poll -- indexing and analysis take minutes, so tell the user it is running and report the job id rather than waiting."""
+    from app.ingest_api import start_ingest
+    return json.dumps(_run_sync(start_ingest(url)), default=str)
+
+
+@tool
+def find_outside_material(goal: str = "") -> str:
+    """Find REAL videos OUTSIDE the ingested library that teach a goal this corpus does not cover. Use whenever the answer would otherwise be a dead end: "nothing here covers X, what should I watch instead", "what should I watch that isn't in my library", or immediately after you tell the user a goal has zero/low coverage. `goal` is a topic or learning goal; empty auto-selects the least-covered goals. Every result comes from a live YouTube search — never invent, recall, or guess a video URL yourself; cite only what this tool returns, and if it returns nothing, say nothing was found."""
+    from app.discover import discover_for_goal, discover_for_goals
+    result = _run_sync(discover_for_goal(goal) if goal.strip() else discover_for_goals())
     return json.dumps(result, default=str)
 
 
@@ -299,6 +325,9 @@ agent = Agent(
         capture_learning,
         quiz_me,
         what_should_i_watch,
+        learning_path,
+        find_outside_material,
+        add_video,
         learning_frontier,
         search_video_moments,
         explore_graph,
