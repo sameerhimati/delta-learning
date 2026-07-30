@@ -1,4 +1,4 @@
-# Session handoff — 2026-07-30 ~3:15pm (hackathon day)
+# Session handoff — 2026-07-30 ~1:50pm (hackathon day)
 
 ## State: full stack running locally, all 6 demo questions verified live, everything pushed.
 
@@ -9,7 +9,7 @@ make docker-up        # Neo4j, if not already up
 make dev-backend      # :8000   — or `make start` for both
 make dev-frontend     # :3000   — inlines NEXT_PUBLIC_API_URL at build time
 ```
-Open **http://localhost:3000**. Both were verified running at 3:15pm: backend `/health`
+Open **http://localhost:3000**. Both were verified running at 1:50pm: backend `/health`
 ok with `neo4j: true`, frontend 200 with the merged "Your Cut" panel, and
 `/api/videos`, `/api/watchlist`, `/api/delta/...` all 200.
 
@@ -104,6 +104,44 @@ Use the **same session_id** throughout. Answers took 9–40s each; none rate-lim
    the agent names the source: *"skip 0:00–5:08 … you learned that from How Decision
    Making."* Cross-video transfer, said out loud. The finale.
 
+## Built after the first handoff: quiz, knowledge map, knowledge state
+
+**Quiz** — `GET /api/quiz/{video}?count=5` and the `quiz_me` agent tool. Generates
+questions about the *concepts* a video would teach (verified: "What makes a strategy
+optimal in a decision or game setting?", not "what colour was the slide"). The agent asks
+them, grades the answers itself, then calls `capture_learning` with **only the ones the
+viewer got right**. This closes the loop from the other side: the vault records what he
+wrote down, the quiz records what he can demonstrate. It is also the fastest way to grow
+the knowledge state on camera without watching a whole video.
+
+**`GET /api/knowledge-map`** — the fix for "this knowledge map sucks". The graph panel's
+default view calls `/api/schema/visualization`, which returns Neo4j **index and constraint
+metadata** — a data-model diagram, not anyone's knowledge. The new endpoint returns the
+concepts the corpus actually teaches, coloured `known`/`goal`/`novel`, plus the 8 goals as
+hub nodes sized by coverage, with **co-occurrence edges** (two concepts taught by the same
+segment) so subject areas cluster without anyone labelling them. 98 nodes, 225 edges,
+`known_pct: 26`. **Luke's panel should default to this instead of `/schema/visualization`.**
+
+**`GET /api/knowledge`** — the place that defines what the viewer knows, which previously
+existed nowhere in the UI (it was implicit in vault filenames plus a YAML file). Returns
+goals with coverage, and known concepts split by provenance: `from_vault` (109, each with
+its note filename), `from_video` (captured), and `matched_in_corpus`.
+
+That last number is the most honest line in the project: **the vault holds 109 concepts and
+exactly 3 of them touch this corpus** (`02-the-agent-loop.md`, `05-memory.md`,
+`agent-harnesses.md`). Say it out loud in the demo — it explains every "watch the whole
+video" answer better than any hedge.
+
+## A one-word lever if the demo needs more contrast
+
+`DISCOUNT_REPEATED_TERMS` in `backend/app/delta.py` (default **False**). When True, a term
+stops counting as new once an earlier segment of the same video taught it. Measured live it
+produces four visibly different verdicts — Postgres 91%, L8 73%, Game Theory B 34%,
+Game Theory A 0% — where the default rule leaves L8 and Postgres both at ~100%. It is off
+because it lets a segment that is 100% novel-to-the-viewer be dropped as a repeat, which
+contradicts "mostly new is always kept". The trade is a smaller capture drop on Game Theory
+B. Flip it only if flat answers read badly on camera, and re-measure before recording.
+
 ## Honest framing decision (Sameer signed off on the shape, not the numbers)
 
 The vault genuinely contains no game theory and no Postgres knowledge, and little on
@@ -179,11 +217,17 @@ is unchanged in name, type, and meaning — a fixture-built panel still works un
 - **Before capture every video reads 91–100% watch.** That is the honest starting state,
   not a bug — the vault covers almost none of this material. The contrast is produced by
   the capture loop, so the demo must show a capture. Lead Q1/Q2 as setup and land on Q5→Q6.
-- Ideas raised but deliberately not built (they belong in the README as roadmap): a **quiz**
-  to populate the knowledge state directly — the vault is evidence of what Sameer wrote
-  down, not what he knows, and this is the real fix for "watch the whole video";
-  recommending videos from **outside** the corpus (today `/api/watchlist` ranks only the 4
-  ingested ones).
+- Still not built, in rough value order:
+  - **Curriculum generation.** The pieces already exist and are not yet joined up: GDS
+    PageRank ranks the frontier, Louvain already clusters the corpus into unlabelled
+    subject areas (`cypher/gds_projections.cypher` — community 79 is PostgreSQL/GIN/JSONB
+    at 0/30 known, community 100 is game theory at 14/14). A curriculum is those clusters
+    ordered by prerequisite depth and filtered to what the viewer does not know — i.e.
+    "here is your path through this corpus", not just "watch this next". Strongest
+    remaining feature.
+  - Ranking videos from **outside** the corpus (today `/api/watchlist` ranks only the 4
+    ingested ones).
+  - Spaced repetition over captured concepts, using each concept's teaching timecode.
 - `data/videos/bbb_1080p_30fps_normal_85sec.mp4` (vendored sample) is **not** ingested.
   Never run bare `make seed` — it would ingest it and pollute the graph.
 - Hard stop building 3:00pm → rehearse 3:00–3:15 → record 3:15–3:45 → submit 4:00.

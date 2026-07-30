@@ -14,6 +14,7 @@ from app.config import settings
 from app.context_graph_client import execute_cypher, get_schema
 from app.delta import capture_learning as _capture_learning
 from app.delta import knowledge_delta as _knowledge_delta
+from app.delta import quiz_questions as _quiz_questions
 from app.delta import rank_videos as _rank_videos
 from app.memory import store_message, get_context, resolve_session_id
 from app.vector_client import segment_vector_search
@@ -70,6 +71,14 @@ question retrieval cannot: "what's in this video that I don't already know?"
   serves that stated learning goal; a goal is interest, not evidence of prior knowledge.
 - "I watched it / I learned that / capture this" -> capture_learning. Afterwards,
   tell the user their knowledge state grew — future videos will skip these concepts.
+- "quiz me / test me / do I already know this" -> quiz_me. The knowledge state is built
+  from what the viewer WROTE DOWN, so it understates what they KNOW; a quiz proves a
+  concept without making them watch the video that teaches it. Ask the returned questions
+  (numbered, no answer keys), wait for their answers, then grade them yourself against
+  each answer_key. Then call capture_learning(video, concepts="<comma-separated names of
+  ONLY the concepts they got RIGHT>"). Never capture a concept they got wrong, skipped,
+  or hedged on. Afterwards say plainly which concepts were marked known, which were not
+  and why, and that their cut lists for those concepts will now shrink.
 - "which video should I watch next" -> what_should_i_watch.
 - "what should I learn first / where do I start / highest-leverage gap" -> learning_frontier
   (GDS PageRank over the terms you don't know yet); cite the video + timecode it returns.
@@ -166,6 +175,13 @@ def capture_learning(video: str, concepts: str = "") -> str:
     """Capture concepts the viewer just learned from a video into their knowledge base (status becomes 'known', sourced to the teaching segment). `concepts` is comma-separated names; empty captures ALL novel concepts in the video."""
     names = [c for c in (s.strip() for s in concepts.split(",")) if c] or None
     result = _run_sync(_capture_learning(video, names))
+    return json.dumps(result, default=str)
+
+
+@tool
+def quiz_me(video: str, count: int = 5) -> str:
+    """Generate a short quiz on the concepts a video would teach the viewer, to test whether they ALREADY know them. Use for "quiz me on X" / "test me" / "do I already know this". `video` is a title fragment or video id. Returns questions with an answer_key for grading."""
+    result = _run_sync(_quiz_questions(video, count))
     return json.dumps(result, default=str)
 
 
@@ -281,6 +297,7 @@ agent = Agent(
     tools=[
         knowledge_delta,
         capture_learning,
+        quiz_me,
         what_should_i_watch,
         learning_frontier,
         search_video_moments,

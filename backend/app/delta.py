@@ -17,6 +17,10 @@ fail the density test are reported separately under "skipped" so nothing is hidd
 
 from __future__ import annotations
 
+import asyncio
+
+from pydantic import BaseModel
+
 from app.config import settings
 from app.context_graph_client import execute_cypher
 
@@ -104,6 +108,31 @@ async def knowledge_delta(title_or_id: str) -> dict:
         {"video_id": video["id"], "learnable_types": LEARNABLE_ENTITY_TYPES},
         tool_name="knowledge_delta",
     )
+
+    # ingest MERGEs Topics and Entities under separate labels, so the same term can exist
+    # as both — "Agent Memory" came back twice, double-counting it in the stats and giving
+    # the panel two list items with identical identity. One name is one concept: union
+    # their segments and let the strongest status win (known > goal > novel).
+    _RANK = {"known": 0, "goal": 1, "novel": 2}
+    merged: dict[str, dict] = {}
+    for r in rows:
+        key = r["name"].strip().lower()
+        prev = merged.get(key)
+        if prev is None:
+            merged[key] = dict(r)
+            continue
+        if _RANK[r["status"]] < _RANK[prev["status"]]:
+            keep_segments = prev["segments"]
+            merged[key] = dict(r)
+            merged[key]["segments"] = keep_segments + r["segments"]
+        else:
+            prev["segments"] = prev["segments"] + r["segments"]
+            prev["goal_concept"] = prev.get("goal_concept") or r.get("goal_concept")
+    for r in merged.values():
+        seen_idx = set()
+        r["segments"] = [s for s in r["segments"]
+                         if not (s["idx"] in seen_idx or seen_idx.add(s["idx"]))]
+    rows = list(merged.values())
 
     known, novel, goal = [], [], []
     segments: dict[int, dict] = {}  # idx -> segment + every learnable term it carries
@@ -276,6 +305,91 @@ async def capture_learning(title_or_id: str, concept_names: list[str] | None = N
     )
     return {"captured": [t["name"] for t in targets],
             "source_video": delta["video"]["title"], "nodes": len(rows)}
+
+
+class _QuizItem(BaseModel):
+    concept: str
+    question: str
+    answer_key: str
+
+
+class _Quiz(BaseModel):
+    questions: list[_QuizItem]
+
+
+QUIZ_SYSTEM = (
+    "You write one short quiz question per concept to test whether someone already "
+    "understands that concept. The questions are about the CONCEPT ITSELF, answerable "
+    "from general knowledge by anyone who understands it — never trivia about a "
+    "particular video, speaker, slide, or example ('what did the speaker say', 'what "
+    "was on the slide' are forbidden). Each question must be answerable in one or two "
+    "sentences and must be specific enough that a vague gesture at the topic fails it. "
+    "answer_key is a one-line model answer a grader can check against. Use the concept "
+    "name verbatim in the 'concept' field. Return exactly one question per concept."
+)
+
+
+async def quiz_questions(title_or_id: str, count: int = 5) -> dict:
+    """Quiz the viewer on what a video would teach them, so demonstrated knowledge —
+    not just what they wrote down — can grow the knowledge state.
+
+    The knowledge state is built from vault note titles, which is evidence of what the
+    viewer WROTE, not of what they KNOW. Proving a concept here lets capture_learning
+    mark it known without sitting through the video that teaches it. Grading happens in
+    the chat agent; this only produces the questions.
+    """
+    delta = await knowledge_delta(title_or_id)
+    if "error" in delta:
+        return delta
+
+    # Prefer concepts the video actually teaches (they carry a timecode to cite), then
+    # fall back to new-but-minor terms so short cut lists still fill a quiz.
+    candidates: dict[str, dict] = {}
+    for cut in delta["cuts"]:
+        for con in cut["concepts"]:
+            if con["status"] in ("novel", "goal"):
+                candidates.setdefault(con["name"], {
+                    "concept": con["name"], "status": con["status"],
+                    "segment_id": cut["segment_id"], "start_sec": cut["start_sec"]})
+    for con in delta["minor_concepts"]:
+        candidates.setdefault(con["name"], {"concept": con["name"], "status": con["status"],
+                                            "segment_id": None, "start_sec": None})
+    picked = list(candidates.values())[:max(1, min(int(count), 10))]
+    if not picked:
+        return {"video": delta["video"], "questions": [],
+                "note": "Nothing new left to test — you already know everything this video teaches."}
+
+    from openai import OpenAI
+
+    client = OpenAI(api_key=settings.openai_api_key or None)
+    listing = "\n".join(f"- {p['concept']}" for p in picked)
+    response = await asyncio.to_thread(
+        lambda: client.responses.parse(
+            model=settings.openai_extraction_model,
+            reasoning={"effort": settings.openai_reasoning_effort},
+            input=[
+                {"role": "system", "content": QUIZ_SYSTEM},
+                {"role": "user", "content": f"Video: {delta['video']['title']}\n\n"
+                                            f"Concepts to test:\n\n{listing}"},
+            ],
+            text_format=_Quiz,
+        )
+    )
+    if response.output_parsed is None:
+        return {"error": "Quiz generation returned nothing."}
+
+    # Trust the graph for the timecode, the model only for the wording: match verdicts
+    # back onto the concepts we asked about, and drop any the model invented.
+    by_name = {p["concept"].lower(): p for p in picked}
+    questions = []
+    for q in response.output_parsed.questions:
+        p = by_name.get(q.concept.lower())
+        if not p:
+            continue
+        questions.append({"concept": p["concept"], "question": q.question,
+                          "answer_key": q.answer_key, "status": p["status"],
+                          "segment_id": p["segment_id"], "start_sec": p["start_sec"]})
+    return {"video": delta["video"], "questions": questions}
 
 
 async def rank_videos() -> list[dict]:

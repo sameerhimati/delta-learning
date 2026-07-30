@@ -238,6 +238,37 @@ async def capture(request: CaptureRequest):
     return result
 
 
+@router.get("/quiz/{video}")
+async def quiz(video: str, count: int = 5):
+    """Questions testing whether the viewer already knows what this video would teach."""
+    _require_neo4j()
+    from app.delta import quiz_questions
+    result = await quiz_questions(video, count)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.get("/knowledge-map")
+async def knowledge_map_view(limit: int = 90):
+    """Concept-level map of the corpus coloured by the viewer's knowledge state.
+
+    This is what the graph panel should show by default — `/schema/visualization` renders
+    Neo4j's index metadata, which says nothing about what anyone knows.
+    """
+    _require_neo4j()
+    from app.knowledge_map import knowledge_map
+    return await knowledge_map(limit)
+
+
+@router.get("/knowledge")
+async def knowledge():
+    """The viewer's knowledge state: goals with coverage, and what they know, from where."""
+    _require_neo4j()
+    from app.knowledge_map import knowledge_state
+    return await knowledge_state()
+
+
 @router.get("/watchlist")
 async def watchlist():
     """All ingested videos ranked by novel-content density for this viewer."""
