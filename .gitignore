@@ -31,3 +31,7 @@ data/documents/*.txt
 
 # Downloaded demo talks — too big for git, fetched via yt-dlp
 data/videos/*.mp4
+
+# agent scratch scripts
+frontend/_*.mjs
+frontend/app/_*/
