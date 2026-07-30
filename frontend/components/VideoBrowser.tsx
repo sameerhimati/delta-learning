@@ -91,9 +91,12 @@ export function VideoBrowser() {
         if (loadedVideos.length === 0) {
           throw new Error("No live videos are available yet");
         }
+        const initialVideo =
+          loadedVideos.find((video) => displayTitle(video.title).startsWith("L8 ")) ||
+          loadedVideos[0];
         setVideos(loadedVideos);
-        setSelected(loadedVideos[0]);
-        void loadSegments(loadedVideos[0]);
+        setSelected(initialVideo);
+        void loadSegments(initialVideo);
       } catch {
         setVideos([FIXTURE_VIDEO]);
         setSelected(FIXTURE_VIDEO);
