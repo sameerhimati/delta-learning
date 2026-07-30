@@ -92,11 +92,11 @@ function ConceptPill({ concept }: { concept: DeltaConcept }) {
   return (
     <Box
       px={2.5}
-      py={2}
+      py={1.5}
       borderWidth="1px"
-      borderColor={isGoal ? "blue.200" : "orange.200"}
-      borderRadius="lg"
-      bg={isGoal ? "blue.50" : "orange.50"}
+      borderColor={isGoal ? "#cbdcf8" : "#f2d5b5"}
+      borderRadius="9px"
+      bg={isGoal ? "#f3f7fd" : "#fff8f0"}
     >
       <Text
         fontSize="xs"
@@ -251,14 +251,16 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
     <VStack align="stretch" gap={4} pb={3}>
       <Box
         p={{ base: 4, lg: 5 }}
-        borderRadius="2xl"
+        borderWidth="1px"
+        borderColor="#2d3142"
+        borderRadius="16px"
         color="white"
-        background="linear-gradient(145deg, #171922 0%, #252945 65%, #30366b 100%)"
-        boxShadow="0 12px 32px rgba(17,19,24,0.16)"
+        background="linear-gradient(135deg, #181a22 0%, #202334 100%)"
+        boxShadow="0 12px 28px rgba(17,19,24,0.14)"
       >
         <HStack justify="space-between" align="start" mb={4}>
           <Box>
-            <Text fontSize="xs" fontWeight="bold" letterSpacing="0.14em" color="purple.200">
+            <Text fontSize="10px" fontWeight="bold" letterSpacing="0.15em" color="#aaa5ff">
               YOUR CUT
             </Text>
             <Text mt={1} fontSize="xs" color="whiteAlpha.600">
@@ -280,9 +282,9 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
         </HStack>
 
         <Heading
-          fontSize={{ base: "2xl", lg: "3xl" }}
+          fontSize={{ base: "2xl", lg: "32px" }}
           lineHeight="1.05"
-          letterSpacing="-0.035em"
+          letterSpacing="-0.045em"
           maxW="680px"
         >
           Watch {formatTime(data.stats.watch_sec)}{" "}
@@ -294,20 +296,43 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
           {recommendationExplanation}
         </Text>
 
-        <Grid templateColumns="repeat(3, minmax(0, 1fr))" gap={2} mt={5}>
+        <Box mt={5}>
+          <HStack justify="space-between" mb={2}>
+            <Text fontSize="10px" fontWeight="semibold" color="whiteAlpha.600">
+              Study {100 - skipPercent}%
+            </Text>
+            <Text fontSize="10px" fontWeight="semibold" color="green.300">
+              Skip {skipPercent}%
+            </Text>
+          </HStack>
+          <Box h="6px" overflow="hidden" borderRadius="full" bg="green.400">
+            <Box
+              h="100%"
+              w={`${Math.max(0, 100 - skipPercent)}%`}
+              minW={data.stats.watch_sec > 0 ? "6px" : 0}
+              bg="#7c74ff"
+              borderRadius="full"
+            />
+          </Box>
+        </Box>
+
+        <Grid
+          templateColumns="repeat(3, minmax(0, 1fr))"
+          mt={5}
+          pt={4}
+          borderTopWidth="1px"
+          borderColor="whiteAlpha.200"
+        >
           {[
             { value: data.stats.novel, label: "new concepts", color: "orange.300" },
             { value: data.stats.goal_hits, label: "goal matches", color: "blue.300" },
             { value: data.stats.known, label: "already known", color: "green.300" },
-          ].map((stat) => (
+          ].map((stat, index) => (
             <Box
               key={stat.label}
               px={{ base: 2, md: 3 }}
-              py={2.5}
-              bg="whiteAlpha.100"
-              borderWidth="1px"
+              borderLeftWidth={index === 0 ? 0 : "1px"}
               borderColor="whiteAlpha.200"
-              borderRadius="xl"
             >
               <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color={stat.color}>
                 {stat.value}
@@ -344,8 +369,8 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
               </Text>
             </Box>
             <HStack gap={1.5}>
-              <Badge colorPalette="orange" variant="subtle">new</Badge>
-              <Badge colorPalette="blue" variant="subtle">your goal</Badge>
+              <Badge colorPalette="orange" variant="subtle" borderRadius="full">new</Badge>
+              <Badge colorPalette="blue" variant="subtle" borderRadius="full">your goal</Badge>
             </HStack>
           </HStack>
 
@@ -354,11 +379,12 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
               key={cut.segment_id}
               p={{ base: 3, md: 4 }}
               borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="xl"
+              borderColor="#e2e3e6"
+              borderRadius="13px"
               bg="white"
+              boxShadow="0 1px 2px rgba(17,24,39,0.025)"
               transition="border-color 0.15s ease, box-shadow 0.15s ease"
-              _hover={{ borderColor: "purple.200", boxShadow: "0 4px 16px rgba(15,23,42,0.05)" }}
+              _hover={{ borderColor: "#c9c5fa", boxShadow: "0 5px 18px rgba(15,23,42,0.05)" }}
             >
               <HStack justify="space-between" align="start" mb={2}>
                 <HStack gap={2}>
@@ -381,7 +407,7 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
                 </HStack>
                 <Button
                   size="xs"
-                  variant="outline"
+                  variant="subtle"
                   colorPalette="purple"
                   borderRadius="full"
                   onClick={() => onSeek?.(cut.start_sec)}
@@ -432,7 +458,13 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
         </VStack>
       )}
 
-      <Box as="details" borderWidth="1px" borderColor="gray.200" borderRadius="xl" bg="#fbfbfc">
+      <Box
+        as="details"
+        borderWidth="1px"
+        borderColor="#e2e3e6"
+        borderRadius="13px"
+        bg="#fafafa"
+      >
         <Flex
           as="summary"
           cursor="pointer"
@@ -481,7 +513,9 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
       <Button
         colorPalette="purple"
         size="md"
-        borderRadius="xl"
+        h="44px"
+        borderRadius="11px"
+        boxShadow="0 6px 16px rgba(98,91,246,0.20)"
         onClick={() => void captureLearnings()}
         loading={capturing}
         disabled={novelConcepts.length === 0}

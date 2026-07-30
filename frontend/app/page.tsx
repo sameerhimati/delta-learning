@@ -73,12 +73,12 @@ function ConnectionStatus({
   return (
     <HStack
       gap={2}
-      px={3}
-      py={1.5}
+      px={2.5}
+      py={1}
       borderWidth="1px"
-      borderColor="gray.200"
+      borderColor="#e3e5e8"
       borderRadius="full"
-      bg="white"
+      bg="#fafafa"
       title={
         status === "ok"
           ? "Backend connected"
@@ -87,8 +87,8 @@ function ConnectionStatus({
             : "Backend offline"
       }
     >
-      <Box w={2} h={2} borderRadius="full" bg={color} />
-      <Text fontSize="xs" fontWeight="semibold" color="gray.600">
+      <Box w={1.5} h={1.5} borderRadius="full" bg={color} />
+      <Text fontSize="11px" fontWeight="semibold" color="gray.600">
         {copy}
       </Text>
     </HStack>
@@ -138,34 +138,39 @@ export default function Home() {
   const activeMeta = VIEWS[activeView];
 
   return (
-    <Flex h="100dvh" bg="#f5f6f8" color="gray.900" overflow="hidden">
+    <Flex h="100dvh" bg="#f3f4f6" color="#17181c" overflow="hidden">
       <Flex
         as="aside"
         aria-label="Primary navigation"
         display={{ base: "none", md: "flex" }}
         direction="column"
-        w="232px"
+        w="216px"
         flexShrink={0}
-        px={4}
-        py={5}
-        bg="#111318"
+        px={3}
+        py={4}
+        bg="#15171c"
         color="white"
+        borderRightWidth="1px"
+        borderColor="whiteAlpha.100"
       >
-        <HStack gap={3} px={2} mb={8}>
+        <HStack gap={2.5} px={2} mb={7}>
           <Flex
             align="center"
             justify="center"
-            w={9}
-            h={9}
-            borderRadius="xl"
+            w="34px"
+            h="34px"
+            borderRadius="10px"
             bg="#625bf6"
             color="white"
+            boxShadow="0 6px 16px rgba(98,91,246,0.28)"
           >
-            <BrainCircuit size={19} />
+            <BrainCircuit size={18} />
           </Flex>
           <Box>
-            <Heading size="sm" letterSpacing="-0.02em">Delta</Heading>
-            <Text fontSize="xs" color="gray.400">learning workspace</Text>
+            <Heading size="sm" letterSpacing="-0.025em">Delta</Heading>
+            <Text fontSize="10px" color="gray.500" letterSpacing="0.03em">
+              LEARNING WORKSPACE
+            </Text>
           </Box>
         </HStack>
 
@@ -179,14 +184,26 @@ export default function Home() {
                   key={viewId}
                   variant="ghost"
                   justifyContent="flex-start"
-                  h="42px"
+                  h="44px"
                   px={3}
-                  color={isActive ? "white" : "gray.400"}
-                  bg={isActive ? "whiteAlpha.100" : "transparent"}
-                  _hover={{ bg: "whiteAlpha.100", color: "white" }}
+                  borderRadius="10px"
+                  fontSize="sm"
+                  fontWeight={isActive ? "semibold" : "medium"}
+                  color={isActive ? "white" : "#969aa4"}
+                  bg={isActive ? "#24272f" : "transparent"}
+                  boxShadow={isActive ? "inset 0 0 0 1px rgba(255,255,255,0.04)" : "none"}
+                  _hover={{ bg: "#20232a", color: "white" }}
                   onClick={() => setActiveView(viewId)}
                 >
-                  <Icon size={17} />
+                  <Box
+                    w="3px"
+                    h="18px"
+                    ml={-3}
+                    mr={1}
+                    borderRadius="full"
+                    bg={isActive ? "#7c74ff" : "transparent"}
+                  />
+                  <Icon size={16} />
                   {view.label}
                 </Button>
               );
@@ -194,11 +211,12 @@ export default function Home() {
           )}
         </VStack>
 
-        <Box mt="auto" px={2}>
-          <Text fontSize="xs" color="gray.500" lineHeight="1.5">
-            Your knowledge changes.
-            <br />
-            Your watch list should too.
+        <Box mt="auto" mx={1} p={3} borderTopWidth="1px" borderColor="whiteAlpha.100">
+          <Text fontSize="10px" fontWeight="bold" color="#858a96" letterSpacing="0.08em">
+            ADAPTIVE STUDY
+          </Text>
+          <Text mt={1.5} fontSize="11px" color="#6f7480" lineHeight="1.55">
+            Your watch list updates as your knowledge grows.
           </Text>
         </Box>
       </Flex>
@@ -206,13 +224,13 @@ export default function Home() {
       <Flex direction="column" flex={1} minW={0}>
         <Flex
           as="header"
-          minH={{ base: "64px", md: "76px" }}
-          px={{ base: 4, md: 6 }}
+          minH={{ base: "64px", md: "68px" }}
+          px={{ base: 4, md: 5 }}
           align="center"
           justify="space-between"
           borderBottomWidth="1px"
-          borderColor="gray.200"
-          bg="rgba(255,255,255,0.92)"
+          borderColor="#e3e5e8"
+          bg="rgba(255,255,255,0.94)"
           backdropFilter="blur(12px)"
         >
           <HStack gap={3}>
@@ -234,7 +252,7 @@ export default function Home() {
               </Heading>
               <Text
                 display={{ base: "none", sm: "block" }}
-                fontSize="sm"
+                fontSize="xs"
                 color="gray.500"
               >
                 {activeMeta.description}
@@ -244,15 +262,18 @@ export default function Home() {
           <ConnectionStatus status={backendStatus} />
         </Flex>
 
-        <Box as="main" flex={1} minH={0} p={{ base: 0, md: 4 }} pb={{ base: "68px", md: 4 }}>
+        <Box as="main" flex={1} minH={0} p={{ base: 0, md: 3 }} pb={{ base: "68px", md: 3 }}>
           <Box
             h="100%"
             overflow="hidden"
             bg="white"
             borderWidth={{ base: 0, md: "1px" }}
-            borderColor="gray.200"
-            borderRadius={{ base: 0, md: "2xl" }}
-            boxShadow={{ base: "none", md: "0 1px 2px rgba(16,24,40,0.04)" }}
+            borderColor="#dedfe3"
+            borderRadius={{ base: 0, md: "14px" }}
+            boxShadow={{
+              base: "none",
+              md: "0 1px 2px rgba(17,24,39,0.03), 0 12px 34px rgba(17,24,39,0.035)",
+            }}
           >
             <Box h="100%" display={activeView === "study" ? "block" : "none"}>
               <VideoBrowser />
