@@ -1,6 +1,20 @@
-# Session handoff — 2026-07-30 ~2:05pm (hackathon day)
+# Session handoff — 2026-07-30 ~3:15pm (hackathon day)
 
-## State: corpus complete, delta layer works end to end, demo beat measured. Pushed.
+## State: full stack running locally, all 6 demo questions verified live, everything pushed.
+
+## Start the demo (both services)
+
+```zsh
+make docker-up        # Neo4j, if not already up
+make dev-backend      # :8000   — or `make start` for both
+make dev-frontend     # :3000   — inlines NEXT_PUBLIC_API_URL at build time
+```
+Open **http://localhost:3000**. Both were verified running at 3:15pm: backend `/health`
+ok with `neo4j: true`, frontend 200 with the merged "Your Cut" panel, and
+`/api/videos`, `/api/watchlist`, `/api/delta/...` all 200.
+
+The graph is in the **clean pre-capture state** (0 `video:` Concepts). Do not run the
+capture question before recording — it spends the finale.
 
 Do **not** run `make reset`. Do **not** touch `frontend/` (Luke's).
 
@@ -61,18 +75,25 @@ MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 That only removes capture artifacts. Vault and goal Concepts are a different key
 namespace and are untouched — this is safe to run repeatedly.
 
-## Demo script (6 questions, `/api/chat`, same session_id)
+## Demo script — all 6 verified live at 3:10pm, full transcript behaviour below
 
-1. "What in the L8 agentic engineering talk is new to me?" → watch nearly all of it,
-   83 novel terms. **This is honest, not a bug** — the vault has almost nothing on
-   agentic engineering, and the agent explains that it only skips with positive evidence.
-2. "What about the Postgres talk?" → also watch it all, 0 known. Same reasoning, said out loud.
+Use the **same session_id** throughout. Answers took 9–40s each; none rate-limited.
+
+1. "What in the L8 agentic engineering talk is new to me?" → **43:03 of 45:46** in three
+   ranges, 51 novel + 15 goal-aligned. Cites the five real overlaps back to their notes
+   (`agent-harnesses.md`, `05-memory.md`, `02-the-agent-loop.md`). Watching nearly all of
+   it is **honest, not a bug** — the vault barely covers agentic engineering, and the
+   agent says so.
+2. "What about the Postgres talk?" → watch all **0:00–8:06**, 0 known, 28 goal-aligned.
+   States plainly that no saved-knowledge overlap exists so nothing is safe to skip.
 3. "Which of my learning goals does this corpus cover, and which does it not?" →
-   covers game theory, database internals, context engineering. Reports **zero** coverage
-   for speculative decoding, KV-cache optimization, GPU memory hierarchy, Bayesian stats.
-   The honesty beat.
-4. "What should I learn first?" → `learning_frontier` tool: Neo4j GDS PageRank over the
-   co-occurrence graph of terms you do NOT know.
+   1 of 8 strictly linked (game theory), then volunteers the nuance that Postgres
+   *supports* database internals and L8 *supports* context engineering without a strict
+   link, and that GPU memory hierarchy / KV-cache / speculative decoding have no
+   meaningful coverage at all. The honesty beat, and it lands.
+4. "What should I learn first?" → `learning_frontier`: Neo4j **GDS PageRank** over the
+   co-occurrence graph of terms you do NOT know. Picks PostgreSQL (score 5.15) and
+   explains the ranking rule.
 5. **"I just watched 'How Decision Making is Actually Science' — capture what it taught me."**
    → captures 11 concepts (Game Theory, Prisoner's Dilemma, Nash Equilibrium, Dominant
    Strategy, Shapley Value…).
@@ -118,10 +139,21 @@ git remote add luke https://github.com/huluk98/delta-learning.git
 git fetch luke && git merge luke/codex/luke-your-cut
 ```
 
-Merged at 3:05pm: 5 commits, +1287/-321 across 10 files, **frontend-only, zero backend
-files touched**, `tsc --noEmit` clean. Adds `YourCutPanel.tsx` (523 lines), `StudyNotes.tsx`,
-concept coloring by knowledge status in `ContextGraphView`, and a rebuilt `page.tsx` /
-`VideoBrowser`. Frontend runs on `:3000` and returns 200.
+Merged at 3:05pm (`d61d07c`): 5 commits, +1287/-321 across 10 files, **frontend-only, zero
+backend files touched**, `tsc --noEmit` clean. Adds `YourCutPanel.tsx` (523 lines),
+`StudyNotes.tsx`, concept coloring by knowledge status in `ContextGraphView`, and a rebuilt
+`page.tsx` / `VideoBrowser`. Frontend runs on `:3000` and returns 200.
+
+**His Codex is still working on UI/UX cleanup**, so expect more commits on that branch.
+To pick them up (repeat as needed — it stays a fast-forward-ish merge as long as he keeps
+to `frontend/`):
+
+```zsh
+git fetch luke && git merge luke/codex/luke-your-cut
+cd frontend && npm exec -- tsc --noEmit --incremental false   # must stay clean
+```
+If he ever touches `backend/`, stop and review rather than merging — the delta logic and
+the response contract are load-bearing and were verified against live measurements.
 
 The API is verified working through the tunnel, including CORS for `http://localhost:3000`:
 
