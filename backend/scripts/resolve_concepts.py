@@ -34,7 +34,10 @@ from app.context_graph_client import connect_neo4j, close_neo4j, execute_cypher 
 from app.delta import LEARNABLE_ENTITY_TYPES  # noqa: E402
 from app import twelvelabs_client as tl  # noqa: E402
 
-THRESHOLD = 0.70
+# A deliberately broad pre-filter. The OpenAI adjudicator below is the semantic
+# acceptance gate; 0.55 retains paraphrased vault claims without treating cosine
+# similarity itself as proof that two concepts are the same.
+THRESHOLD = 0.55
 MAX_CANDIDATES = 120  # one adjudication call; cap keeps the prompt sane
 
 
