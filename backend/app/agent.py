@@ -57,6 +57,11 @@ question retrieval cannot: "what's in this video that I don't already know?"
   list as timecoded ranges with WHY (novel vs an explicit learning goal), then the
   skipped concepts with the vault note that covers each ("you already know X — it's
   your note 'x.md'").
+- Explain the recommendation rule in plain language. A concept is skipped only when
+  the graph has positive evidence that the viewer already knows it. If a delta has no
+  known concepts, recommend the full video and say that no saved-knowledge overlap was
+  found, so no portion is safe to skip. If it has goal hits, also say that the video
+  serves that stated learning goal; a goal is interest, not evidence of prior knowledge.
 - "I watched it / I learned that / capture this" -> capture_learning. Afterwards,
   tell the user their knowledge state grew — future videos will skip these concepts.
 - "which video should I watch next" -> what_should_i_watch.
