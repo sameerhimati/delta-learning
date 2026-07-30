@@ -76,7 +76,18 @@ STRUCTURE_SYSTEM = (
     "Canonicalize entity and topic names (Title Case, singular, no duplicates within a segment). "
     "Use the SAME canonical name for the same real-world thing so it can be merged across videos.\n"
     "Preserve the analysis's granularity: emit one segment per described moment and never "
-    "merge several into a broad chapter. Segments must run in order and cover the whole video."
+    "merge several into a broad chapter. Segments must run in order and cover the whole video.\n"
+    "BE SPARING WITH TOPICS. These become the viewer's learnable concepts, so emit only what "
+    "the segment actually TEACHES: at most 3 topics per segment, and fewer is better. A topic "
+    "must be something a person could learn and later claim to know — 'Nash Equilibrium', "
+    "'Write-Ahead Logging', 'Subagent Delegation'. Do NOT emit broad field labels "
+    "('Artificial Intelligence', 'Technology', 'Data Science', 'Software'), vague qualities "
+    "('Performance Optimization', 'Efficiency', 'Innovation'), or restatements of the video's "
+    "framing ('Decision Making', 'Strategy') unless the segment genuinely teaches that thing. "
+    "If a segment is filler, an intro, or a sponsor read, give it NO topics.\n"
+    "Likewise emit entities only when they matter to the explanation: type 'concept' is for "
+    "real technical concepts, not for generic nouns. People, brands, and places are fine but "
+    "are never treated as learnable."
 )
 
 

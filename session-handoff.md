@@ -29,20 +29,29 @@ TL index `6a6ba9df0d774e7cec6c16a8`. **Re-analysis is cheap** — they're alread
 so `make seed VIDEOS="--index-id=<idx> --video-id=<vid>"` skips upload and only re-runs
 Pegasus → structure → embed → write (~2 min for all four in parallel).
 
-Graph: 419 learnable terms, 117 Concepts (109 known from vault, 8 goals),
-~54 `SAME_AS` + ~168 `ADVANCES` edges.
+Graph: 4 Videos, 83 Segments, 63 Topics + 109 Entities, 117 Concepts (109 known from
+vault, 8 goals), ~58 `SAME_AS` + ~196 `ADVANCES` edges.
+
+The ontology was deliberately thinned late in the session: the structuring prompt used to
+emit every entity it saw (~105 terms per video, including filler like "Artificial
+Intelligence" and "Performance Optimization"), which buried the signal and made badges
+unreadable. It now emits at most 3 genuinely-teachable topics per segment and none at all
+for intros and sponsor reads. Terms per video fell 103→71, 45→27, 30→22, and the capture
+beat nearly doubled (25% → 41%) because the concepts that remain are ones that actually
+overlap between the two talks.
 
 ## THE DEMO BEAT — measured, not claimed
 
-Run from a clean state (no `video:`-prefixed Concepts):
+The graph is currently sitting in the clean pre-capture state. Do not capture before
+the recording or the beat is already spent.
 
 ```
-Game Theory B before:  watch 17:46  ·  1 cut   ·  known 2
-POST /api/capture {"video": "How Decision Making"}   → captures 24 concepts
-Game Theory B after:   watch 13:22  ·  5 cuts  ·  known 12
+Game Theory B before:  watch 16:08 of 17:46  ·  2 cuts  ·  known 0
+POST /api/capture {"video": "How Decision Making"}   → captures 11 concepts
+Game Theory B after:   watch  9:32 of 17:46  ·  3 cuts  ·  known 6
 ```
 
-**25% less to watch, and one undifferentiated blob becomes 5 timecoded cuts.**
+**41% less to watch — 6:36 saved — from watching one 9-minute video.**
 That is "the corpus didn't change, I changed", live.
 
 To reset to the clean pre-capture state between rehearsals:
@@ -92,11 +101,39 @@ alone — promise it off the capture loop, which is measured above.
 - Cuts required only one novel term in a segment → every video read "watch 100%".
 - Goal adjudication answered on shared discipline → claimed 4 goals the corpus misses.
 
+## Luke / frontend integration
+
+As of 2:35pm Luke had pushed **nothing** to this repo — `origin/main` is backend-only and
+there is no open PR. If he says he merged, it went somewhere else. The API he needs is
+verified working through the tunnel, including CORS for `http://localhost:3000`:
+
+```
+curl https://mold-oliver-prisoner-payroll.trycloudflare.com/api/videos      # 4 videos
+curl "https://mold-oliver-prisoner-payroll.trycloudflare.com/api/delta/A%20Simple%20Strategy"
+```
+
+If his panel shows no data, in likelihood order: (1) dev server not restarted — Next
+inlines `NEXT_PUBLIC_*` at build time so it must be `NEXT_PUBLIC_API_URL=<tunnel>/api npm
+run dev`; (2) still reading `frontend/fixtures/delta.json`; (3) double `/api/api/` because
+the env var already ends in `/api`.
+
+`GET /api/delta` gained **additive** fields he can use but does not have to:
+`skipped` (segments deliberately not recommended, with their concepts, so a skip can be
+explained rather than silently vanishing), `minor_concepts`, and
+`stats.segments_kept` / `segments_skipped` / `min_novelty_density`. Every original field
+is unchanged in name, type, and meaning — a fixture-built panel still works untouched.
+
 ## Remaining / known risks
 
 - Quick-tunnel URL is ephemeral. Verify before the recording.
-- L8 and Postgres both read "watch ~100%". Correct, but if two flat answers in a row feel
-  weak on camera, lead with Q5→Q6 (the capture beat) and use Q1/Q2 as setup.
+- **Before capture every video reads 91–100% watch.** That is the honest starting state,
+  not a bug — the vault covers almost none of this material. The contrast is produced by
+  the capture loop, so the demo must show a capture. Lead Q1/Q2 as setup and land on Q5→Q6.
+- Ideas raised but deliberately not built (they belong in the README as roadmap): a **quiz**
+  to populate the knowledge state directly — the vault is evidence of what Sameer wrote
+  down, not what he knows, and this is the real fix for "watch the whole video";
+  recommending videos from **outside** the corpus (today `/api/watchlist` ranks only the 4
+  ingested ones).
 - `data/videos/bbb_1080p_30fps_normal_85sec.mp4` (vendored sample) is **not** ingested.
   Never run bare `make seed` — it would ingest it and pollute the graph.
 - Hard stop building 3:00pm → rehearse 3:00–3:15 → record 3:15–3:45 → submit 4:00.

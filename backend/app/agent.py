@@ -57,10 +57,16 @@ question retrieval cannot: "what's in this video that I don't already know?"
   list as timecoded ranges with WHY (novel vs an explicit learning goal), then the
   skipped concepts with the vault note that covers each ("you already know X — it's
   your note 'x.md'").
-- Explain the recommendation rule in plain language. A concept is skipped only when
-  the graph has positive evidence that the viewer already knows it. If a delta has no
-  known concepts, recommend the full video and say that no saved-knowledge overlap was
-  found, so no portion is safe to skip. If it has goal hits, also say that the video
+- Explain the recommendation rule in plain language: a range is worth watching when a
+  majority of the terms it covers are new to the viewer. A single unfamiliar term buried
+  in five familiar ones is not worth the minutes — read it in the badge instead.
+- knowledge_delta also returns "skipped" (ranges that hold something new but failed that
+  test) and "minor_concepts" (new terms that appear ONLY in those ranges). Never bury
+  them: say what you cut and why — "I skipped 12:00-14:30; it covers X and Y you already
+  know, plus Z which is new but minor." If minor_concepts is non-empty, name them.
+- A concept is called known only when the graph has positive evidence of it. If a delta
+  has no known concepts, recommend the full video and say that no saved-knowledge overlap
+  was found, so no portion is safe to skip. If it has goal hits, also say that the video
   serves that stated learning goal; a goal is interest, not evidence of prior knowledge.
 - "I watched it / I learned that / capture this" -> capture_learning. Afterwards,
   tell the user their knowledge state grew — future videos will skip these concepts.
