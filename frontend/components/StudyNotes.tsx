@@ -43,15 +43,21 @@ export function StudyNotes({ videoId }: StudyNotesProps) {
   return (
     <Box
       borderWidth="1px"
-      borderColor="gray.200"
-      borderRadius="xl"
-      bg="#fbfbfc"
+      borderColor="#e1e2e5"
+      borderRadius="14px"
+      bg="white"
       overflow="hidden"
+      boxShadow="0 1px 2px rgba(17,24,39,0.035), 0 8px 24px rgba(17,24,39,0.035)"
     >
-      <HStack px={4} py={3} justify="space-between" borderBottomWidth="1px" borderColor="gray.200">
+      <HStack px={4} py={3.5} justify="space-between" borderBottomWidth="1px" borderColor="#e8e9eb">
         <HStack gap={2}>
           <NotebookPen size={16} color="#625bf6" />
-          <Heading size="sm">Study notes</Heading>
+          <Box>
+            <Heading size="sm">Study notes</Heading>
+            <Text mt={0.5} fontSize="10px" color="gray.400">
+              Private to this video
+            </Text>
+          </Box>
         </HStack>
         {notes && (
           <Button
@@ -70,18 +76,21 @@ export function StudyNotes({ videoId }: StudyNotesProps) {
           value={notes}
           onChange={(event) => updateNotes(event.target.value)}
           placeholder={"Capture the idea in your own words…\n\n• What changed?\n• What will you try?"}
-          minH={{ base: "180px", xl: "310px" }}
+          minH={{ base: "180px", xl: "326px" }}
           resize="vertical"
-          border="none"
-          bg="white"
+          borderWidth="1px"
+          borderColor="#e8e9eb"
+          borderRadius="10px"
+          bg="#fafafa"
           px={3}
           py={3}
           fontSize="sm"
           lineHeight="1.7"
-          _focus={{ boxShadow: "0 0 0 1px #a5b4fc" }}
+          _placeholder={{ color: "gray.400" }}
+          _focus={{ borderColor: "#aaa5f7", boxShadow: "0 0 0 3px rgba(98,91,246,0.10)" }}
         />
         <HStack justify="space-between" px={1} pt={2}>
-          <Text fontSize="xs" color="gray.400">Saved on this device</Text>
+          <Text fontSize="10px" color="gray.400">Autosaved on this device</Text>
           {saved && (
             <HStack gap={1} color="green.600">
               <Check size={12} />

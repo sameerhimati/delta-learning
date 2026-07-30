@@ -158,14 +158,14 @@ export function VideoBrowser() {
         as="aside"
         aria-label="Study queue"
         direction="column"
-        w={{ base: "100%", md: "280px" }}
+        w={{ base: "100%", md: "256px" }}
         flexShrink={0}
         borderRightWidth={{ base: 0, md: "1px" }}
-        borderColor="gray.200"
-        bg="#fbfbfc"
+        borderColor="#e4e5e8"
+        bg="#f8f8f9"
         display={{ base: selected ? "none" : "flex", md: "flex" }}
       >
-        <Box px={4} pt={5} pb={4} borderBottomWidth="1px" borderColor="gray.200">
+        <Box px={4} pt={4} pb={3.5} borderBottomWidth="1px" borderColor="#e4e5e8">
           <HStack gap={2} mb={1}>
             <Library size={16} color="#625bf6" />
             <Heading size="sm">Study queue</Heading>
@@ -202,13 +202,17 @@ export function VideoBrowser() {
                     p={3}
                     textAlign="left"
                     borderWidth="1px"
-                    borderColor={isSelected ? "purple.300" : "gray.200"}
-                    borderRadius="xl"
-                    bg={isSelected ? "purple.50" : "white"}
-                    boxShadow={isSelected ? "0 0 0 1px #ddd6fe" : "none"}
+                    borderColor={isSelected ? "#cbc8fb" : "#e3e4e7"}
+                    borderRadius="12px"
+                    bg="white"
+                    boxShadow={
+                      isSelected
+                        ? "0 1px 2px rgba(17,24,39,0.04), 0 5px 14px rgba(17,24,39,0.06)"
+                        : "0 1px 1px rgba(17,24,39,0.02)"
+                    }
                     cursor="pointer"
                     transition="all 0.15s ease"
-                    _hover={{ borderColor: "purple.300", transform: "translateY(-1px)" }}
+                    _hover={{ borderColor: "#b8b4f8", transform: "translateY(-1px)" }}
                     onClick={() => openVideo(video)}
                   >
                     <HStack justify="space-between" align="start" gap={3}>
@@ -218,8 +222,8 @@ export function VideoBrowser() {
                         w={7}
                         h={7}
                         flexShrink={0}
-                        borderRadius="lg"
-                        bg={isSelected ? "purple.500" : "gray.100"}
+                        borderRadius="9px"
+                        bg={isSelected ? "#625bf6" : "#edeef0"}
                         color={isSelected ? "white" : "gray.500"}
                         fontSize="xs"
                         fontWeight="bold"
@@ -263,10 +267,10 @@ export function VideoBrowser() {
           <>
             <Box
               px={{ base: 4, lg: 7 }}
-              pt={{ base: 4, lg: 6 }}
-              pb={5}
+              pt={{ base: 4, lg: 5 }}
+              pb={{ base: 4, lg: 4.5 }}
               borderBottomWidth="1px"
-              borderColor="gray.200"
+              borderColor="#e6e7e9"
             >
               <Button
                 display={{ base: "inline-flex", md: "none" }}
@@ -279,25 +283,31 @@ export function VideoBrowser() {
                 <ArrowLeft size={14} />
                 Study queue
               </Button>
-              <Text
-                fontSize="xs"
-                fontWeight="bold"
-                letterSpacing="0.12em"
-                color="purple.600"
-                mb={1}
-              >
-                NOW STUDYING
-              </Text>
+              <HStack gap={2} mb={1.5}>
+                <Box w={1.5} h={1.5} borderRadius="full" bg="#625bf6" />
+                <Text
+                  fontSize="10px"
+                  fontWeight="bold"
+                  letterSpacing="0.13em"
+                  color="purple.600"
+                >
+                  NOW STUDYING
+                </Text>
+                <Text fontSize="10px" color="gray.400">·</Text>
+                <Text fontSize="10px" fontWeight="medium" color="gray.500">
+                  {durationLabel(selected.duration_sec)}
+                </Text>
+              </HStack>
               <Heading
                 maxW="900px"
-                fontSize={{ base: "xl", lg: "2xl" }}
-                lineHeight="1.2"
-                letterSpacing="-0.025em"
+                fontSize={{ base: "xl", lg: "25px" }}
+                lineHeight="1.18"
+                letterSpacing="-0.035em"
               >
                 {displayTitle(selected.title)}
               </Heading>
               {selected.summary && (
-                <Text maxW="900px" mt={2} fontSize="sm" color="gray.600" lineHeight="1.6">
+                <Text maxW="900px" mt={1.5} fontSize="xs" color="gray.500" lineHeight="1.6">
                   {selected.summary}
                 </Text>
               )}
@@ -315,10 +325,10 @@ export function VideoBrowser() {
             <Flex
               align="flex-start"
               direction={{ base: "column", xl: "row" }}
-              gap={5}
-              px={{ base: 4, lg: 7 }}
-              py={6}
-              maxW="1240px"
+              gap={6}
+              px={{ base: 4, lg: 5 }}
+              py={{ base: 5, lg: 5 }}
+              maxW="1180px"
               mx="auto"
             >
               <Box flex={1} minW={0} w="100%">
@@ -403,7 +413,7 @@ export function VideoBrowser() {
               </Box>
 
               <Box
-                w={{ base: "100%", xl: "300px" }}
+                w={{ base: "100%", xl: "264px" }}
                 flexShrink={0}
                 position={{ xl: "sticky" }}
                 top={{ xl: 0 }}

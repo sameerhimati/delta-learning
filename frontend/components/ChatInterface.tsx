@@ -3,9 +3,19 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box, Flex, Heading, Text, Textarea, IconButton, VStack, HStack,
-  Badge, Button, Spinner, Skeleton, Collapsible, Timeline, Circle,
+  Badge, Button, Spinner, Skeleton, Collapsible, Timeline, Circle, Grid,
 } from "@chakra-ui/react";
-import { Send, RotateCcw, ChevronDown, Wrench, Check, Bot, User, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  Send,
+  RotateCcw,
+  ChevronDown,
+  Wrench,
+  Check,
+  Bot,
+  User,
+  Sparkles,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { API_BASE, DEMO_SCENARIOS, DOMAIN } from "@/lib/config";
@@ -449,8 +459,15 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
   const allPrompts = DEMO_SCENARIOS.flatMap((s) => s.prompts);
 
   return (
-    <Flex direction="column" h="100%">
-      <HStack px={4} py={3} borderBottom="1px solid" borderColor="gray.200" justifyContent="space-between">
+    <Flex direction="column" h="100%" bg="#fbfbfc">
+      <HStack
+        px={5}
+        py={3.5}
+        borderBottom="1px solid"
+        borderColor="#e5e6e9"
+        bg="white"
+        justifyContent="space-between"
+      >
         <Heading size="sm">Study assistant</Heading>
         {messages.length > 0 && (
           <Button size="xs" variant="ghost" onClick={startNewConversation}>
@@ -462,45 +479,98 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
 
       {/* Demo scenario suggested questions */}
       {messages.length === 0 && !loading && (
-        <Flex direction="column" flex={1} justify="center" px={4} py={6}>
-          <VStack gap={4}>
-            <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+        <Flex direction="column" flex={1} justify="center" px={{ base: 4, md: 8 }} py={8}>
+          <VStack gap={0} w="100%" maxW="760px" mx="auto">
+            <Flex
+              align="center"
+              justify="center"
+              w={10}
+              h={10}
+              mb={4}
+              borderRadius="12px"
+              bg="#f0efff"
+              color="#625bf6"
+            >
+              <Sparkles size={18} />
+            </Flex>
+            <Text
+              fontSize={{ base: "xl", md: "2xl" }}
+              fontWeight="semibold"
+              letterSpacing="-0.03em"
+              color="gray.900"
+            >
               What do you want to learn?
             </Text>
-            <Text mt={-2} maxW="460px" textAlign="center" fontSize="sm" color="gray.500">
+            <Text mt={2} maxW="500px" textAlign="center" fontSize="sm" color="gray.500">
               Ask about a talk, compare it with your knowledge, or plan what to watch next.
             </Text>
-            <HStack gap={1} flexShrink={0} color="gray.500" fontSize="xs" fontWeight="medium">
-              <Sparkles size={14} />
-              <Text>Start with a question</Text>
+            <HStack
+              gap={2}
+              alignSelf="stretch"
+              mt={8}
+              mb={3}
+              color="gray.500"
+              fontSize="10px"
+              fontWeight="bold"
+              letterSpacing="0.1em"
+            >
+              <Box w={6} h="1px" bg="gray.300" />
+              <Text>START WITH A QUESTION</Text>
             </HStack>
-            <Flex gap={2} flexWrap="wrap" justify="center" maxW="500px">
+            <Grid
+              w="100%"
+              templateColumns={{ base: "1fr", lg: "repeat(2, minmax(0, 1fr))" }}
+              gap={2.5}
+            >
               {allPrompts.map((prompt) => (
                 <Button
                   key={prompt}
-                  size="xs"
                   variant="outline"
-                  rounded="full"
-                  px={3}
-                  fontWeight="normal"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  minH="64px"
+                  px={4}
+                  py={3}
+                  borderColor="#e0e1e4"
+                  borderRadius="12px"
+                  bg="white"
+                  color="gray.700"
+                  fontSize="13px"
+                  fontWeight="medium"
                   whiteSpace="normal"
-                  textAlign="start"
+                  textAlign="left"
                   height="auto"
-                  py={1.5}
-                  maxW="320px"
+                  lineHeight="1.45"
+                  boxShadow="0 1px 2px rgba(17,24,39,0.025)"
+                  _hover={{
+                    borderColor: "#c8c4fa",
+                    bg: "#faf9ff",
+                    color: "gray.900",
+                    transform: "translateY(-1px)",
+                  }}
                   onClick={() => sendMessage(prompt)}
                   title={prompt}
                 >
-                  {prompt}
+                  <Text flex={1}>{prompt}</Text>
+                  <ArrowUpRight size={14} color="#8b87aa" />
                 </Button>
               ))}
-            </Flex>
+            </Grid>
           </VStack>
         </Flex>
       )}
 
       {/* Messages */}
-      <VStack flex={1} overflow="auto" px={4} py={2} gap={3} align="stretch"
+      <VStack
+        flex={1}
+        w="100%"
+        maxW="820px"
+        mx="auto"
+        overflow="auto"
+        px={4}
+        py={4}
+        gap={3}
+        align="stretch"
         display={messages.length === 0 && !loading ? "none" : "flex"}
       >
         {messages.map((msg) => (
@@ -512,7 +582,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             <Flex gap={2} alignItems="flex-start">
               <Circle
                 size="7"
-                bg={msg.role === "user" ? "blue.500" : "gray.600"}
+                bg={msg.role === "user" ? "purple.500" : "gray.700"}
                 color="white"
                 flexShrink={0}
                 mt={0.5}
@@ -520,7 +590,9 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                 {msg.role === "user" ? <User size={14} /> : <Bot size={14} />}
               </Circle>
               <Box
-                bg={msg.role === "user" ? "blue.50" : "gray.50"}
+                bg={msg.role === "user" ? "purple.50" : "white"}
+                borderWidth="1px"
+                borderColor={msg.role === "user" ? "purple.100" : "#e6e7e9"}
                 px={3}
                 py={2}
                 borderRadius="lg"
@@ -668,12 +740,16 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       </VStack>
 
       {/* Input area — Chakra UI Pro inspired bordered container */}
-      <Box px={4} py={3} borderTop="1px solid" borderColor="gray.200">
+      <Box px={4} py={3.5} borderTop="1px solid" borderColor="#e5e6e9" bg="white">
         <Box
+          maxW="820px"
+          mx="auto"
           borderWidth="1px"
-          borderColor="gray.200"
-          rounded="lg"
-          _focusWithin={{ borderColor: "blue.400", boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)" }}
+          borderColor="#dedfe3"
+          rounded="12px"
+          bg="#fafafa"
+          boxShadow="0 2px 8px rgba(17,24,39,0.035)"
+          _focusWithin={{ borderColor: "#aaa5f7", boxShadow: "0 0 0 3px rgba(98,91,246,0.10)" }}
           transition="border-color 0.2s, box-shadow 0.2s"
         >
           <Textarea
@@ -688,6 +764,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             fontSize="sm"
             px={3}
             py={2}
+            bg="transparent"
           />
           <HStack px={2} py={1.5} justify="space-between">
             <Text fontSize="xs" color="gray.400" display={{ base: "none", sm: "block" }}>
@@ -698,8 +775,8 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
               size="xs"
-              colorPalette="blue"
-              rounded="md"
+              colorPalette="purple"
+              rounded="8px"
             >
               <Send size={14} />
             </IconButton>
