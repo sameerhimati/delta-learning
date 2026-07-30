@@ -2,10 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  Box, Flex, Text, Heading, VStack, HStack, Badge, Spinner, Button,
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Spinner,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
-import { Play, Film } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  Clock3,
+  Film,
+  Library,
+  Play,
+} from "lucide-react";
 import { API_BASE, NODE_COLORS } from "@/lib/config";
+import { DELTA_FIXTURE, YourCutPanel } from "@/components/YourCutPanel";
+import { StudyNotes } from "@/components/StudyNotes";
 
 interface Video {
   id: string;
@@ -25,6 +42,15 @@ interface Segment {
   entities: string[];
 }
 
+const FIXTURE_VIDEO: Video = {
+  id: DELTA_FIXTURE.video.id,
+  title: DELTA_FIXTURE.video.title,
+  url: "",
+  duration_sec: DELTA_FIXTURE.video.duration_sec,
+  summary: "Personalized cut preview using the frozen Delta Learning API contract.",
+  segment_count: DELTA_FIXTURE.cuts.length,
+};
+
 function fmt(sec: number | null): string {
   if (sec == null) return "--:--";
   const m = Math.floor(sec / 60);
@@ -32,44 +58,83 @@ function fmt(sec: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function durationLabel(sec: number | null): string {
+  if (!sec) return "Length unavailable";
+  const minutes = Math.max(1, Math.round(sec / 60));
+  return `${minutes} min`;
+}
+
+function displayTitle(title: string): string {
+  return title.replace(/_s_/g, "'s ").replaceAll("_", " ");
+}
+
 export function VideoBrowser() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Video | null>(null);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [segLoading, setSegLoading] = useState(false);
+  const [usingFixture, setUsingFixture] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/videos`, { signal: AbortSignal.timeout(10000) });
-        const data = await res.json();
-        setVideos(data.videos || []);
+        const response = await fetch(`${API_BASE}/videos`, {
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!response.ok) {
+          throw new Error(`Video list request failed (${response.status})`);
+        }
+        const data = await response.json();
+        const loadedVideos = (data.videos || []) as Video[];
+        if (loadedVideos.length === 0) {
+          throw new Error("No live videos are available yet");
+        }
+        const initialVideo =
+          loadedVideos.find((video) => displayTitle(video.title).startsWith("L8 ")) ||
+          loadedVideos[0];
+        setVideos(loadedVideos);
+        setSelected(initialVideo);
+        void loadSegments(initialVideo);
       } catch {
-        setError("Unable to load videos. Is the backend running and the graph seeded?");
+        setVideos([FIXTURE_VIDEO]);
+        setSelected(FIXTURE_VIDEO);
+        setUsingFixture(true);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  async function openVideo(v: Video) {
-    setSelected(v);
+  async function loadSegments(video: Video) {
     setSegments([]);
     setSegLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/videos/${encodeURIComponent(v.id)}/segments`, {
-        signal: AbortSignal.timeout(10000),
-      });
-      const data = await res.json();
+      const response = await fetch(
+        `${API_BASE}/videos/${encodeURIComponent(video.id)}/segments`,
+        { signal: AbortSignal.timeout(10000) },
+      );
+      if (!response.ok) {
+        throw new Error(`Segments request failed (${response.status})`);
+      }
+      const data = await response.json();
       setSegments(data.segments || []);
     } catch {
-      /* ignore */
+      setSegments([]);
     } finally {
       setSegLoading(false);
     }
+  }
+
+  function openVideo(video: Video) {
+    setSelected(video);
+    if (usingFixture && video.id === FIXTURE_VIDEO.id) {
+      setSegments([]);
+      setSegLoading(false);
+      return;
+    }
+    void loadSegments(video);
   }
 
   function seekTo(sec: number | null) {
@@ -80,113 +145,279 @@ export function VideoBrowser() {
 
   if (loading) {
     return (
-      <Flex h="100%" align="center" justify="center">
-        <Spinner size="sm" />
+      <Flex h="100%" align="center" justify="center" direction="column" gap={3}>
+        <Spinner size="sm" color="purple.500" />
+        <Text fontSize="sm" color="gray.500">Building your study queue…</Text>
       </Flex>
-    );
-  }
-
-  if (error) {
-    return (
-      <Flex h="100%" align="center" justify="center" p={6}>
-        <Text color="gray.500" fontSize="sm" textAlign="center">{error}</Text>
-      </Flex>
-    );
-  }
-
-  if (selected) {
-    return (
-      <VStack align="stretch" h="100%" gap={0}>
-        <HStack px={3} py={2} borderBottom="1px solid" borderColor="gray.200">
-          <Button size="xs" variant="ghost" onClick={() => setSelected(null)}>← All videos</Button>
-        </HStack>
-        <Box px={3} py={2}>
-          <Heading size="sm" mb={2}>{selected.title}</Heading>
-          {selected.url && (
-            // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video ref={videoRef} src={selected.url} controls style={{ width: "100%", borderRadius: 6 }} />
-          )}
-          {selected.summary && (
-            <Text fontSize="xs" color="gray.600" mt={2}>{selected.summary}</Text>
-          )}
-        </Box>
-        <Box flex={1} overflow="auto" px={3} pb={3}>
-          <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={1}>
-            SEGMENTS {segLoading && <Spinner size="xs" ml={2} />}
-          </Text>
-          <VStack align="stretch" gap={1.5}>
-            {segments.map((s) => (
-              <Box
-                key={s.id}
-                p={2}
-                bg="gray.50"
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor="gray.200"
-                cursor="pointer"
-                _hover={{ borderColor: "blue.300", bg: "blue.50" }}
-                onClick={() => seekTo(s.start_sec)}
-              >
-                <HStack justify="space-between" mb={1}>
-                  <Badge size="sm" colorPalette="blue" variant="subtle">
-                    <Play size={9} /> {fmt(s.start_sec)}–{fmt(s.end_sec)}
-                  </Badge>
-                </HStack>
-                <Text fontSize="xs" color="gray.800">{s.summary}</Text>
-                {s.entities?.length > 0 && (
-                  <HStack gap={1} mt={1} flexWrap="wrap">
-                    {s.entities.filter(Boolean).map((e) => (
-                      <Badge key={e} size="xs" style={{ backgroundColor: NODE_COLORS.Entity, color: "white" }}>
-                        {e}
-                      </Badge>
-                    ))}
-                  </HStack>
-                )}
-              </Box>
-            ))}
-            {!segLoading && segments.length === 0 && (
-              <Text fontSize="xs" color="gray.400">No segments.</Text>
-            )}
-          </VStack>
-        </Box>
-      </VStack>
     );
   }
 
   return (
-    <Box h="100%" overflow="auto" p={3}>
-      <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={2}>
-        VIDEOS ({videos.length})
-      </Text>
-      {videos.length === 0 ? (
-        <Flex direction="column" align="center" justify="center" py={10} gap={2} color="gray.400">
-          <Film size={28} />
-          <Text fontSize="sm" textAlign="center">No videos yet.<br />Run <code>make seed</code> to ingest.</Text>
-        </Flex>
-      ) : (
-        <VStack align="stretch" gap={2}>
-          {videos.map((v) => (
-            <Box
-              key={v.id}
-              p={3}
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="md"
-              cursor="pointer"
-              _hover={{ borderColor: "purple.300", boxShadow: "sm" }}
-              onClick={() => openVideo(v)}
+    <Flex h="100%" minW={0} overflow="hidden">
+      <Flex
+        as="aside"
+        aria-label="Study queue"
+        direction="column"
+        w={{ base: "100%", md: "280px" }}
+        flexShrink={0}
+        borderRightWidth={{ base: 0, md: "1px" }}
+        borderColor="gray.200"
+        bg="#fbfbfc"
+        display={{ base: selected ? "none" : "flex", md: "flex" }}
+      >
+        <Box px={4} pt={5} pb={4} borderBottomWidth="1px" borderColor="gray.200">
+          <HStack gap={2} mb={1}>
+            <Library size={16} color="#625bf6" />
+            <Heading size="sm">Study queue</Heading>
+          </HStack>
+          <Text fontSize="xs" color="gray.500">
+            {videos.length} {videos.length === 1 ? "talk" : "talks"} ready for your delta
+          </Text>
+        </Box>
+
+        <Box flex={1} overflow="auto" p={3}>
+          {videos.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              py={12}
+              gap={3}
+              color="gray.400"
             >
-              <HStack justify="space-between">
-                <Heading size="xs">{v.title}</Heading>
-                <Badge size="sm" colorPalette="purple" variant="subtle">{v.segment_count} seg</Badge>
-              </HStack>
-              {v.summary && (
-                <Text fontSize="xs" color="gray.600" mt={1} lineClamp={2}>{v.summary}</Text>
+              <Film size={28} />
+              <Text fontSize="sm" textAlign="center">
+                No videos are ready yet.
+              </Text>
+            </Flex>
+          ) : (
+            <VStack align="stretch" gap={2}>
+              {videos.map((video, index) => {
+                const isSelected = selected?.id === video.id;
+                return (
+                  <Box
+                    as="button"
+                    key={video.id}
+                    w="100%"
+                    p={3}
+                    textAlign="left"
+                    borderWidth="1px"
+                    borderColor={isSelected ? "purple.300" : "gray.200"}
+                    borderRadius="xl"
+                    bg={isSelected ? "purple.50" : "white"}
+                    boxShadow={isSelected ? "0 0 0 1px #ddd6fe" : "none"}
+                    cursor="pointer"
+                    transition="all 0.15s ease"
+                    _hover={{ borderColor: "purple.300", transform: "translateY(-1px)" }}
+                    onClick={() => openVideo(video)}
+                  >
+                    <HStack justify="space-between" align="start" gap={3}>
+                      <Flex
+                        align="center"
+                        justify="center"
+                        w={7}
+                        h={7}
+                        flexShrink={0}
+                        borderRadius="lg"
+                        bg={isSelected ? "purple.500" : "gray.100"}
+                        color={isSelected ? "white" : "gray.500"}
+                        fontSize="xs"
+                        fontWeight="bold"
+                      >
+                        {index + 1}
+                      </Flex>
+                      <Box flex={1} minW={0}>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          lineHeight="1.35"
+                          color="gray.900"
+                        >
+                          {displayTitle(video.title)}
+                        </Text>
+                        <HStack gap={2} mt={2} color="gray.500">
+                          <Clock3 size={12} />
+                          <Text fontSize="xs">{durationLabel(video.duration_sec)}</Text>
+                          <Text fontSize="xs">·</Text>
+                          <Text fontSize="xs">{video.segment_count} sections</Text>
+                        </HStack>
+                      </Box>
+                    </HStack>
+                  </Box>
+                );
+              })}
+            </VStack>
+          )}
+        </Box>
+      </Flex>
+
+      <Box
+        flex={1}
+        minW={0}
+        h="100%"
+        overflow="auto"
+        display={{ base: selected ? "block" : "none", md: "block" }}
+        bg="white"
+      >
+        {selected ? (
+          <>
+            <Box
+              px={{ base: 4, lg: 7 }}
+              pt={{ base: 4, lg: 6 }}
+              pb={5}
+              borderBottomWidth="1px"
+              borderColor="gray.200"
+            >
+              <Button
+                display={{ base: "inline-flex", md: "none" }}
+                size="xs"
+                variant="ghost"
+                mb={3}
+                ml={-2}
+                onClick={() => setSelected(null)}
+              >
+                <ArrowLeft size={14} />
+                Study queue
+              </Button>
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                letterSpacing="0.12em"
+                color="purple.600"
+                mb={1}
+              >
+                NOW STUDYING
+              </Text>
+              <Heading
+                maxW="900px"
+                fontSize={{ base: "xl", lg: "2xl" }}
+                lineHeight="1.2"
+                letterSpacing="-0.025em"
+              >
+                {displayTitle(selected.title)}
+              </Heading>
+              {selected.summary && (
+                <Text maxW="900px" mt={2} fontSize="sm" color="gray.600" lineHeight="1.6">
+                  {selected.summary}
+                </Text>
+              )}
+              {selected.url && (
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video
+                  ref={videoRef}
+                  src={selected.url}
+                  controls
+                  style={{ width: "100%", maxWidth: 900, marginTop: 16, borderRadius: 12 }}
+                />
               )}
             </Box>
-          ))}
-        </VStack>
-      )}
-    </Box>
+
+            <Flex
+              align="flex-start"
+              direction={{ base: "column", xl: "row" }}
+              gap={5}
+              px={{ base: 4, lg: 7 }}
+              py={6}
+              maxW="1240px"
+              mx="auto"
+            >
+              <Box flex={1} minW={0} w="100%">
+                <YourCutPanel
+                  videoId={selected.id}
+                  useFixture={usingFixture && selected.id === FIXTURE_VIDEO.id}
+                  onSeek={seekTo}
+                />
+
+                {!usingFixture && (
+                  <Box
+                    as="details"
+                    mt={4}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    bg="white"
+                  >
+                    <Flex
+                      as="summary"
+                      cursor="pointer"
+                      align="center"
+                      justify="space-between"
+                      px={4}
+                      py={3}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="gray.700"
+                    >
+                      <HStack gap={2}>
+                        <Film size={15} color="#6b7280" />
+                        <Text>
+                          Full transcript
+                          {segments.length ? ` · ${segments.length} sections` : ""}
+                        </Text>
+                        {segLoading && <Spinner size="xs" />}
+                      </HStack>
+                      <ChevronDown size={15} />
+                    </Flex>
+                    <VStack align="stretch" gap={2} px={3} pb={3}>
+                      {segments.map((segment) => (
+                        <Box
+                          key={segment.id}
+                          p={3}
+                          bg="#fbfbfc"
+                          borderRadius="lg"
+                          borderWidth="1px"
+                          borderColor="gray.200"
+                          cursor="pointer"
+                          _hover={{ borderColor: "purple.300", bg: "purple.50" }}
+                          onClick={() => seekTo(segment.start_sec)}
+                        >
+                          <Badge size="sm" colorPalette="purple" variant="subtle">
+                            <Play size={9} /> {fmt(segment.start_sec)}–{fmt(segment.end_sec)}
+                          </Badge>
+                          <Text mt={2} fontSize="sm" color="gray.700" lineHeight="1.5">
+                            {segment.summary}
+                          </Text>
+                          {segment.entities?.length > 0 && (
+                            <HStack gap={1} mt={2} flexWrap="wrap">
+                              {segment.entities.filter(Boolean).map((entity) => (
+                                <Badge
+                                  key={entity}
+                                  size="xs"
+                                  style={{ backgroundColor: NODE_COLORS.Entity, color: "white" }}
+                                >
+                                  {entity}
+                                </Badge>
+                              ))}
+                            </HStack>
+                          )}
+                        </Box>
+                      ))}
+                      {!segLoading && segments.length === 0 && (
+                        <Text px={1} pb={1} fontSize="xs" color="gray.400">
+                          No transcript sections were returned.
+                        </Text>
+                      )}
+                    </VStack>
+                  </Box>
+                )}
+              </Box>
+
+              <Box
+                w={{ base: "100%", xl: "300px" }}
+                flexShrink={0}
+                position={{ xl: "sticky" }}
+                top={{ xl: 0 }}
+              >
+                <StudyNotes videoId={selected.id} />
+              </Box>
+            </Flex>
+          </>
+        ) : (
+          <Flex h="100%" align="center" justify="center" color="gray.400">
+            <Text fontSize="sm">Choose a talk to begin.</Text>
+          </Flex>
+        )}
+      </Box>
+    </Flex>
   );
 }

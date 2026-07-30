@@ -3,8 +3,8 @@ import { Provider } from "@/components/Provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Video Context Graph",
-  description: "Video understanding as a knowledge graph — TwelveLabs + OpenAI + Strands + Neo4j",
+  title: "Delta Learning",
+  description: "Watch what is new to you, capture it, and make the next video shorter.",
 };
 
 export default function RootLayout({

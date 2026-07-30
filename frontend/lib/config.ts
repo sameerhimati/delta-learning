@@ -4,10 +4,10 @@
 
 export const DOMAIN = {
   id: "video-context-graph",
-  name: "Video Context Graph",
+  name: "Delta Learning",
   description:
-    "Video understanding as a knowledge graph — TwelveLabs extracts what is shown, said, and written per segment; Neo4j merges the same entities across videos.",
-  tagline: "Video is evidence",
+    "A personalized study workspace that shows what is new to you, not just what is in a video.",
+  tagline: "Learn the difference",
 };
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -53,24 +53,24 @@ export interface DemoScenario {
 
 export const DEMO_SCENARIOS: DemoScenario[] = [
   {
-    name: "Explore",
+    name: "Plan",
     prompts: [
-      "What videos do we have and what are they about?",
-      "Show me the graph around the rabbit",
+      "What should I watch in the L8 agentic engineering talk?",
+      "Which talk gives me the shortest useful study session?",
     ],
   },
   {
-    name: "Find a moment",
+    name: "Learn",
     prompts: [
-      "Find the moment where a butterfly lands on the rabbit",
-      "Where does the rabbit eat an apple?",
+      "What parts of the Postgres talk are new to me?",
+      "Which videos advance my game theory goal?",
     ],
   },
   {
-    name: "Cross-video",
+    name: "Connect",
     prompts: [
-      "Which entities appear in more than one video?",
-      "What connects the two clips to each other?",
+      "Show the concepts I already know and what I want to learn",
+      "How does this talk connect to my saved notes?",
     ],
   },
 ];
