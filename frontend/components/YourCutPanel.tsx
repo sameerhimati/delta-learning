@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { Check, ChevronDown, Clock3, Play, Sparkles } from "lucide-react";
 import { API_BASE } from "@/lib/config";
+import { QuizFlow } from "@/components/QuizFlow";
 import fixtureJson from "@/fixtures/delta.json";
 
 interface DeltaVideo {
@@ -129,6 +130,7 @@ export function YourCutPanel({
   const [capturing, setCapturing] = useState(false);
   const [captured, setCaptured] = useState<string[] | null>(null);
   const [captureError, setCaptureError] = useState<string | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
 
   const loadDelta = useCallback(async () => {
     setLoading(true);
@@ -526,19 +528,33 @@ export function YourCutPanel({
         </VStack>
       </Box>
 
-      <Button
-        colorPalette="purple"
-        size="md"
-        h="44px"
-        borderRadius="11px"
-        boxShadow="0 6px 16px rgba(98,91,246,0.20)"
-        onClick={() => void captureLearnings()}
-        loading={capturing}
-        disabled={novelConcepts.length === 0}
-      >
-        <Sparkles size={15} />
-        Capture learnings
-      </Button>
+      {quizOpen ? (
+        <QuizFlow
+          videoId={data.video.id}
+          onComplete={(result) => {
+            setQuizOpen(false);
+            setCaptured(result.captured);
+            void loadDelta();
+          }}
+          onClose={() => setQuizOpen(false)}
+        />
+      ) : (
+        <Button
+          colorPalette="purple"
+          size="md"
+          h="44px"
+          borderRadius="11px"
+          boxShadow="0 6px 16px rgba(98,91,246,0.20)"
+          // Knowledge has to be demonstrated, not asserted: the quiz decides what
+          // gets captured. The fixture has no backend to grade against.
+          onClick={() => (isFixture ? void captureLearnings() : setQuizOpen(true))}
+          loading={capturing}
+          disabled={novelConcepts.length === 0}
+        >
+          <Sparkles size={15} />
+          Capture learnings
+        </Button>
+      )}
 
       {captured && (
         <Box p={3} borderWidth="1px" borderColor="green.200" borderRadius="xl" bg="green.50">
