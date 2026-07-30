@@ -85,6 +85,16 @@ function formatTime(seconds: number): string {
   return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
+// The API returns goal concepts before novel ones, and the fold only shows six. Novel is
+// the entire claim of the panel — it goes first, or the product argues for itself offscreen.
+const CONCEPT_RANK: Record<DeltaConcept["status"], number> = { novel: 0, goal: 1, known: 2 };
+
+function orderConcepts(concepts: DeltaConcept[]): DeltaConcept[] {
+  return [...concepts].sort(
+    (a, b) => (CONCEPT_RANK[a.status] ?? 3) - (CONCEPT_RANK[b.status] ?? 3),
+  );
+}
+
 function noteName(source?: string | null): string {
   if (!source) return "your knowledge vault";
   return source.split(/[\\/]/).pop()?.replace(/\.md$/i, "") || source;
@@ -263,7 +273,9 @@ export function YourCutPanel({
         ? "This video matches a stated learning goal, but I found no overlap with your saved knowledge, so I’m not claiming any part is safe to skip."
         : "I found no overlap with your saved knowledge or stated goals, so I’m not claiming any part is safe to skip."
       : "Every section still contains something new, so I’m not claiming any part is safe to skip."
-    : "You already know the rest.";
+    : data.stats.known === 0
+      ? "I’m skipping the rest for relevance, not familiarity — none of it introduced a new concept or touched a goal."
+      : "You already know the rest.";
 
   return (
     <VStack align="stretch" gap={4} pb={3}>
@@ -441,7 +453,7 @@ export function YourCutPanel({
               {cut.concepts.length > 0 && (
                 <>
                   <Flex gap={2} mt={3} flexWrap="wrap">
-                    {cut.concepts.slice(0, 6).map((concept) => (
+                    {orderConcepts(cut.concepts).slice(0, 6).map((concept) => (
                       <ConceptPill
                         key={`${cut.segment_id}-${concept.name}`}
                         concept={concept}
@@ -460,7 +472,7 @@ export function YourCutPanel({
                         Show {cut.concepts.length - 6} more concepts
                       </Text>
                       <Flex gap={2} mt={2} flexWrap="wrap">
-                        {cut.concepts.slice(6).map((concept) => (
+                        {orderConcepts(cut.concepts).slice(6).map((concept) => (
                           <ConceptPill
                             key={`${cut.segment_id}-${concept.name}`}
                             concept={concept}
