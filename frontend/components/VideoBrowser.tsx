@@ -43,7 +43,14 @@ function durationLabel(sec: number | null): string {
 }
 
 function displayTitle(title: string): string {
-  return title.replace(/_s_/g, "'s ").replaceAll("_", " ");
+  return title
+    .replace(/_s_/g, "'s ")
+    .replaceAll("_", " ")
+    // yt-dlp cannot put ':' in a filename, so it substitutes FULLWIDTH COLON. It
+    // renders as a conspicuous gap mid-title ("Game Theory：  A Simple Strategy").
+    .replaceAll("：", ": ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function VideoBrowser() {

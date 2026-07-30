@@ -95,6 +95,41 @@ function orderConcepts(concepts: DeltaConcept[]): DeltaConcept[] {
   );
 }
 
+const CONCEPT_FOLD = 6;
+
+/** Concept pills with an expand/collapse fold. A native <details> kept saying
+ *  "Show 14 more" while it was already open, so there was no way back. */
+function ConceptList({ concepts, segmentId }: { concepts: DeltaConcept[]; segmentId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const ordered = orderConcepts(concepts);
+  const shown = expanded ? ordered : ordered.slice(0, CONCEPT_FOLD);
+  const hidden = ordered.length - CONCEPT_FOLD;
+
+  return (
+    <>
+      <Flex gap={2} mt={3} flexWrap="wrap">
+        {shown.map((concept) => (
+          <ConceptPill key={`${segmentId}-${concept.name}`} concept={concept} />
+        ))}
+      </Flex>
+      {hidden > 0 && (
+        <Text
+          as="button"
+          mt={2}
+          cursor="pointer"
+          fontSize="xs"
+          fontWeight="semibold"
+          color="purple.600"
+          _hover={{ textDecoration: "underline" }}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? "Show less" : `Show ${hidden} more concepts`}
+        </Text>
+      )}
+    </>
+  );
+}
+
 function noteName(source?: string | null): string {
   if (!source) return "your knowledge vault";
   return source.split(/[\\/]/).pop()?.replace(/\.md$/i, "") || source;
@@ -302,7 +337,7 @@ export function YourCutPanel({
               <Badge colorPalette="purple" variant="solid" size="sm">Fixture preview</Badge>
             )}
             <Badge
-              colorPalette={skipPercent === 0 ? "orange" : "green"}
+              colorPalette={skipPercent === 0 ? "orange" : "purple"}
               variant="solid"
               size="sm"
             >
@@ -331,11 +366,14 @@ export function YourCutPanel({
             <Text fontSize="10px" fontWeight="semibold" color="whiteAlpha.600">
               Study {100 - skipPercent}%
             </Text>
-            <Text fontSize="10px" fontWeight="semibold" color="green.300">
+            <Text fontSize="10px" fontWeight="semibold" color="whiteAlpha.600">
               Skip {skipPercent}%
             </Text>
           </HStack>
-          <Box h="6px" overflow="hidden" borderRadius="full" bg="green.400">
+          {/* Green is this app's colour for "you already know it". Skipped time is a
+              duration, not a knowledge claim — on a video with known: 0 a green track
+              asserted exactly what the graph denies. Time reads neutral now. */}
+          <Box h="6px" overflow="hidden" borderRadius="full" bg="whiteAlpha.300">
             <Box
               h="100%"
               w={`${Math.max(0, 100 - skipPercent)}%`}
@@ -378,15 +416,30 @@ export function YourCutPanel({
           p={6}
           textAlign="center"
           borderWidth="1px"
-          borderColor="green.200"
+          borderColor={data.stats.known > 0 ? "green.200" : "gray.200"}
           borderRadius="xl"
-          bg="green.50"
+          bg={data.stats.known > 0 ? "green.50" : "gray.50"}
         >
-          <Text fontSize="sm" fontWeight="semibold" color="green.800">
-            Nothing new for you in this video — skip it entirely.
+          {/* Green and "you already know it" are only honest when the graph can name
+              what you know. With known: 0 an empty cut list means we found nothing to
+              recommend — a different statement, and not a flattering one. */}
+          <Text
+            fontSize="sm"
+            fontWeight="semibold"
+            color={data.stats.known > 0 ? "green.800" : "gray.800"}
+          >
+            {data.stats.known > 0
+              ? "Nothing new for you in this video — skip it entirely."
+              : "No watch-worthy segment found in this video."}
           </Text>
-          <Text mt={1} fontSize="xs" color="green.700">
-            Your saved knowledge already covers every concept we found.
+          <Text
+            mt={1}
+            fontSize="xs"
+            color={data.stats.known > 0 ? "green.700" : "gray.600"}
+          >
+            {data.stats.known > 0
+              ? "Your saved knowledge already covers every concept we found."
+              : "Nothing here matched your goals or came up as a new concept — that isn’t the same as you already knowing it."}
           </Text>
         </Box>
       ) : (
@@ -451,37 +504,7 @@ export function YourCutPanel({
               </Text>
 
               {cut.concepts.length > 0 && (
-                <>
-                  <Flex gap={2} mt={3} flexWrap="wrap">
-                    {orderConcepts(cut.concepts).slice(0, 6).map((concept) => (
-                      <ConceptPill
-                        key={`${cut.segment_id}-${concept.name}`}
-                        concept={concept}
-                      />
-                    ))}
-                  </Flex>
-                  {cut.concepts.length > 6 && (
-                    <Box as="details" mt={2}>
-                      <Text
-                        as="summary"
-                        cursor="pointer"
-                        fontSize="xs"
-                        fontWeight="semibold"
-                        color="purple.600"
-                      >
-                        Show {cut.concepts.length - 6} more concepts
-                      </Text>
-                      <Flex gap={2} mt={2} flexWrap="wrap">
-                        {orderConcepts(cut.concepts).slice(6).map((concept) => (
-                          <ConceptPill
-                            key={`${cut.segment_id}-${concept.name}`}
-                            concept={concept}
-                          />
-                        ))}
-                      </Flex>
-                    </Box>
-                  )}
-                </>
+                <ConceptList concepts={cut.concepts} segmentId={cut.segment_id} />
               )}
             </Box>
           ))}

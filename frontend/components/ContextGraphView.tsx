@@ -213,6 +213,15 @@ const KNOWLEDGE_COLORS: Record<string, string> = {
   goal_hub: "#1d4ed8", // deep blue — a stated learning goal
 };
 
+/** Which legend badge a node belongs to. Keys match the badges exactly, so a
+ *  toggle can never refer to a group the legend does not show. */
+function nodeGroup(node: GraphNode, view: string): string {
+  if (view === "knowledge") return (node.properties.status as string) || "other";
+  if (node.labels.includes("Concept") && typeof node.properties.status === "string")
+    return `Concept:${node.properties.status}`;
+  return node.labels[0] || "other";
+}
+
 const KNOWLEDGE_STATUS_LABELS: Record<string, string> = {
   known: "Known",
   goal: "Advances a goal",
@@ -292,6 +301,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
   const [selectedRelId, setSelectedRelId] = useState<string | null>(null);
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set());
   const [graphData, setGraphData] = useState<InternalGraphData | null>(null);
+  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(new Set());
 
   // Load the viewer's knowledge map on mount
   useEffect(() => {
@@ -477,7 +487,13 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
   const nvlData = useMemo(() => {
     if (!graphData) return { nodes: [], relationships: [] };
 
-    const nodes: NvlNode[] = graphData.nodes.map((node) => {
+    // Filtering is what makes a dense graph readable: "show me only what I don't
+    // know yet" is the question this project exists to answer, and on a 100-node
+    // view it cannot be answered by looking. Legend badges are the control.
+    const visible = graphData.nodes.filter((n) => !hiddenGroups.has(nodeGroup(n, view)));
+    const visibleIds = new Set(visible.map((n) => n.id));
+
+    const nodes: NvlNode[] = visible.map((node) => {
       const isSelected = selectedNodeId === node.id;
       const isExpanded = expandedNodeIds.has(node.id);
       const isSchema = view === "schema";
@@ -539,7 +555,10 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
       };
     });
 
-    const relationships: NvlRelationship[] = graphData.relationships.map((rel) => {
+    // An edge to a hidden node would render as a line into empty space.
+    const relationships: NvlRelationship[] = graphData.relationships
+      .filter((rel) => visibleIds.has(rel.startNodeId) && visibleIds.has(rel.endNodeId))
+      .map((rel) => {
       const isSelected = selectedRelId === rel.id;
       const weight = Number(rel.properties.weight) || 0;
       const isAdvances = rel.type === "ADVANCES";
@@ -568,7 +587,22 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
     });
 
     return { nodes, relationships };
-  }, [graphData, selectedNodeId, selectedRelId, expandedNodeIds, view]);
+  }, [graphData, selectedNodeId, selectedRelId, expandedNodeIds, view, hiddenGroups]);
+
+  // Group keys differ between views, so a filter left on in one view would
+  // silently hide nodes in the other with no badge to turn it back on.
+  useEffect(() => {
+    setHiddenGroups(new Set());
+  }, [view]);
+
+  const toggleGroup = useCallback((group: string) => {
+    setHiddenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
+  }, []);
 
   const selectedNodeProps =
     selectedElement?.type === "node" ? (selectedElement.data as GraphNode).properties : null;
@@ -666,6 +700,11 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                 px={2}
                 py={0.5}
                 whiteSpace="nowrap"
+                cursor="pointer"
+                title={hiddenGroups.has(status) ? "Show these" : "Hide these"}
+                opacity={hiddenGroups.has(status) ? 0.35 : 1}
+                textDecoration={hiddenGroups.has(status) ? "line-through" : undefined}
+                onClick={() => toggleGroup(status)}
                 style={{ backgroundColor: KNOWLEDGE_COLORS[status], color: "white" }}
               >
                 {KNOWLEDGE_STATUS_LABELS[status]}
@@ -698,6 +737,11 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                   px={2}
                   py={0.5}
                   whiteSpace="nowrap"
+                  cursor="pointer"
+                  title={hiddenGroups.has(label) ? "Show these" : "Hide these"}
+                  opacity={hiddenGroups.has(label) ? 0.35 : 1}
+                  textDecoration={hiddenGroups.has(label) ? "line-through" : undefined}
+                  onClick={() => toggleGroup(label)}
                   style={{ backgroundColor: color, color: "white" }}
                 >
                   {label}
@@ -710,6 +754,13 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                 px={2}
                 py={0.5}
                 whiteSpace="nowrap"
+                cursor="pointer"
+                title={hiddenGroups.has(`Concept:${status}`) ? "Show these" : "Hide these"}
+                opacity={hiddenGroups.has(`Concept:${status}`) ? 0.35 : 1}
+                textDecoration={
+                  hiddenGroups.has(`Concept:${status}`) ? "line-through" : undefined
+                }
+                onClick={() => toggleGroup(`Concept:${status}`)}
                 style={{ backgroundColor: color, color: "white" }}
               >
                 {status === "known" ? "Known concept" : "Learning goal"}
