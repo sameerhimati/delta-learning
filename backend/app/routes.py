@@ -200,9 +200,17 @@ async def video_segments(video_id: str):
         """
         MATCH (v:Video {id: $vid})-[:HAS_SEGMENT]->(s:Segment)
         OPTIONAL MATCH (s)-[:MENTIONS]->(e:Entity)
-        RETURN s.id AS id, s.start_sec AS start_sec, s.end_sec AS end_sec,
+        OPTIONAL MATCH (s)-[:ABOUT]->(t:Topic)
+        OPTIONAL MATCH (t2)-[:SAME_AS]->(k:Concept {status: 'known'})
+        WHERE t2 = t OR t2 = e
+        RETURN s.id AS id, s.idx AS idx, s.start_sec AS start_sec, s.end_sec AS end_sec,
                s.summary AS summary, s.on_screen_text AS on_screen_text,
-               collect(DISTINCT e.name) AS entities
+               // Pegasus captures spoken words per segment; without this the UI can show
+               // a cut list but never what is actually said inside a recommended range.
+               s.transcript AS transcript,
+               collect(DISTINCT e.name) AS entities,
+               collect(DISTINCT t.name) AS topics,
+               collect(DISTINCT k.name) AS known_concepts
         ORDER BY s.start_sec
         """,
         {"vid": video_id},
