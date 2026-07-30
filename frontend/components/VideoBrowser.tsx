@@ -42,6 +42,10 @@ function fmt(sec: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function displayTitle(title: string): string {
+  return title.replace(/_s_/g, "'s ").replaceAll("_", " ");
+}
+
 export function VideoBrowser() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,7 +116,7 @@ export function VideoBrowser() {
           <Button size="xs" variant="ghost" onClick={() => setSelected(null)}>← All videos</Button>
         </HStack>
         <Box px={3} py={2}>
-          <Heading size="sm" mb={2}>{selected.title}</Heading>
+          <Heading size="sm" mb={2}>{displayTitle(selected.title)}</Heading>
           {selected.url && (
             // eslint-disable-next-line jsx-a11y/media-has-caption
             <video ref={videoRef} src={selected.url} controls style={{ width: "100%", borderRadius: 6 }} />
@@ -197,7 +201,7 @@ export function VideoBrowser() {
               onClick={() => openVideo(v)}
             >
               <HStack justify="space-between">
-                <Heading size="xs">{v.title}</Heading>
+                <Heading size="xs">{displayTitle(v.title)}</Heading>
                 <Badge size="sm" colorPalette="purple" variant="subtle">{v.segment_count} seg</Badge>
               </HStack>
               {v.summary && (

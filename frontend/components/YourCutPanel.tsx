@@ -208,6 +208,14 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
   const skipPercent = totalSeconds
     ? Math.round((data.stats.skip_sec / totalSeconds) * 100)
     : 0;
+  const noSafeSkip = data.stats.skip_sec <= 1 && data.cuts.length > 0;
+  const recommendationExplanation = noSafeSkip
+    ? data.stats.known === 0
+      ? data.stats.goal_hits > 0
+        ? "This video matches a stated learning goal, but I found no overlap with your saved knowledge, so I’m not claiming any part is safe to skip."
+        : "I found no overlap with your saved knowledge or stated goals, so I’m not claiming any part is safe to skip."
+      : "Every section still contains something new, so I’m not claiming any part is safe to skip."
+    : "You already know the rest.";
 
   return (
     <VStack align="stretch" gap={3} pb={3}>
@@ -226,14 +234,20 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
             {isFixture && (
               <Badge colorPalette="purple" variant="solid" size="sm">Fixture preview</Badge>
             )}
-            <Badge colorPalette="green" variant="solid" size="sm">{skipPercent}% skipped</Badge>
+            <Badge
+              colorPalette={skipPercent === 0 ? "orange" : "green"}
+              variant="solid"
+              size="sm"
+            >
+              {skipPercent}% skipped
+            </Badge>
           </HStack>
         </HStack>
         <Heading size="lg" lineHeight="1.1">
           Watch {formatTime(data.stats.watch_sec)} of {formatTime(totalSeconds)}
         </Heading>
-        <Text mt={2} fontSize="sm" color="blue.100">
-          You already know the rest.
+        <Text mt={2} fontSize="sm" color="blue.100" lineHeight="1.45">
+          {recommendationExplanation}
         </Text>
         <HStack mt={4} gap={2} flexWrap="wrap">
           <Badge colorPalette="orange" variant="solid">
