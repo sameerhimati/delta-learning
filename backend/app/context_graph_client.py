@@ -136,10 +136,18 @@ def get_collector() -> CypherResultCollector:
     return _collector
 
 
+# Segment and Concept nodes carry 512-float Marengo vectors. The agent is told to return
+# whole nodes so the graph panel can render them, so those vectors were being pasted into
+# the model's context — a single graph query cost ~380k tokens and tripped the TPM limit
+# mid-conversation. Nothing downstream reads them: the panel renders names, and similarity
+# search happens inside Neo4j's vector index.
+_VECTOR_PROPS = ("embedding",)
+
+
 def _serialize(value):
     """Serialize Neo4j graph types to JSON-friendly dicts."""
     if isinstance(value, Node):
-        props = dict(value)
+        props = {k: v for k, v in value.items() if k not in _VECTOR_PROPS}
         props["elementId"] = value.element_id
         props["labels"] = list(value.labels)
         return props
