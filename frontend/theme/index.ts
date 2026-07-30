@@ -4,7 +4,7 @@ const config = defineConfig({
   cssVarsPrefix: "delta",
   globalCss: {
     "html, body": {
-      bg: "#f3f4f6",
+      bg: "#f5f5f7",
       color: "gray.900",
       lineHeight: "1.6",
     },

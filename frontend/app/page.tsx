@@ -169,7 +169,7 @@ export default function Home() {
   const activeMeta = VIEWS[activeView];
 
   return (
-    <Flex h="100dvh" bg="#f3f4f6" color="ink" overflow="hidden">
+    <Flex h="100dvh" bg="#f5f5f7" color="ink" overflow="hidden">
       <Flex
         as="aside"
         aria-label="Primary navigation"
@@ -179,27 +179,19 @@ export default function Home() {
         flexShrink={0}
         px={4}
         py={6}
-        bg="ink"
-        color="white"
+        bg="white"
+        borderRightWidth="1px"
+        borderColor="line"
       >
-        <HStack gap={3} px={2} mb={8}>
-          <Flex
-            align="center"
-            justify="center"
-            w={8}
-            h={8}
-            flexShrink={0}
-            borderRadius="control"
-            bg="brand.500"
-            color="white"
-          >
-            <BrainCircuit size={18} />
-          </Flex>
+        <HStack gap={2.5} px={2} mb={8}>
+          <Box flexShrink={0} color="brand.500">
+            <BrainCircuit size={20} />
+          </Box>
           <Box>
-            <Heading size="sm" letterSpacing="-0.02em">
+            <Heading size="sm" letterSpacing="-0.02em" color="ink">
               Delta
             </Heading>
-            <Text fontSize="xs" color="#7d828e">
+            <Text fontSize="xs" color="gray.400">
               Learning workspace
             </Text>
           </Box>
@@ -221,19 +213,19 @@ export default function Home() {
                 borderRadius="control"
                 fontSize="sm"
                 fontWeight={isActive ? "semibold" : "normal"}
-                color={isActive ? "white" : "#9297a3"}
-                bg={isActive ? "#24272f" : "transparent"}
-                _hover={{ bg: "#20232a", color: "white" }}
+                color={isActive ? "ink" : "gray.500"}
+                bg={isActive ? "#f2f2f4" : "transparent"}
+                _hover={{ bg: "#f7f7f8", color: "ink" }}
                 onClick={() => selectView(viewId)}
               >
-                <Icon size={16} color={isActive ? "#8f88ff" : "currentColor"} />
+                <Icon size={16} color={isActive ? "#625bf6" : "currentColor"} />
                 {view.label}
               </Button>
             );
           })}
         </VStack>
 
-        <Text mt="auto" px={2} fontSize="xs" color="#6f7480" lineHeight="1.6">
+        <Text mt="auto" px={2} fontSize="xs" color="gray.400" lineHeight="1.6">
           Your watch list shrinks as your knowledge grows.
         </Text>
       </Flex>
@@ -296,7 +288,6 @@ export default function Home() {
             borderWidth={{ base: 0, md: "1px" }}
             borderColor="line"
             borderRadius={{ base: 0, md: "panel" }}
-            boxShadow={{ base: "none", md: "panel" }}
           >
             <Box h="100%" display={activeView === "study" ? "block" : "none"}>
               <VideoBrowser />
@@ -350,18 +341,16 @@ export default function Home() {
         aria-label="Mobile navigation"
         display={{ base: "flex", md: "none" }}
         position="fixed"
-        left={4}
-        right={4}
-        bottom={4}
+        left={0}
+        right={0}
+        bottom={0}
         zIndex={20}
         justify="space-around"
         px={2}
         py={2}
-        borderWidth="1px"
+        borderTopWidth="1px"
         borderColor="line"
-        borderRadius="panel"
         bg="rgba(255,255,255,0.96)"
-        boxShadow="panel"
         backdropFilter="blur(14px)"
       >
         {VIEW_ORDER.map((viewId) => {
