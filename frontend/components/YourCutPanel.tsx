@@ -6,14 +6,13 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
   Heading,
   HStack,
   Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { Check, ChevronDown, Clock3, Play, Sparkles } from "lucide-react";
+import { Check, ChevronDown, Clock3, Sparkles } from "lucide-react";
 import { API_BASE } from "@/lib/config";
 import { QuizFlow } from "@/components/QuizFlow";
 import fixtureJson from "@/fixtures/delta.json";
@@ -90,30 +89,34 @@ function noteName(source?: string | null): string {
   return source.split(/[\\/]/).pop()?.replace(/\.md$/i, "") || source;
 }
 
-function ConceptPill({ concept }: { concept: DeltaConcept }) {
+// Same hexes ContextGraphView uses, so a concept reads the same colour everywhere.
+const STATUS_COLOR = {
+  novel: "#f97316",
+  goal: "#3b82f6",
+  known: "#22c55e",
+} as const;
+
+// A dot and two weights of text carry status without a bordered pill per concept.
+function ConceptLine({ concept }: { concept: DeltaConcept }) {
   const isGoal = concept.status === "goal";
   return (
-    <Box
-      px={2.5}
-      py={1.5}
-      borderWidth="1px"
-      borderColor={isGoal ? "#cbdcf8" : "#f2d5b5"}
-      borderRadius="9px"
-      bg={isGoal ? "#f3f7fd" : "#fff8f0"}
-    >
-      <Text
-        fontSize="xs"
-        fontWeight="semibold"
-        color={isGoal ? "blue.800" : "orange.800"}
-        lineHeight="1.3"
-      >
+    <HStack gap={2.5} align="baseline">
+      <Box
+        w="6px"
+        h="6px"
+        mt="1px"
+        flexShrink={0}
+        borderRadius="full"
+        bg={isGoal ? STATUS_COLOR.goal : STATUS_COLOR.novel}
+      />
+      <Text fontSize="xs" fontWeight="semibold" color="ink">
         {concept.name}
       </Text>
-      <Text mt={0.5} fontSize="10px" color={isGoal ? "blue.600" : "orange.600"}>
+      <Text fontSize="xs" color="gray.400">
         {concept.why ||
           (isGoal ? "you asked to learn this" : "not in your knowledge base")}
       </Text>
-    </Box>
+    </HStack>
   );
 }
 
@@ -266,241 +269,197 @@ export function YourCutPanel({
     : "You already know the rest.";
 
   return (
-    <VStack align="stretch" gap={4} pb={3}>
-      <Box
-        p={{ base: 4, lg: 5 }}
-        borderWidth="1px"
-        borderColor="#2d3142"
-        borderRadius="16px"
-        color="white"
-        background="linear-gradient(135deg, #181a22 0%, #202334 100%)"
-        boxShadow="0 12px 28px rgba(17,19,24,0.14)"
-      >
-        <HStack justify="space-between" align="start" mb={4}>
-          <Box>
-            <Text fontSize="xs" fontWeight="semibold" letterSpacing="0.02em" color="#aaa5ff">
-              Your cut
+    <VStack align="stretch" gap={8} pb={3}>
+      <Box as="section" aria-label="Your cut">
+        <HStack justify="space-between" align="baseline" mb={4}>
+          <Text
+            fontSize="11px"
+            fontWeight="semibold"
+            letterSpacing="0.14em"
+            color="gray.400"
+          >
+            YOUR CUT
+          </Text>
+          {isFixture && (
+            <Text fontSize="11px" color="gray.400">
+              Fixture preview
             </Text>
-            <Text mt={1} fontSize="xs" color="whiteAlpha.600">
-              Personalized from your saved knowledge
-            </Text>
-          </Box>
-          <HStack gap={1.5} flexWrap="wrap" justify="flex-end">
-            {isFixture && (
-              <Badge colorPalette="purple" variant="solid" size="sm">Fixture preview</Badge>
-            )}
-            <Badge
-              colorPalette={skipPercent === 0 ? "orange" : "green"}
-              variant="solid"
-              size="sm"
-            >
-              {skipPercent}% skipped
-            </Badge>
-          </HStack>
+          )}
         </HStack>
 
         <Heading
-          fontSize={{ base: "2xl", lg: "32px" }}
-          lineHeight="1.05"
+          fontSize={{ base: "38px", lg: "54px" }}
+          fontWeight="semibold"
+          lineHeight="1"
           letterSpacing="-0.045em"
-          maxW="680px"
+          color="ink"
         >
-          Watch {formatTime(data.stats.watch_sec)}{" "}
-          <Text as="span" color="whiteAlpha.500" fontWeight="normal">
-            of {formatTime(totalSeconds)}
-          </Text>
+          Watch {formatTime(data.stats.watch_sec)}
         </Heading>
-        <Text mt={3} maxW="680px" fontSize="sm" color="whiteAlpha.700" lineHeight="1.55">
-          {recommendationExplanation}
+        <Text mt={3} maxW="62ch" fontSize={{ base: "sm", lg: "md" }} color="gray.500">
+          of {formatTime(totalSeconds)} — {recommendationExplanation}
         </Text>
 
-        <Box mt={5}>
-          <HStack justify="space-between" mb={2}>
-            <Text fontSize="10px" fontWeight="semibold" color="whiteAlpha.600">
+        <Box mt={8} maxW="620px">
+          <Flex h="3px" overflow="hidden" borderRadius="full" bg="#e6e6ea">
+            <Box
+              w={`${Math.max(0, 100 - skipPercent)}%`}
+              minW={data.stats.watch_sec > 0 ? "3px" : 0}
+              bg="ink"
+            />
+          </Flex>
+          <HStack justify="space-between" mt={2.5}>
+            <Text fontSize="xs" fontWeight="medium" color="ink">
               Study {100 - skipPercent}%
             </Text>
-            <Text fontSize="10px" fontWeight="semibold" color="green.300">
+            <Text fontSize="xs" color="gray.400">
               Skip {skipPercent}%
             </Text>
           </HStack>
-          <Box h="6px" overflow="hidden" borderRadius="full" bg="green.400">
-            <Box
-              h="100%"
-              w={`${Math.max(0, 100 - skipPercent)}%`}
-              minW={data.stats.watch_sec > 0 ? "6px" : 0}
-              bg="#7c74ff"
-              borderRadius="full"
-            />
-          </Box>
         </Box>
 
-        <Grid
-          templateColumns="repeat(3, minmax(0, 1fr))"
-          mt={5}
-          pt={4}
-          borderTopWidth="1px"
-          borderColor="whiteAlpha.200"
-        >
+        <Flex mt={7} flexWrap="wrap" rowGap={3}>
           {[
-            { value: data.stats.novel, label: "new concepts", color: "orange.300" },
-            { value: data.stats.goal_hits, label: "goal matches", color: "blue.300" },
-            { value: data.stats.known, label: "already known", color: "green.300" },
+            { value: data.stats.novel, label: "new", color: STATUS_COLOR.novel },
+            { value: data.stats.goal_hits, label: "goal matches", color: STATUS_COLOR.goal },
+            { value: data.stats.known, label: "already known", color: STATUS_COLOR.known },
           ].map((stat, index) => (
-            <Box
+            <HStack
               key={stat.label}
-              px={{ base: 2, md: 3 }}
+              gap={2}
+              pl={index === 0 ? 0 : 5}
+              pr={5}
               borderLeftWidth={index === 0 ? 0 : "1px"}
-              borderColor="whiteAlpha.200"
+              borderColor="line"
             >
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color={stat.color}>
-                {stat.value}
+              <Box w="6px" h="6px" borderRadius="full" bg={stat.color} />
+              <Text fontSize="sm" color="gray.500">
+                <Text as="span" fontWeight="semibold" color="ink">
+                  {stat.value}
+                </Text>{" "}
+                {stat.label}
               </Text>
-              <Text fontSize="10px" color="whiteAlpha.600">{stat.label}</Text>
-            </Box>
+            </HStack>
           ))}
-        </Grid>
+        </Flex>
       </Box>
 
       {data.cuts.length === 0 ? (
-        <Box
-          p={6}
-          textAlign="center"
-          borderWidth="1px"
-          borderColor="green.200"
-          borderRadius="xl"
-          bg="green.50"
-        >
-          <Text fontSize="sm" fontWeight="semibold" color="green.800">
-            Nothing new for you in this video — skip it entirely.
-          </Text>
-          <Text mt={1} fontSize="xs" color="green.700">
+        <Box py={2} borderTopWidth="1px" borderColor="line">
+          <HStack gap={2.5} mt={5}>
+            <Box w="6px" h="6px" borderRadius="full" bg={STATUS_COLOR.known} />
+            <Text fontSize="sm" fontWeight="semibold" color="ink">
+              Nothing new for you in this video — skip it entirely.
+            </Text>
+          </HStack>
+          <Text mt={1.5} ml={4.5} fontSize="sm" color="gray.500">
             Your saved knowledge already covers every concept we found.
           </Text>
         </Box>
       ) : (
-        <VStack align="stretch" gap={3}>
-          <HStack justify="space-between" px={1}>
-            <Box>
-              <Heading size="sm">Recommended clips</Heading>
-              <Text mt={0.5} fontSize="xs" color="gray.500">
-                {data.cuts.length} focused {data.cuts.length === 1 ? "section" : "sections"} in order
-              </Text>
-            </Box>
-            <HStack gap={1.5}>
-              <Badge colorPalette="orange" variant="subtle" borderRadius="full">new</Badge>
-              <Badge colorPalette="blue" variant="subtle" borderRadius="full">your goal</Badge>
-            </HStack>
+        <Box as="section" aria-label="Recommended clips">
+          <HStack
+            justify="space-between"
+            align="baseline"
+            pb={3}
+            borderBottomWidth="1px"
+            borderColor="ink"
+          >
+            <Heading size="sm" color="ink" letterSpacing="-0.01em">
+              Recommended clips
+            </Heading>
+            <Text fontSize="xs" color="gray.400">
+              {data.cuts.length} {data.cuts.length === 1 ? "section" : "sections"}, in order
+            </Text>
           </HStack>
 
           {data.cuts.map((cut, index) => (
             <Box
               key={cut.segment_id}
-              p={{ base: 3, md: 4 }}
-              borderWidth="1px"
-              borderColor="#e2e3e6"
-              borderRadius="13px"
-              bg="white"
-              boxShadow="0 1px 2px rgba(17,24,39,0.025)"
-              transition="border-color 0.15s ease, box-shadow 0.15s ease"
-              _hover={{ borderColor: "#c9c5fa", boxShadow: "0 5px 18px rgba(15,23,42,0.05)" }}
+              py={5}
+              borderBottomWidth="1px"
+              borderColor="line"
             >
-              <HStack justify="space-between" align="start" mb={2}>
-                <HStack gap={2}>
-                  <Flex
-                    align="center"
-                    justify="center"
-                    w={7}
-                    h={7}
-                    borderRadius="lg"
-                    bg="gray.900"
-                    color="white"
-                    fontSize="xs"
-                    fontWeight="bold"
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </Flex>
-                  <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-                    Study clip
-                  </Text>
-                </HStack>
+              <HStack gap={3} mb={2.5} align="baseline">
+                <Text fontSize="xs" fontFamily="mono" color="gray.400">
+                  {String(index + 1).padStart(2, "0")}
+                </Text>
                 <Button
-                  size="xs"
-                  variant="subtle"
-                  colorPalette="purple"
-                  borderRadius="full"
+                  variant="plain"
+                  h="auto"
+                  p={0}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="brand.500"
+                  _hover={{ color: "brand.700" }}
                   onClick={() => onSeek?.(cut.start_sec)}
                 >
-                  <Play size={11} />
                   {formatTime(cut.start_sec)}–{formatTime(cut.end_sec)}
                 </Button>
               </HStack>
-              <Text fontSize="sm" color="gray.800" lineHeight="1.6">
+              <Text fontSize="sm" color="gray.700" lineHeight="1.7" maxW="68ch">
                 {cut.summary}
               </Text>
 
               {cut.concepts.length > 0 && (
                 <>
-                  <Flex gap={2} mt={3} flexWrap="wrap">
+                  <VStack align="stretch" gap={1.5} mt={3.5}>
                     {cut.concepts.slice(0, 6).map((concept) => (
-                      <ConceptPill
+                      <ConceptLine
                         key={`${cut.segment_id}-${concept.name}`}
                         concept={concept}
                       />
                     ))}
-                  </Flex>
+                  </VStack>
                   {cut.concepts.length > 6 && (
-                    <Box as="details" mt={2}>
+                    <Box as="details" mt={2.5}>
                       <Text
                         as="summary"
                         cursor="pointer"
                         fontSize="xs"
-                        fontWeight="semibold"
-                        color="purple.600"
+                        fontWeight="medium"
+                        color="brand.500"
                       >
                         Show {cut.concepts.length - 6} more concepts
                       </Text>
-                      <Flex gap={2} mt={2} flexWrap="wrap">
+                      <VStack align="stretch" gap={1.5} mt={2.5}>
                         {cut.concepts.slice(6).map((concept) => (
-                          <ConceptPill
+                          <ConceptLine
                             key={`${cut.segment_id}-${concept.name}`}
                             concept={concept}
                           />
                         ))}
-                      </Flex>
+                      </VStack>
                     </Box>
                   )}
                 </>
               )}
             </Box>
           ))}
-        </VStack>
+        </Box>
       )}
 
-      <Box
-        as="details"
-        borderWidth="1px"
-        borderColor="#e2e3e6"
-        borderRadius="13px"
-        bg="#fafafa"
-      >
+      <Box as="details">
         <Flex
           as="summary"
           cursor="pointer"
           align="center"
           justify="space-between"
-          px={3}
-          py={2.5}
+          py={3}
+          borderTopWidth="1px"
+          borderColor="line"
           fontSize="sm"
-          fontWeight="semibold"
-          color="gray.700"
+          fontWeight="medium"
+          color="gray.600"
+          _hover={{ color: "ink" }}
         >
-          <HStack gap={2}>
-            <Check size={15} color="#16a34a" />
+          <HStack gap={2.5}>
+            <Box w="6px" h="6px" borderRadius="full" bg={STATUS_COLOR.known} />
             <Text>Already known ({data.stats.known})</Text>
           </HStack>
           <ChevronDown size={15} />
         </Flex>
-        <VStack align="stretch" gap={0} px={3} pb={3}>
+        <VStack align="stretch" gap={0} pb={3}>
           {data.known_concepts.length === 0 ? (
             <Text fontSize="xs" color="gray.500">No known concepts were returned.</Text>
           ) : (
@@ -543,8 +502,9 @@ export function YourCutPanel({
           colorPalette="purple"
           size="md"
           h="44px"
-          borderRadius="11px"
-          boxShadow="0 6px 16px rgba(98,91,246,0.20)"
+          alignSelf="flex-start"
+          px={6}
+          borderRadius="control"
           // Knowledge has to be demonstrated, not asserted: the quiz decides what
           // gets captured. The fixture has no backend to grade against.
           onClick={() => (isFixture ? void captureLearnings() : setQuizOpen(true))}

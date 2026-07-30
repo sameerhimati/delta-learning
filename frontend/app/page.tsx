@@ -11,13 +11,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import {
-  BookOpen,
-  BrainCircuit,
-  MessageCircle,
-  Network,
-  NotebookText,
-} from "lucide-react";
+import { BookOpen, MessageCircle, Network, NotebookText } from "lucide-react";
 import dynamic from "next/dynamic";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -25,6 +19,22 @@ import { VideoBrowser } from "@/components/VideoBrowser";
 import { WhatIKnowPanel } from "@/components/WhatIKnowPanel";
 import { API_BASE } from "@/lib/config";
 import type { GraphData } from "@/lib/config";
+
+// The mark is a delta: the outline is the whole talk, the solid wedge is the
+// part that is new to you. Geometry only — no glyph, no gradient, no glow.
+function DeltaMark({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 3 21.5 20.2H2.5L12 3Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path d="M12 11.6 16.8 20.2H7.2L12 11.6Z" fill="currentColor" />
+    </svg>
+  );
+}
 
 function PanelPlaceholder({ message }: { message: string }) {
   return (
@@ -185,7 +195,7 @@ export default function Home() {
       >
         <HStack gap={2.5} px={2} mb={8}>
           <Box flexShrink={0} color="brand.500">
-            <BrainCircuit size={20} />
+            <DeltaMark size={22} />
           </Box>
           <Box>
             <Heading size="sm" letterSpacing="-0.02em" color="ink">
@@ -244,19 +254,13 @@ export default function Home() {
           backdropFilter="blur(12px)"
         >
           <HStack gap={3} minW={0}>
-            <Flex
-              display={{ base: "flex", md: "none" }}
-              align="center"
-              justify="center"
-              w={8}
-              h={8}
+            <Box
+              display={{ base: "block", md: "none" }}
               flexShrink={0}
-              borderRadius="control"
-              bg="brand.500"
-              color="white"
+              color="brand.500"
             >
-              <BrainCircuit size={18} />
-            </Flex>
+              <DeltaMark size={22} />
+            </Box>
             <Box minW={0}>
               <Heading size="md" letterSpacing="-0.02em" lineHeight="1.25">
                 {activeMeta.title}
