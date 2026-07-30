@@ -73,8 +73,13 @@ WITH v, x, segs, goal_c,
        ELSE 'novel'
      END AS status,
      [c IN known_c + goal_c | c.name][0] AS matched_concept,
-     [c IN known_c + goal_c | coalesce(c.note_path, c.video_id)][0] AS matched_source
+     [c IN known_c + goal_c | coalesce(c.note_path, c.video_id)][0] AS matched_source,
+     [c IN known_c | c.video_id][0] AS learned_from_id
+// A captured concept records the id of the video that taught it. Showing a raw
+// '6a6baa1c0d774e7cec6c1a66' to a human is meaningless — resolve it to the title.
+OPTIONAL MATCH (src:Video {id: learned_from_id})
 RETURN v.id AS video_id, v.title AS title, v.duration_sec AS duration_sec,
+       src.title AS learned_from,
        x.name AS name, labels(x)[0] AS kind, status, matched_concept, matched_source,
        [c IN goal_c | c.name][0] AS goal_concept,
        [s IN segs | {id: s.id, idx: s.idx, start_sec: s.start_sec, end_sec: s.end_sec,
@@ -137,13 +142,25 @@ async def knowledge_delta(title_or_id: str) -> dict:
     known, novel, goal = [], [], []
     segments: dict[int, dict] = {}  # idx -> segment + every learnable term it carries
     for r in rows:
+        # Every "where did this come from" string a human reads is built here. A vault
+        # concept cites its note; a captured one cites the video that taught it BY TITLE.
+        src = r.get("matched_source") or ""
+        note = src.rsplit("/", 1)[-1] if src.endswith(".md") else None
+        # `source` is what the panel renders, so it must be readable: the note filename for
+        # a vault concept, the video title for a captured one. The raw path/id stays
+        # available as source_ref for anything that needs to address the thing.
         entry = {"name": r["name"], "status": r["status"], "kind": r["kind"],
                  "matched_concept": r.get("matched_concept"),
-                 "source": r.get("matched_source")}
-        # A known term can still sit inside a goal; say so rather than silently hiding it.
+                 "source": note or r.get("learned_from") or r.get("matched_source"),
+                 "source_ref": r.get("matched_source"),
+                 "source_kind": "note" if note else ("video" if r.get("learned_from") else None)}
+        # A known term can still sit inside a goal. The old wording ran the two clauses
+        # together into "you already know this — and it advances your goal 'X'", which
+        # reads as nonsense: if you know it, it is no longer something to go learn. Say
+        # what it actually means — this is progress already made against a stated goal.
         if r["status"] == "known" and r.get("goal_concept"):
-            entry["goal_note"] = (f"you already know this — and it advances "
-                                  f"your goal '{r['goal_concept']}'")
+            entry["goal_note"] = f"progress on your goal: {r['goal_concept']}"
+            entry["goal"] = r["goal_concept"]
         {"known": known, "novel": novel, "goal": goal}[r["status"]].append(entry)
         # A goal match is topical, not literal — the viewer asked for "game theory",
         # not for "Nash equilibrium". Name the goal instead of claiming they named it.
@@ -151,12 +168,12 @@ async def knowledge_delta(title_or_id: str) -> dict:
             why = f"advances your goal '{r['goal_concept']}'"
         elif r["status"] == "novel":
             why = "not in your knowledge base"
+        elif note:
+            why = f"you already know this — your note {note}"
+        elif r.get("learned_from"):
+            why = f"you learned this from {r['learned_from']}"
         else:
-            # matched_source is a vault note path for vault concepts but a bare video id
-            # for captured ones — never read a UUID out loud.
-            src = r.get("matched_source") or ""
-            why = (f"you already know this — from {src.rsplit('/', 1)[-1]}"
-                   if src.endswith(".md") else "you already know this")
+            why = "you already know this"
         for s in r["segments"]:
             seg = segments.setdefault(s["idx"], {**s, "concepts": []})
             seg["concepts"].append({"name": r["name"], "status": r["status"], "why": why})

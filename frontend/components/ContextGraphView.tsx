@@ -50,8 +50,10 @@ interface InternalGraphData {
 interface NvlNode {
   id: string;
   caption?: string;
+  title?: string;
   color?: string;
   size?: number;
+  captionSize?: number;
   selected?: boolean;
 }
 
@@ -61,8 +63,42 @@ interface NvlRelationship {
   to: string;
   caption?: string;
   color?: string;
+  width?: number;
   selected?: boolean;
 }
+
+// GET /api/knowledge-map — the viewer's knowledge state as a concept graph
+interface KnowledgeMapNode {
+  id: string;
+  name: string;
+  kind: string;
+  status: string;
+  type: "concept" | "goal";
+  matched_concept?: string | null;
+  source?: string | null;
+  advances_goals?: string[];
+  videos?: string[];
+  segment_count?: number;
+  covered_by?: number;
+}
+
+interface KnowledgeMapEdge {
+  source: string;
+  target: string;
+  weight?: number;
+  kind?: string;
+}
+
+interface KnowledgeStats {
+  known: number;
+  goal: number;
+  novel: number;
+  terms_total: number;
+  goals: number;
+  known_pct: number;
+}
+
+type GraphView = "knowledge" | "schema" | "data";
 
 interface SelectedElement {
   type: "node" | "relationship";
@@ -166,11 +202,83 @@ function getNodeSize(labels: string[]): number {
 }
 
 // ---------------------------------------------------------------------------
+// Knowledge map — concept graph coloured by what the viewer already knows
+// ---------------------------------------------------------------------------
+
+// CONCEPT_STATUS_COLORS covers known/goal; the map also returns novel concepts
+// and the goal hubs the clusters hang off.
+const KNOWLEDGE_COLORS: Record<string, string> = {
+  ...CONCEPT_STATUS_COLORS,
+  novel: "#f97316", // orange — nothing in the knowledge base covers it yet
+  goal_hub: "#1d4ed8", // deep blue — a stated learning goal
+};
+
+const KNOWLEDGE_STATUS_LABELS: Record<string, string> = {
+  known: "Known",
+  goal: "Advances a goal",
+  novel: "New to you",
+  goal_hub: "Learning goal",
+};
+
+function isKnowledgeNode(properties: Record<string, unknown>): boolean {
+  return typeof properties.status === "string" && properties.status in KNOWLEDGE_COLORS;
+}
+
+function knowledgeNodeColor(properties: Record<string, unknown>): string {
+  return KNOWLEDGE_COLORS[properties.status as string] || "#6366f1";
+}
+
+// Goals are hubs: bigger, scaled by how much of the corpus advances them.
+// Concepts scale by how many segments teach them.
+function knowledgeNodeSize(properties: Record<string, unknown>): number {
+  if (properties.type === "goal") {
+    const covered = Number(properties.covered_by) || 0;
+    return 36 + 2.4 * Math.sqrt(covered);
+  }
+  const segments = Number(properties.segment_count) || 1;
+  return 14 + 4 * Math.sqrt(segments);
+}
+
+// Heavier co-occurrence (more segments taught both) renders thicker and darker,
+// so subject areas read as clusters instead of one flat hairball.
+function edgeWeightColor(weight: number, isAdvances: boolean): string {
+  if (isAdvances) return "#93c5fd";
+  if (weight >= 4) return "#475569";
+  if (weight >= 2) return "#94a3b8";
+  return "#dbe1e8";
+}
+
+function knowledgeMapToGraph(map: {
+  nodes: KnowledgeMapNode[];
+  edges: KnowledgeMapEdge[];
+}): InternalGraphData {
+  const nodes: GraphNode[] = map.nodes.map((n) => {
+    const { id, type, ...rest } = n;
+    return {
+      id,
+      labels: [type === "goal" ? "Goal" : "Concept"],
+      properties: { ...rest, type },
+    };
+  });
+
+  const relationships: GraphRelationship[] = map.edges.map((e, i) => ({
+    id: `km-${i}-${e.source}-${e.target}`,
+    type: e.kind === "advances" ? "ADVANCES" : "CO_OCCURS",
+    startNodeId: e.source,
+    endNodeId: e.target,
+    properties: { weight: e.weight ?? 1 },
+  }));
+
+  return { nodes, relationships };
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
 export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraphViewProps) {
-  const [isSchemaView, setIsSchemaView] = useState(true);
+  const [view, setView] = useState<GraphView>("knowledge");
+  const [stats, setStats] = useState<KnowledgeStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [isExpanding, setIsExpanding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -180,9 +288,9 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set());
   const [graphData, setGraphData] = useState<InternalGraphData | null>(null);
 
-  // Load schema on mount
+  // Load the viewer's knowledge map on mount
   useEffect(() => {
-    loadSchema();
+    loadKnowledgeMap();
   }, []);
 
   // When external graph data arrives from chat, switch to data view
@@ -191,7 +299,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
       const data = extractNodesAndRels(externalGraphData.results);
       if (data.nodes.length > 0) {
         setGraphData(data);
-        setIsSchemaView(false);
+        setView("data");
         setExpandedNodeIds(new Set());
         setSelectedElement(null);
         setSelectedNodeId(null);
@@ -199,6 +307,28 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
       }
     }
   }, [externalGraphData]);
+
+  async function loadKnowledgeMap() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/knowledge-map`, { signal: AbortSignal.timeout(10000) });
+      const data = await res.json();
+      if (Array.isArray(data.nodes) && Array.isArray(data.edges)) {
+        setGraphData(knowledgeMapToGraph(data));
+        setStats(data.stats ?? null);
+      }
+      setView("knowledge");
+      setExpandedNodeIds(new Set());
+      setSelectedElement(null);
+      setSelectedNodeId(null);
+      setSelectedRelId(null);
+    } catch {
+      setError("Unable to load your knowledge map. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadSchema() {
     setLoading(true);
@@ -219,7 +349,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         }));
         setGraphData({ nodes, relationships: [] });
       }
-      setIsSchemaView(true);
+      setView("schema");
       setExpandedNodeIds(new Set());
       setSelectedElement(null);
     } catch {
@@ -234,7 +364,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
     async (node: NvlNode) => {
       if (!graphData || isExpanding) return;
 
-      if (isSchemaView) {
+      if (view === "schema") {
         // Schema node: load instances of this label
         const label = node.caption?.replace(/\s*\(\d+\)$/, "");
         if (!label) return;
@@ -252,7 +382,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
           const parsed = extractNodesAndRels(data.results || []);
           if (parsed.nodes.length > 0) {
             setGraphData(parsed);
-            setIsSchemaView(false);
+            setView("data");
             setExpandedNodeIds(new Set());
           }
         } catch (err) {
@@ -300,7 +430,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         setIsExpanding(false);
       }
     },
-    [graphData, isSchemaView, isExpanding, expandedNodeIds],
+    [graphData, view, isExpanding, expandedNodeIds],
   );
 
   // Click: select node and show properties
@@ -345,7 +475,8 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
     const nodes: NvlNode[] = graphData.nodes.map((node) => {
       const isSelected = selectedNodeId === node.id;
       const isExpanded = expandedNodeIds.has(node.id);
-      const isSchema = isSchemaView;
+      const isSchema = view === "schema";
+      const isKnowledge = isKnowledgeNode(node.properties);
 
       const caption =
         (node.properties.name as string) ||
@@ -353,15 +484,37 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         node.labels[0] ||
         node.id.slice(0, 8);
 
-      // Build tooltip with full name and labels
-      const tooltip = [
-        caption,
-        `Labels: ${node.labels.join(", ")}`,
-        ...Object.entries(node.properties)
-          .filter(([k]) => k !== "name" && k !== "title")
-          .slice(0, 5)
-          .map(([k, v]) => `${k}: ${v}`),
-      ].join("\n");
+      // Build tooltip: for knowledge nodes surface where it comes from and
+      // where it is taught, otherwise fall back to the raw properties
+      const tooltip = isKnowledge
+        ? [
+            caption,
+            KNOWLEDGE_STATUS_LABELS[node.properties.status as string] || "",
+            node.properties.source ? `From: ${node.properties.source}` : "",
+            (node.properties.advances_goals as string[] | undefined)?.length
+              ? `Goals: ${(node.properties.advances_goals as string[]).join(", ")}`
+              : "",
+            (node.properties.videos as string[] | undefined)?.length
+              ? `Taught in: ${(node.properties.videos as string[]).join(", ")}`
+              : "",
+            node.properties.covered_by !== undefined
+              ? `${node.properties.covered_by} concepts advance this goal`
+              : "",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : [
+            caption,
+            `Labels: ${node.labels.join(", ")}`,
+            ...Object.entries(node.properties)
+              .filter(([k]) => k !== "name" && k !== "title")
+              .slice(0, 5)
+              .map(([k, v]) => `${k}: ${v}`),
+          ].join("\n");
+
+      const baseSize = isKnowledge
+        ? knowledgeNodeSize(node.properties)
+        : getNodeSize(node.labels);
 
       return {
         id: node.id,
@@ -371,30 +524,48 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
           ? "#E53E3E"
           : isExpanded
             ? "#38A169"
-            : getNodeColor(node.labels, node.properties),
-        size: isSchema
-          ? SCHEMA_NODE_SIZE
-          : isSelected
-            ? getNodeSize(node.labels) * 1.3
-            : getNodeSize(node.labels),
+            : isKnowledge
+              ? knowledgeNodeColor(node.properties)
+              : getNodeColor(node.labels, node.properties),
+        size: isSchema ? SCHEMA_NODE_SIZE : isSelected ? baseSize * 1.3 : baseSize,
+        captionSize: isKnowledge && node.properties.type === "goal" ? 20 : undefined,
         selected: isSelected,
       };
     });
 
     const relationships: NvlRelationship[] = graphData.relationships.map((rel) => {
       const isSelected = selectedRelId === rel.id;
+      const weight = Number(rel.properties.weight) || 0;
+      const isAdvances = rel.type === "ADVANCES";
+
+      // Knowledge edges carry a co-occurrence weight: heavier = thicker + darker
+      if (weight > 0) {
+        return {
+          id: rel.id,
+          from: rel.startNodeId,
+          to: rel.endNodeId,
+          caption: weight >= 3 && !isAdvances ? `${weight}` : undefined,
+          color: isSelected ? "#E53E3E" : edgeWeightColor(weight, isAdvances),
+          width: isAdvances ? 1.5 : Math.min(1 + weight * 1.2, 7),
+          selected: isSelected,
+        };
+      }
+
       return {
         id: rel.id,
         from: rel.startNodeId,
         to: rel.endNodeId,
         caption: rel.type,
-        color: isSelected ? "#E53E3E" : isSchemaView ? SCHEMA_REL_COLOR : "#A0AEC0",
+        color: isSelected ? "#E53E3E" : view === "schema" ? SCHEMA_REL_COLOR : "#A0AEC0",
         selected: isSelected,
       };
     });
 
     return { nodes, relationships };
-  }, [graphData, selectedNodeId, selectedRelId, expandedNodeIds, isSchemaView]);
+  }, [graphData, selectedNodeId, selectedRelId, expandedNodeIds, view]);
+
+  const selectedNodeProps =
+    selectedElement?.type === "node" ? (selectedElement.data as GraphNode).properties : null;
 
   // Empty / error states
   if (error) {
@@ -423,23 +594,40 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         align="center"
       >
         <Box>
-          <Heading size="sm">Knowledge Graph</Heading>
+          <Heading size="sm">
+            {view === "knowledge"
+              ? "Your Knowledge Map"
+              : view === "schema"
+                ? "Database Schema"
+                : "Knowledge Graph"}
+          </Heading>
           <Text fontSize="xs" color="gray.500">
-            {isSchemaView
-              ? "Schema view — double-click a label to explore"
-              : "Video entity relationships"}
+            {view === "knowledge"
+              ? stats
+                ? `${stats.terms_total} concepts across the corpus · ${stats.goals} learning goals — double-click a concept to see where it is taught`
+                : "Concepts the corpus teaches, coloured by what you already know"
+              : view === "schema"
+                ? "Schema view — double-click a label to explore"
+                : "Video entity relationships"}
           </Text>
         </Box>
-        {!isSchemaView && (
-          <IconButton
-            aria-label="Back to schema"
-            size="xs"
-            variant="ghost"
-            onClick={loadSchema}
-          >
-            <RotateCcw size={14} />
-          </IconButton>
-        )}
+        <HStack gap={1}>
+          {view !== "knowledge" && (
+            <IconButton
+              aria-label="Back to your knowledge map"
+              size="xs"
+              variant="ghost"
+              onClick={loadKnowledgeMap}
+            >
+              <RotateCcw size={14} />
+            </IconButton>
+          )}
+          {view !== "schema" && (
+            <Button size="xs" variant="ghost" color="gray.500" onClick={loadSchema}>
+              Schema
+            </Button>
+          )}
+        </HStack>
       </Flex>
 
       {/* Legend — horizontal strip across the top; wraps to more rows as needed */}
@@ -463,32 +651,66 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         borderColor="gray.200"
         css={{ backdropFilter: "blur(2px)" }}
       >
-        {Object.entries(NODE_COLORS)
-          .filter(([label]) => label !== "Concept")
-          .map(([label, color]) => (
-            <Badge
-              key={label}
-              size="sm"
-              px={2}
-              py={0.5}
-              whiteSpace="nowrap"
-              style={{ backgroundColor: color, color: "white" }}
-            >
-              {label}
-            </Badge>
-          ))}
-        {Object.entries(CONCEPT_STATUS_COLORS).map(([status, color]) => (
-          <Badge
-            key={`concept-${status}`}
-            size="sm"
-            px={2}
-            py={0.5}
-            whiteSpace="nowrap"
-            style={{ backgroundColor: color, color: "white" }}
-          >
-            {status === "known" ? "Known concept" : "Learning goal"}
-          </Badge>
-        ))}
+        {view === "knowledge" ? (
+          <>
+            {(["known", "goal", "novel", "goal_hub"] as const).map((status) => (
+              <Badge
+                key={`km-${status}`}
+                size="sm"
+                px={2}
+                py={0.5}
+                whiteSpace="nowrap"
+                style={{ backgroundColor: KNOWLEDGE_COLORS[status], color: "white" }}
+              >
+                {KNOWLEDGE_STATUS_LABELS[status]}
+                {stats
+                  ? ` ${status === "goal_hub" ? stats.goals : stats[status as "known" | "goal" | "novel"]}`
+                  : ""}
+              </Badge>
+            ))}
+            {stats && (
+              <Badge
+                size="sm"
+                px={2}
+                py={0.5}
+                whiteSpace="nowrap"
+                variant="outline"
+                colorPalette="gray"
+              >
+                {stats.known_pct}% of the corpus already known
+              </Badge>
+            )}
+          </>
+        ) : (
+          <>
+            {Object.entries(NODE_COLORS)
+              .filter(([label]) => label !== "Concept")
+              .map(([label, color]) => (
+                <Badge
+                  key={label}
+                  size="sm"
+                  px={2}
+                  py={0.5}
+                  whiteSpace="nowrap"
+                  style={{ backgroundColor: color, color: "white" }}
+                >
+                  {label}
+                </Badge>
+              ))}
+            {Object.entries(CONCEPT_STATUS_COLORS).map(([status, color]) => (
+              <Badge
+                key={`concept-${status}`}
+                size="sm"
+                px={2}
+                py={0.5}
+                whiteSpace="nowrap"
+                style={{ backgroundColor: color, color: "white" }}
+              >
+                {status === "known" ? "Known concept" : "Learning goal"}
+              </Badge>
+            ))}
+          </>
+        )}
       </Flex>
 
       {/* Properties panel — fixed to the viewport's lower-right (overlays the
@@ -556,6 +778,81 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                   Ask about {((selectedElement.data as GraphNode).properties.name as string).slice(0, 30)}
                 </Button>
               )}
+              {selectedNodeProps && isKnowledgeNode(selectedNodeProps) ? (
+                <VStack align="stretch" gap={2} fontSize="xs">
+                  <Badge
+                    alignSelf="flex-start"
+                    size="sm"
+                    style={{
+                      backgroundColor: knowledgeNodeColor(selectedNodeProps),
+                      color: "white",
+                    }}
+                  >
+                    {KNOWLEDGE_STATUS_LABELS[selectedNodeProps.status as string]}
+                  </Badge>
+
+                  {typeof selectedNodeProps.source === "string" && selectedNodeProps.source && (
+                    <Box bg="gray.50" p={2} borderRadius="sm">
+                      <Text fontWeight="medium" color="gray.600">
+                        From your notes
+                      </Text>
+                      <Text color="gray.800" wordBreak="break-word">
+                        {selectedNodeProps.source}
+                      </Text>
+                      {typeof selectedNodeProps.matched_concept === "string" &&
+                        selectedNodeProps.matched_concept && (
+                          <Text color="gray.500">
+                            matched to {selectedNodeProps.matched_concept}
+                          </Text>
+                        )}
+                    </Box>
+                  )}
+
+                  {(selectedNodeProps.advances_goals as string[] | undefined)?.length ? (
+                    <Box bg="gray.50" p={2} borderRadius="sm">
+                      <Text fontWeight="medium" color="gray.600" mb={1}>
+                        Advances
+                      </Text>
+                      <HStack flexWrap="wrap" gap={1}>
+                        {(selectedNodeProps.advances_goals as string[]).map((goal) => (
+                          <Badge
+                            key={goal}
+                            size="sm"
+                            style={{ backgroundColor: KNOWLEDGE_COLORS.goal_hub, color: "white" }}
+                          >
+                            {goal}
+                          </Badge>
+                        ))}
+                      </HStack>
+                    </Box>
+                  ) : null}
+
+                  {(selectedNodeProps.videos as string[] | undefined)?.length ? (
+                    <Box bg="gray.50" p={2} borderRadius="sm">
+                      <Text fontWeight="medium" color="gray.600" mb={1}>
+                        Taught in {String(selectedNodeProps.segment_count ?? "")} segment
+                        {Number(selectedNodeProps.segment_count) === 1 ? "" : "s"}
+                      </Text>
+                      <VStack align="stretch" gap={0.5}>
+                        {(selectedNodeProps.videos as string[]).map((title) => (
+                          <Text key={title} color="gray.800" wordBreak="break-word">
+                            {title}
+                          </Text>
+                        ))}
+                      </VStack>
+                    </Box>
+                  ) : null}
+
+                  {selectedNodeProps.type === "goal" && (
+                    <Box bg="gray.50" p={2} borderRadius="sm">
+                      <Text color="gray.800">
+                        {String(selectedNodeProps.covered_by ?? 0)} concepts in the corpus advance
+                        this goal
+                      </Text>
+                    </Box>
+                  )}
+                </VStack>
+              ) : (
               <VStack align="stretch" gap={1}>
                 {Object.entries((selectedElement.data as GraphNode).properties)
                   .filter(([key]) => !key.startsWith("_") && key !== "isSchemaNode" && key !== "embedding")
@@ -572,6 +869,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                     </Box>
                   ))}
               </VStack>
+              )}
             </VStack>
           )}
 
