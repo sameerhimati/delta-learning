@@ -73,8 +73,15 @@ namespace and are untouched — this is safe to run repeatedly.
    The honesty beat.
 4. "What should I learn first?" → `learning_frontier` tool: Neo4j GDS PageRank over the
    co-occurrence graph of terms you do NOT know.
-5. "I just watched the game theory explainer — capture what it taught me." → 24 concepts.
-6. "Now what should I watch in 'A Simple Strategy'?" → **17:46 → 13:22, 5 cuts.** The finale.
+5. **"I just watched 'How Decision Making is Actually Science' — capture what it taught me."**
+   → captures 11 concepts (Game Theory, Prisoner's Dilemma, Nash Equilibrium, Dominant
+   Strategy, Shapley Value…).
+   ⚠️ **Name the video explicitly.** Saying "the game theory explainer" makes the agent
+   pick the *other* game-theory video, and Q6 then asks about the one you just captured —
+   it answers "skip all of it", which is circular and kills the beat. Verified failure.
+6. "Now what should I watch in 'A Simple Strategy'?" → **9:32 of 17:47 across 3 cuts**, and
+   the agent names the source: *"skip 0:00–5:08 … you learned that from How Decision
+   Making."* Cross-video transfer, said out loud. The finale.
 
 ## Honest framing decision (Sameer signed off on the shape, not the numbers)
 
@@ -101,11 +108,22 @@ alone — promise it off the capture loop, which is measured above.
 - Cuts required only one novel term in a segment → every video read "watch 100%".
 - Goal adjudication answered on shared discipline → claimed 4 goals the corpus misses.
 
-## Luke / frontend integration
+## Luke / frontend integration — MERGED
 
-As of 2:35pm Luke had pushed **nothing** to this repo — `origin/main` is backend-only and
-there is no open PR. If he says he merged, it went somewhere else. The API he needs is
-verified working through the tunnel, including CORS for `http://localhost:3000`:
+Luke works in a **fork**: `https://github.com/huluk98/delta-learning`, branch
+`codex/luke-your-cut`. Nothing lands on `origin/main` until it is merged from there:
+
+```
+git remote add luke https://github.com/huluk98/delta-learning.git
+git fetch luke && git merge luke/codex/luke-your-cut
+```
+
+Merged at 3:05pm: 5 commits, +1287/-321 across 10 files, **frontend-only, zero backend
+files touched**, `tsc --noEmit` clean. Adds `YourCutPanel.tsx` (523 lines), `StudyNotes.tsx`,
+concept coloring by knowledge status in `ContextGraphView`, and a rebuilt `page.tsx` /
+`VideoBrowser`. Frontend runs on `:3000` and returns 200.
+
+The API is verified working through the tunnel, including CORS for `http://localhost:3000`:
 
 ```
 curl https://mold-oliver-prisoner-payroll.trycloudflare.com/api/videos      # 4 videos
