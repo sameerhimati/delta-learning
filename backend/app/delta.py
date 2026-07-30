@@ -10,7 +10,9 @@ Status per learnable node:
   known — SAME_AS a known Concept (skip)
   goal  — ADVANCES a goal Concept (explicitly wants to learn: always watch)
   novel — neither (watch)
-The cut list is the merged set of segments mentioning novel/goal concepts.
+The cut list is the set of segments whose novelty *density* clears
+MIN_NOVELTY_DENSITY, merged where adjacent. Segments that carry something new but
+fail the density test are reported separately under "skipped" so nothing is hidden.
 """
 
 from __future__ import annotations
@@ -21,6 +23,33 @@ from app.context_graph_client import execute_cypher
 # Topics are always learnable; only conceptual entities are (people/brands are not
 # things you "learn" from a talk).
 LEARNABLE_ENTITY_TYPES = ["concept", "event", "product"]
+
+# Fraction of a segment's learnable terms that must be new (novel or goal) before the
+# segment is worth the viewer's time.
+#
+# Why 0.5: a segment carries 1-9 terms, so "any term is new" (the old rule, i.e. 0.0)
+# recommends effectively every segment — measured on the live graph it put 34/34, 11/11,
+# 24/25 segments in the cut lists and every video reported watch == 100% of runtime.
+# Sitting through 44 seconds for one unfamiliar term out of five is precisely the waste
+# this product claims to remove; the term itself is still shown in the response, and
+# reading it in a badge is cheaper than watching.
+#
+# 0.5 is the majority line: a segment that is mostly new is always kept, a segment that
+# is mostly review is always dropped, and a 50/50 segment gets the benefit of the doubt.
+# Measured, it separates the corpus into genuinely different verdicts instead of a flat
+# 100%: L8 100%, Postgres 100%, Game Theory B 75%, Game Theory A 0%. Raising it to 0.6
+# reads better on stage (Game Theory B falls to 63%) but starts discarding segments that
+# are 55% new, which contradicts the promise above — honesty over drama.
+MIN_NOVELTY_DENSITY = 0.5
+
+# Second-order rule, measured but OFF by default: a term stops being new once an earlier
+# segment of the SAME video has taught it, so the 6th mention of "Nash equilibrium" no
+# longer earns its segment a place in the cut list. Measured at 0.5 it separates the
+# corpus much harder — Postgres 91%, L8 73%, Game Theory B 34%, Game Theory A 0% — but a
+# segment can then be 100% novel-to-the-viewer and still be dropped as a repeat, which
+# contradicts "mostly new is always kept". Flip to True for a more dramatic stage demo;
+# the trade is a smaller capture drop on Game Theory B (46.3% -> 33.9%, vs 99.9% -> 75.2%).
+DISCOUNT_REPEATED_TERMS = False
 
 # Evidence beats aspiration: a term the viewer demonstrably knows is skippable even when
 # it also advances a stated goal — otherwise capture_learning() can never shrink a cut
@@ -77,7 +106,7 @@ async def knowledge_delta(title_or_id: str) -> dict:
     )
 
     known, novel, goal = [], [], []
-    watch_segments: dict[int, dict] = {}  # idx -> segment (+ concepts that put it there)
+    segments: dict[int, dict] = {}  # idx -> segment + every learnable term it carries
     for r in rows:
         entry = {"name": r["name"], "status": r["status"], "kind": r["kind"],
                  "matched_concept": r.get("matched_concept"),
@@ -87,52 +116,98 @@ async def knowledge_delta(title_or_id: str) -> dict:
             entry["goal_note"] = (f"you already know this — and it advances "
                                   f"your goal '{r['goal_concept']}'")
         {"known": known, "novel": novel, "goal": goal}[r["status"]].append(entry)
-        if r["status"] in ("novel", "goal"):
-            # A goal match is topical, not literal — the viewer asked for "game theory",
-            # not for "Nash equilibrium". Name the goal instead of claiming they named it.
-            why = (f"advances your goal '{r['goal_concept']}'"
-                   if r["status"] == "goal" and r.get("goal_concept")
-                   else "not in your knowledge base")
-            for s in r["segments"]:
-                seg = watch_segments.setdefault(
-                    s["idx"], {**s, "concepts": []})
-                seg["concepts"].append({"name": r["name"], "status": r["status"], "why": why})
-
-    # Merge adjacent watch segments into contiguous cuts.
-    cuts = []
-    for idx in sorted(watch_segments):
-        s = watch_segments[idx]
-        if cuts and idx == cuts[-1]["_last_idx"] + 1:
-            cuts[-1]["end_sec"] = s["end_sec"]
-            cuts[-1]["concepts"].extend(s["concepts"])
-            cuts[-1]["_last_idx"] = idx
+        # A goal match is topical, not literal — the viewer asked for "game theory",
+        # not for "Nash equilibrium". Name the goal instead of claiming they named it.
+        if r["status"] == "goal" and r.get("goal_concept"):
+            why = f"advances your goal '{r['goal_concept']}'"
+        elif r["status"] == "novel":
+            why = "not in your knowledge base"
         else:
-            cuts.append({"start_sec": s["start_sec"], "end_sec": s["end_sec"],
-                         "summary": s["summary"], "segment_id": s["id"],
-                         "concepts": list(s["concepts"]), "_last_idx": idx})
-    for c in cuts:
-        del c["_last_idx"]
-        seen = set()
-        c["concepts"] = [x for x in c["concepts"]
-                         if not (x["name"] in seen or seen.add(x["name"]))]
+            # matched_source is a vault note path for vault concepts but a bare video id
+            # for captured ones — never read a UUID out loud.
+            src = r.get("matched_source") or ""
+            why = (f"you already know this — from {src.rsplit('/', 1)[-1]}"
+                   if src.endswith(".md") else "you already know this")
+        for s in r["segments"]:
+            seg = segments.setdefault(s["idx"], {**s, "concepts": []})
+            seg["concepts"].append({"name": r["name"], "status": r["status"], "why": why})
+
+    # Novelty density decides the cut. Recommending a segment because one of its nine
+    # terms is unfamiliar is what pinned every video at "watch 100%".
+    watch_idx, skimp_idx = [], []
+    taught: set[str] = set()
+    for idx in sorted(segments):
+        seg = segments[idx]
+        new = [c for c in seg["concepts"] if c["status"] in ("novel", "goal")]
+        first = [c for c in new if c["name"] not in taught] if DISCOUNT_REPEATED_TERMS else new
+        taught.update(c["name"] for c in new)
+        seg["novelty"] = round(len(first) / len(seg["concepts"]), 2)
+        if not new:
+            continue  # pure review: never in either list
+        keep = bool(first) and seg["novelty"] >= MIN_NOVELTY_DENSITY
+        (watch_idx if keep else skimp_idx).append(idx)
+
+    def _merge(indices: list[int], keep_all_concepts: bool) -> list[dict]:
+        """Merge adjacent segments into contiguous ranges."""
+        out: list[dict] = []
+        for idx in sorted(indices):
+            s = segments[idx]
+            cons = (s["concepts"] if keep_all_concepts
+                    else [c for c in s["concepts"] if c["status"] in ("novel", "goal")])
+            if out and idx == out[-1]["_last_idx"] + 1:
+                out[-1]["end_sec"] = s["end_sec"]
+                out[-1]["concepts"].extend(cons)
+                out[-1]["_novelty"].append(s["novelty"])
+                out[-1]["_last_idx"] = idx
+            else:
+                out.append({"start_sec": s["start_sec"], "end_sec": s["end_sec"],
+                            "summary": s["summary"], "segment_id": s["id"],
+                            "concepts": list(cons), "_novelty": [s["novelty"]],
+                            "_last_idx": idx})
+        for c in out:
+            del c["_last_idx"]
+            c["novelty"] = round(sum(c["_novelty"]) / len(c["_novelty"]), 2)
+            del c["_novelty"]
+            seen = set()
+            c["concepts"] = [x for x in c["concepts"]
+                             if not (x["name"] in seen or seen.add(x["name"]))]
+        return out
+
+    cuts = _merge(watch_idx, keep_all_concepts=False)
+    # Skipped-but-not-empty: mostly review, but it did carry something new. Keep every
+    # concept (known included) so the agent can say what it dropped and why, rather than
+    # silently swallowing a novel term.
+    skipped = _merge(skimp_idx, keep_all_concepts=True)
 
     # Pegasus timestamps are approximate and can overrun the real runtime; without a
     # clamp an 8-minute video reports "watch 12:00 of 8:07" and skip_sec collapses to 0.
     duration = video.get("duration_sec") or 0
     if duration:
         cuts = [c for c in cuts if (c["start_sec"] or 0) < duration]
-        for c in cuts:
+        skipped = [c for c in skipped if (c["start_sec"] or 0) < duration]
+        for c in cuts + skipped:
             c["end_sec"] = min(c["end_sec"] or 0, duration)
     watch_sec = sum(max((c["end_sec"] or 0) - (c["start_sec"] or 0), 0) for c in cuts)
+    cut_names = {c["name"] for cut in cuts for c in cut["concepts"]}
+    minor = [c for s in skipped for c in s["concepts"]
+             if c["status"] in ("novel", "goal") and c["name"] not in cut_names]
     return {
         "video": video,
         "stats": {
             "concepts_total": len(known) + len(novel) + len(goal),
             "known": len(known), "novel": len(novel), "goal_hits": len(goal),
             "watch_sec": round(watch_sec), "skip_sec": round(max(duration - watch_sec, 0)),
+            # additive: how the density rule split the timeline
+            "segments_kept": len(watch_idx), "segments_skipped": len(skimp_idx),
+            "min_novelty_density": MIN_NOVELTY_DENSITY,
         },
         "known_concepts": known,
         "cuts": cuts,
+        # additive: ranges the density rule dropped, and the new-but-minor terms that
+        # appear ONLY there — the agent should mention these instead of burying them.
+        "skipped": skipped,
+        "minor_concepts": [{"name": c["name"], "status": c["status"], "why": c["why"]}
+                           for c in {m["name"]: m for m in minor}.values()],
     }
 
 
@@ -149,8 +224,12 @@ async def capture_learning(title_or_id: str, concept_names: list[str] | None = N
     video_id = delta["video"]["id"]
 
     wanted = {n.strip().lower() for n in concept_names or [] if n.strip()}
+    # Default capture = what the cut list told them to watch. Named capture may also
+    # reach into skipped ranges: the viewer can legitimately say "I already picked that
+    # one up" about a term the density rule judged too minor to be worth a cut.
+    sources = delta["cuts"] + (delta["skipped"] if wanted else [])
     targets: dict[str, dict] = {}  # key -> target, deduped across cuts
-    for cut in delta["cuts"]:
+    for cut in sources:
         for con in cut["concepts"]:
             # Goal terms are watched, so watching teaches them too. Capturing them is
             # what lets known beat goal and drop those segments from the next cut list.

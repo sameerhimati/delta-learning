@@ -65,6 +65,8 @@ question retrieval cannot: "what's in this video that I don't already know?"
 - "I watched it / I learned that / capture this" -> capture_learning. Afterwards,
   tell the user their knowledge state grew — future videos will skip these concepts.
 - "which video should I watch next" -> what_should_i_watch.
+- "what should I learn first / where do I start / highest-leverage gap" -> learning_frontier
+  (GDS PageRank over the terms you don't know yet); cite the video + timecode it returns.
 Be honest about coverage: if a video contains nothing on a goal, say so explicitly.
 
 Tool selection:
@@ -168,6 +170,75 @@ def what_should_i_watch() -> str:
     return json.dumps(result, default=str)
 
 
+# Neo4j GDS: co-occurrence graph of the terms the viewer does NOT know yet, then
+# PageRank over it. See cypher/gds_projections.cypher for the annotated versions.
+_FRONTIER_DROP = "CALL gds.graph.drop('delta_frontier', false) YIELD graphName RETURN graphName"
+
+_FRONTIER_PROJECT = """
+MATCH (s:Segment)-[:ABOUT|MENTIONS]->(a)
+MATCH (s)-[:ABOUT|MENTIONS]->(b)
+WHERE ((a:Topic) OR (a:Entity AND a.type IN $learnable_types))
+  AND ((b:Topic) OR (b:Entity AND b.type IN $learnable_types))
+  AND elementId(a) < elementId(b)
+  AND NOT (a)-[:SAME_AS]->(:Concept {status: 'known'})
+  AND NOT (b)-[:SAME_AS]->(:Concept {status: 'known'})
+WITH a, b, count(DISTINCT s) AS w
+WITH gds.graph.project('delta_frontier', a, b,
+  {relationshipProperties: {weight: w}}, {undirectedRelationshipTypes: ['*']}) AS g
+RETURN g.nodeCount AS nodes, g.relationshipCount AS rels
+"""
+
+_FRONTIER_RANK = """
+CALL gds.pageRank.stream('delta_frontier', {relationshipWeightProperty: 'weight'})
+YIELD nodeId, score
+WITH gds.util.asNode(nodeId) AS x, score
+MATCH (v:Video)-[:HAS_SEGMENT]->(s:Segment)-[:ABOUT|MENTIONS]->(x)
+OPTIONAL MATCH (x)-[:ADVANCES]->(g:Concept {status: 'goal'})
+WITH x.name AS term, max(score) AS pagerank, collect(DISTINCT g.name) AS goals,
+     count(DISTINCT v) AS video_count, count(DISTINCT s) AS segment_count,
+     collect(DISTINCT {video: v.title, start_sec: s.start_sec, end_sec: s.end_sec})[0..2]
+       AS where_taught
+RETURN term, round(pagerank, 3) AS pagerank,
+       CASE WHEN size(goals) > 0 THEN 'goal' ELSE 'novel' END AS status,
+       goals[0] AS serves_goal, video_count, segment_count, where_taught
+ORDER BY pagerank DESC LIMIT $limit
+"""
+
+# Light up the top frontier terms in the graph panel.
+_FRONTIER_GRAPH = """
+MATCH (v:Video)-[:HAS_SEGMENT]->(s:Segment)-[r:ABOUT|MENTIONS]->(x)
+WHERE x.name IN $terms
+RETURN v, s, r, x LIMIT 40
+"""
+
+
+@tool
+def learning_frontier(limit: int = 8) -> str:
+    """Rank what the viewer should learn FIRST: runs Neo4j GDS PageRank over the co-occurrence graph of only the terms they do NOT already know, so the top terms are the ones unlocking the most other unknown material. Use for "what should I learn first / where do I start / what's the highest-leverage thing I'm missing"."""
+    from app.delta import LEARNABLE_ENTITY_TYPES
+    params = {"learnable_types": LEARNABLE_ENTITY_TYPES}
+    try:
+        _run_sync(execute_cypher(_FRONTIER_DROP, collect=False))
+        projection = _run_sync(execute_cypher(_FRONTIER_PROJECT, params, collect=False))
+        rows = _run_sync(execute_cypher(
+            _FRONTIER_RANK, {"limit": max(1, min(int(limit), 25))}, collect=False,
+        ))
+        _run_sync(execute_cypher(_FRONTIER_DROP, collect=False))
+    except Exception as e:
+        return json.dumps({"error": f"GDS learning_frontier failed: {e}"})
+    terms = [r["term"] for r in rows]
+    if terms:
+        _run_sync(execute_cypher(
+            _FRONTIER_GRAPH, {"terms": terms}, tool_name="learning_frontier",
+        ))
+    return json.dumps({
+        "method": "Neo4j GDS PageRank over segment co-occurrence, restricted to terms "
+                  "with no SAME_AS link to a known Concept",
+        "frontier_size": projection[0] if projection else {},
+        "frontier": rows,
+    }, default=str)
+
+
 @tool
 def run_cypher(query: str, parameters: str = "{}") -> str:
     """Execute a read-only Cypher query against the video knowledge graph."""
@@ -205,6 +276,7 @@ agent = Agent(
         knowledge_delta,
         capture_learning,
         what_should_i_watch,
+        learning_frontier,
         search_video_moments,
         explore_graph,
         twelvelabs_search,

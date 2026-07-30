@@ -70,13 +70,18 @@ SAME_AS_SYSTEM = (
 )
 
 ADVANCES_SYSTEM = (
-    "You judge topical relevance, NOT identity. For each pair, answer: would a "
-    "section of a video about the video term teach something that helps someone "
-    "pursuing the stated learning goal? Answer same=true if the term falls within "
-    "the subject area of the goal — goals are broad ('game theory') and video "
-    "terms are specific ('Nash equilibrium'), so a specific instance of the goal's "
-    "subject counts as true. Answer false only when the term is outside the goal's "
-    "subject area. Return a verdict for EVERY pair."
+    "You judge substantive relevance, NOT identity. For each pair, answer: would a "
+    "section of a video about the video term teach a real, specific part of the "
+    "stated learning goal? Answer same=true when the term is a genuine sub-topic, "
+    "mechanism, or worked instance of the goal — goals are broad ('game theory') "
+    "and video terms are specific ('Nash equilibrium'), so a true instance counts.\n"
+    "Answer FALSE for generic terms that merely share a field with the goal. "
+    "'Artificial Intelligence', 'Latency', 'Performance Optimization' and "
+    "'Data Science' do NOT advance 'speculative decoding', 'GPU memory hierarchy' "
+    "or 'Bayesian statistics' — sharing a discipline is not teaching the goal. If "
+    "someone studying the goal would not count this section as progress, answer "
+    "false. When genuinely unsure, answer false: claiming a goal is covered when it "
+    "is not is worse than missing one. Return a verdict for EVERY pair."
 )
 
 
