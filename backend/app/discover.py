@@ -64,11 +64,34 @@ LIMIT 1
 
 # Fallback when the asked-for topic is not one of the stated goals: measure coverage
 # the only other way the graph can — how many learnable terms even mention it.
+# Matched per content token, not against the whole query: containing the literal string
+# "how do i use postgres for vector search" is something no term name will ever do, so
+# the whole-string form reported coverage 0 for every question phrased as a question —
+# while the library held PG Vector, TS Vector, and Vector Similarity Search.
 _FREE_TOPIC = """
 MATCH (:Segment)-[:ABOUT|MENTIONS]->(x)
-WHERE (x:Topic OR x:Entity) AND toLower(x.name) CONTAINS toLower($q)
+WHERE (x:Topic OR x:Entity)
+  AND any(tok IN $tokens WHERE toLower(x.name) CONTAINS tok)
 RETURN count(DISTINCT x) AS coverage, collect(DISTINCT x.name)[0..3] AS corpus_terms
 """
+
+# Question scaffolding carries no topic. Dropping it is what lets the scan see the nouns.
+_STOPWORDS = {
+    "how", "what", "why", "when", "where", "who", "which", "does", "did", "can", "could",
+    "should", "would", "the", "and", "for", "with", "from", "into", "about", "use",
+    "using", "used", "get", "got", "make", "made", "you", "your", "are", "was", "were",
+    "this", "that", "there", "here", "any", "all", "some", "best", "way", "ways", "not",
+}
+
+
+def _content_tokens(q: str) -> list[str]:
+    """Topic-bearing tokens of a query, for the coverage scan.
+
+    Falls back to the whole normalized string when a query is nothing but stopwords, so
+    the scan degrades to the old behaviour rather than matching every term in the graph.
+    """
+    tokens = [t for t in _norm(q).split() if len(t) > 2 and t not in _STOPWORDS]
+    return tokens or [_norm(q)]
 
 _INGESTED_TITLES = "MATCH (v:Video) RETURN v.title AS title"
 
@@ -137,6 +160,17 @@ def _yt_search(query: str, n: int = 5) -> list[dict]:
     return out
 
 
+# A title can carry the goal verbatim and still be entertainment: asking about "game
+# theory" surfaced The Game Theorists' "Game Theory: Oops, Lethal Company Accidently
+# Ended The World" first, because that channel's naming convention is an exact substring
+# of the query. Name-matching alone cannot separate a lecture from a gaming channel, so
+# the substring bonus is small and an instructional signal outweighs it.
+_INSTRUCTIONAL = re.compile(
+    r"\b(lecture|lectures|course|crash course|explained|introduction|intro|tutorial|"
+    r"lesson|seminar|masterclass|university|mit|stanford|khan)\b"
+)
+
+
 def _score(rec: dict, goal: str) -> float:
     """Rank on-topic, teachable-length, audience-validated material."""
     title = _norm(rec["title"])
@@ -144,9 +178,11 @@ def _score(rec: dict, goal: str) -> float:
     overlap = len(goal_tokens & set(title.split())) / max(len(goal_tokens), 1)
     duration = rec.get("duration_sec") or 0
     views = rec.get("view_count") or 0
+    teaches = _INSTRUCTIONAL.search(f"{title} {_norm(rec.get('channel') or '')}")
     return round(
         3.0 * overlap
-        + (2.0 if _norm(goal) in title else 0.0)
+        + (0.75 if _norm(goal) in title else 0.0)
+        + (1.25 if teaches else 0.0)
         # 5-40 minutes is a talk or a lecture; outside it is a short or a 4-hour stream.
         + (1.0 if 300 <= duration <= 2400 else 0.3)
         + min(math.log10(views + 10) / 6, 1.0),
@@ -166,7 +202,9 @@ def _why(goal: str, coverage: int, corpus_terms: list[str], stated: bool = True)
     if not stated:
         # An ad-hoc topic has no ADVANCES edges to count, so coverage here is only "how
         # many terms mention it". Say exactly that rather than implying the stronger claim.
-        return (f"no term in your library mentions '{goal}'" if coverage == 0
+        # Hedged on purpose: this is a keyword scan, not a traversal, so a miss is
+        # "I didn't find it" — never the definitive "your library doesn't teach this".
+        return (f"a keyword scan of your library found nothing on '{goal}'" if coverage == 0
                 else f"your library mentions '{goal}' in {coverage} terms{via}")
     if coverage == 0:
         return f"nothing in your library teaches '{goal}'"
@@ -302,7 +340,7 @@ async def discover_for_goal(goal: str, per_goal: int = 3) -> dict:
     if stated:
         name, coverage, terms = rows[0]["goal"], rows[0]["coverage"], rows[0]["corpus_terms"]
     else:
-        scan = await execute_cypher(_FREE_TOPIC, {"q": goal}, collect=False)
+        scan = await execute_cypher(_FREE_TOPIC, {"tokens": _content_tokens(goal)}, collect=False)
         name, coverage = goal, (scan[0]["coverage"] if scan else 0)
         terms = scan[0]["corpus_terms"] if scan else []
 

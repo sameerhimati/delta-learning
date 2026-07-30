@@ -496,6 +496,11 @@ async def build_curriculum(goal: str | None = None, max_units: int = 12) -> dict
 
     units.sort(key=_track_rank)
 
+    # Two lessons 0.4% apart in the same talk are effectively simultaneous — a speaker did
+    # not build one on the other in twenty seconds. Below this margin the depth ordering is
+    # noise, and calling it "the speaker's own build-up order" sells noise as pedagogy.
+    _DEPTH_MARGIN = 0.02
+
     prev = None
     for i, u in enumerate(units, start=1):
         u["order"] = i
@@ -509,12 +514,19 @@ async def build_curriculum(goal: str | None = None, max_units: int = 12) -> dict
                 if u["serves_goal"] else
                 "no stated goal — scheduled after every goal-aligned track"
             )
-        elif shared_video:
+        elif shared_video and u["depth"] - prev["depth"] >= _DEPTH_MARGIN:
             u["order_confidence"] = "high"
             u["why_here"] = (
                 f"introduced {round(u['depth'] * 100)}% into its talk, after "
                 f"'{prev['title']}' at {round(prev['depth'] * 100)}% — same talk, so this "
                 f"is the speaker's own build-up order (10/10 on the prerequisite test)"
+            )
+        elif shared_video:
+            u["order_confidence"] = "low"
+            u["why_here"] = (
+                f"introduced {round(u['depth'] * 100)}% into its talk, essentially "
+                f"alongside '{prev['title']}' at {round(prev['depth'] * 100)}% — same "
+                f"talk, but the gap is too small to call either one a prerequisite"
             )
         else:
             u["order_confidence"] = "low"
@@ -595,9 +607,10 @@ async def build_curriculum(goal: str | None = None, max_units: int = 12) -> dict
             "terms_total": len(terms),
             "known": sum(1 for t in terms if t["known"]),
             "to_learn": sum(1 for t in terms if not t["known"]),
-            # Sum of the units' own watch times — a unit can revisit a range another
-            # unit also uses, so this is "time spent per unit", not wall-clock.
-            "watch_sec": sum(u["watch_sec"] for u in units),
+            # Sum of the units' own watch times — a unit can revisit a range another unit
+            # also uses, so this double-counts and can exceed corpus_sec. Named for what
+            # it is: read as "watch_sec" it asks for more time than the corpus contains.
+            "watch_sec_per_unit_sum": sum(u["watch_sec"] for u in units),
             # Wall-clock: the union of every scheduled range. This is the honest
             # "watch X of Y" number, and it is what shrinks as you capture learning.
             "watch_sec_unique": round(watch_unique),
