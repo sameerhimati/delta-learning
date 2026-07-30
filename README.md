@@ -39,11 +39,11 @@ Game Theory B ("A Simple Strategy…", 17:46)   BEFORE   watch 16:08 · 2 cuts �
   → watch Game Theory A ("How Decision Making…", 9:50)
     POST /api/capture {"video": "How Decision Making"}      captures 11 concepts
 
-Game Theory B                                  AFTER   watch  9:32 · 3 cuts · 6 known concepts
+Game Theory B                                  AFTER   watch 10:16 · 3 cuts · 3 known concepts
                                                         cuts: 5:08–5:52 · 7:20–10:16 · 11:44–17:36
 ```
 
-**41% less to watch. 6:36 saved on one talk, from having watched a different one.**
+**36% less to watch. 5:52 saved on one talk, from having watched a different one.**
 
 And the agent says *why*, out loud, citing the source:
 > *"Skip 0:00–5:08 … you learned that from* How Decision Making is Actually Science.*"*

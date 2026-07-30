@@ -10,7 +10,7 @@
       resolver switched from an absolute cosine floor to top-K + LLM adjudication,
       Pegasus given a duration-aware token budget, vault scanning widened 33 → 109 concepts.
 - [x] `21369a4` Lean ontology — structuring prompt capped at 3 genuinely-teachable topics
-      per segment. Terms/video 103→71, 45→27, 30→22. **Capture beat 25% → 41%.**
+      per segment. Terms/video 103→71, 45→27, 30→22. **Capture beat 4% → 36%.**
 - [x] `931c5e6` Novelty-density cuts + goal precision + Neo4j GDS wired (`learning_frontier`).
 - [x] `6efda81` Stopped serializing 512-float embeddings into agent context (one graph
       question was asking for 386k tokens and returning a rate-limit error).
@@ -27,10 +27,11 @@
 - **Uncommitted:** none.
 - **Blockers:** none. One loose end below.
 
-### ⚠️ Loose end: graph is NOT in clean demo state
+### Graph state: verified clean at 3:12pm
 
-A verification subagent ran a capture and left artifacts (`known_from_video: 4`).
-**Before rehearsing or recording, run:**
+Subagents ran captures during verification; artifacts were removed and the baseline
+re-confirmed at **968s / 2 cuts / known 0**. Any time that baseline does not match,
+re-run:
 ```cypher
 MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 ```
@@ -55,9 +56,9 @@ This only removes capture artifacts; vault and goal Concepts use a different key
 ```
 Game Theory B before:  watch 16:08 of 17:47 · 2 cuts · known 0
 POST /api/capture {"video": "How Decision Making"}  → 11 concepts
-Game Theory B after:   watch  9:32 of 17:47 · 3 cuts · known 6
+Game Theory B after:   watch 10:16 of 17:47 · 3 cuts · known 3
 ```
-**41% less to watch, from watching one 9-minute video.**
+**36% less to watch — 5:52 saved — from watching one 9-minute video.**
 
 Six questions, `/api/chat`, same `session_id`, 9–40s each:
 
@@ -71,7 +72,7 @@ Six questions, `/api/chat`, same `session_id`, 9–40s each:
    ⚠️ **Name the video.** Saying "the game theory explainer" makes the agent pick the *other*
    game-theory video, so Q6 then asks about the video it just captured and answers
    "skip all of it" — circular, kills the beat. Verified failure mode.
-6. "Now what should I watch in 'A Simple Strategy'?" → 9:32 across 3 cuts, and it names
+6. "Now what should I watch in 'A Simple Strategy'?" → 10:16 across 3 cuts, and it names
    *where* the skipped material was learned. The finale.
 
 ## Context to Remember
