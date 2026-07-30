@@ -35,13 +35,36 @@ from app.vector_client import ensure_segment_vector_index  # noqa: E402
 from app import twelvelabs_client as tl  # noqa: E402
 
 
-PEGASUS_PROMPT = (
-    "Analyze this video and break it into its distinct segments in chronological "
-    "order. For each segment give: the approximate start and end time in seconds, "
-    "a one-sentence description of what is happening (who/what is visible), any "
-    "visible on-screen text, and any spoken words. Also name the overall topics. "
-    "Be concrete and specific about people, organizations, places, objects, and brands."
-)
+# A cut list is only useful at the granularity of its segments: 4-minute segments
+# mean the viewer either watches 4 minutes or skips a topic they needed. But Pegasus
+# caps output at 4096 tokens, so "make them short" on a 45-minute talk just means it
+# narrates the first third in detail and stops. Do the arithmetic here instead: pick a
+# segment count that fits the budget, then tell Pegasus the exact runtime and target so
+# it spreads that many segments across the whole video.
+MAX_SEGMENTS = 34  # ~4096 output tokens / ~110 tokens per described segment
+
+
+def _pegasus_prompt(duration_sec: float | None) -> str:
+    total = int(duration_sec or 0)
+    if total <= 0:
+        target, seg_len, span = 16, 45, "the entire video"
+    else:
+        target = max(8, min(MAX_SEGMENTS, round(total / 45)))
+        seg_len = max(20, round(total / target))
+        span = f"0 seconds to {total} seconds"
+    return (
+        f"This video is {total} seconds long. Analyze it and break it into exactly about "
+        f"{target} consecutive segments of roughly {seg_len} seconds each, spread evenly "
+        f"across {span}, in chronological order. For each segment give: its start and end "
+        "time in seconds, a one-sentence description of what is happening (who/what is "
+        "visible), any visible on-screen text, and any spoken words. Also name the overall "
+        "topics. Be concrete and specific about people, organizations, places, objects, "
+        "and brands.\n"
+        f"CRITICAL: the segments must tile the whole runtime with no gaps — the first "
+        f"starts at 0 and the last ends near {total}. Never emit a timestamp beyond "
+        f"{total}. Keep each description to one short sentence so all {target} segments "
+        "fit; do not stop early and do not lump the tail of the video into one segment."
+    )
 
 STRUCTURE_SYSTEM = (
     "You convert a video analysis into strict JSON. Output ONLY a JSON object of the form:\n"
@@ -51,7 +74,9 @@ STRUCTURE_SYSTEM = (
     '["person","organization","location","object","product","brand","event","concept"]}], '
     '"topics": [str]}]}\n'
     "Canonicalize entity and topic names (Title Case, singular, no duplicates within a segment). "
-    "Use the SAME canonical name for the same real-world thing so it can be merged across videos."
+    "Use the SAME canonical name for the same real-world thing so it can be merged across videos.\n"
+    "Preserve the analysis's granularity: emit one segment per described moment and never "
+    "merge several into a broad chapter. Segments must run in order and cover the whole video."
 )
 
 
@@ -202,7 +227,13 @@ async def _analyze_embed_write(index_id: str, video_id: str, url: str | None,
                                title: str, duration_sec) -> int:
     """Shared tail: Pegasus analyze -> OpenAI structure -> Marengo embed -> Neo4j."""
     log.info("Analyzing video_id=%s with Pegasus ...", video_id)
-    pegasus_text = tl.analyze_video(video_id, PEGASUS_PROMPT)
+    # Budget output tokens by runtime: at ~45-90s per segment a 45-minute talk needs
+    # tens of segments, and the stock 2000-token cap silently truncates the analysis
+    # partway through the video (leaving the tail unsegmented and un-skippable).
+    minutes = (duration_sec or 0) / 60
+    max_tokens = max(2000, min(4096, int(minutes * 300)))  # 4096 is Pegasus's hard cap
+    pegasus_text = tl.analyze_video(video_id, _pegasus_prompt(duration_sec),
+                                    max_tokens=max_tokens)
     structured = structure_with_openai(pegasus_text)
     segments = structured.get("segments", [])
     log.info("Structured into %d segments. Embedding ...", len(segments))

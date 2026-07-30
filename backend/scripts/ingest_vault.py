@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import sys
 from pathlib import Path
 
@@ -32,14 +33,22 @@ from app.config import settings  # noqa: E402
 from app.context_graph_client import connect_neo4j, close_neo4j, execute_cypher  # noqa: E402
 from app import twelvelabs_client as tl  # noqa: E402
 
+# The knowledge state is only as good as its coverage: scanning one subfolder left the
+# viewer looking like they knew 33 things, so nearly every video term read as novel.
+# Deliberately excluded: daily/ (date-named journal entries, not claims) and systems/
+# (workout and routine logs — real notes, but nothing a talk could teach).
 DEFAULT_VAULT_DIRS = [
-    "~/Desktop/knowledge/research/ai-ml",
+    "~/Desktop/knowledge/research",
     "~/Desktop/knowledge/ideas",
+    "~/Desktop/knowledge/projects",
+    "~/Desktop/knowledge/writing",
 ]
 GOALS_FILE = Path(__file__).resolve().parents[2] / "data" / "learning_goals.yaml"
 
 # Filenames that are index/meta files, not knowledge claims.
 SKIP_PREFIXES = ("_", "README")
+# A stem that is (or ends in) a bare date — daily notes, open-loops-2026-07-22, etc.
+_DATE_STEM = re.compile(r"^(.*-)?\d{4}-\d{2}-\d{2}$")
 
 
 def _norm_key(name: str) -> str:
@@ -56,6 +65,8 @@ def _claim_files(vault_dirs: list[str]) -> list[tuple[str, str]]:
             continue
         for p in sorted(root.rglob("*.md")):
             if p.name.startswith(SKIP_PREFIXES):
+                continue
+            if _DATE_STEM.match(p.stem):  # 2026-07-30.md and friends are journal, not claim
                 continue
             name = p.stem.replace("-", " ").strip()
             if len(name.split()) < 2:  # single-word files are indexes, not claims

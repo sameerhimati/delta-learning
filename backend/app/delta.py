@@ -2,13 +2,14 @@
 
 The viewer's knowledge state lives in the same graph as the videos:
   (:Concept {key, name, status: 'known'|'goal', source: 'vault'|'video'})
-  (:Topic|:Entity)-[:SAME_AS]->(:Concept)   // written by scripts/resolve_concepts.py
+  (:Topic|:Entity)-[:SAME_AS]->(:Concept)    // "same concept" — written by resolve_concepts.py
+  (:Topic|:Entity)-[:ADVANCES]->(:Concept)   // "teaches toward this goal" — same script
 
 A video's "learnable" nodes are its Topics plus concept-typed Entities.
 Status per learnable node:
-  goal  — SAME_AS a goal Concept (explicitly wants to learn: always watch)
   known — SAME_AS a known Concept (skip)
-  novel — no SAME_AS match (watch)
+  goal  — ADVANCES a goal Concept (explicitly wants to learn: always watch)
+  novel — neither (watch)
 The cut list is the merged set of segments mentioning novel/goal concepts.
 """
 
@@ -21,21 +22,28 @@ from app.context_graph_client import execute_cypher
 # things you "learn" from a talk).
 LEARNABLE_ENTITY_TYPES = ["concept", "event", "product"]
 
+# Evidence beats aspiration: a term the viewer demonstrably knows is skippable even when
+# it also advances a stated goal — otherwise capture_learning() can never shrink a cut
+# list, since Topics are shared across videos and the goal branch would always win.
 _LEARNABLE_MATCH = """
 MATCH (v:Video {id: $video_id})-[:HAS_SEGMENT]->(s:Segment)-[r:ABOUT|MENTIONS]->(x)
 WHERE (x:Topic) OR (x:Entity AND x.type IN $learnable_types)
-OPTIONAL MATCH (x)-[:SAME_AS]->(c:Concept)
-WITH v, x, collect(DISTINCT s) AS segs, collect(DISTINCT c) AS matches
-WITH v, x, segs,
+WITH v, x, collect(DISTINCT s) AS segs
+OPTIONAL MATCH (x)-[:SAME_AS]->(k:Concept {status: 'known'})
+WITH v, x, segs, collect(DISTINCT k) AS known_c
+OPTIONAL MATCH (x)-[:ADVANCES]->(g:Concept {status: 'goal'})
+WITH v, x, segs, known_c, collect(DISTINCT g) AS goal_c
+WITH v, x, segs, goal_c,
      CASE
-       WHEN any(c IN matches WHERE c.status = 'goal')  THEN 'goal'
-       WHEN any(c IN matches WHERE c.status = 'known') THEN 'known'
+       WHEN size(known_c) > 0 THEN 'known'
+       WHEN size(goal_c)  > 0 THEN 'goal'
        ELSE 'novel'
      END AS status,
-     [c IN matches WHERE c.status IN ['known','goal'] | c.name][0] AS matched_concept,
-     [c IN matches WHERE c.status IN ['known','goal'] | coalesce(c.note_path, c.video_id)][0] AS matched_source
+     [c IN known_c + goal_c | c.name][0] AS matched_concept,
+     [c IN known_c + goal_c | coalesce(c.note_path, c.video_id)][0] AS matched_source
 RETURN v.id AS video_id, v.title AS title, v.duration_sec AS duration_sec,
        x.name AS name, labels(x)[0] AS kind, status, matched_concept, matched_source,
+       [c IN goal_c | c.name][0] AS goal_concept,
        [s IN segs | {id: s.id, idx: s.idx, start_sec: s.start_sec, end_sec: s.end_sec,
                      summary: s.summary}] AS segments
 """
@@ -74,9 +82,16 @@ async def knowledge_delta(title_or_id: str) -> dict:
         entry = {"name": r["name"], "status": r["status"], "kind": r["kind"],
                  "matched_concept": r.get("matched_concept"),
                  "source": r.get("matched_source")}
+        # A known term can still sit inside a goal; say so rather than silently hiding it.
+        if r["status"] == "known" and r.get("goal_concept"):
+            entry["goal_note"] = (f"you already know this — and it advances "
+                                  f"your goal '{r['goal_concept']}'")
         {"known": known, "novel": novel, "goal": goal}[r["status"]].append(entry)
         if r["status"] in ("novel", "goal"):
-            why = ("you asked to learn this" if r["status"] == "goal"
+            # A goal match is topical, not literal — the viewer asked for "game theory",
+            # not for "Nash equilibrium". Name the goal instead of claiming they named it.
+            why = (f"advances your goal '{r['goal_concept']}'"
+                   if r["status"] == "goal" and r.get("goal_concept")
                    else "not in your knowledge base")
             for s in r["segments"]:
                 seg = watch_segments.setdefault(
@@ -101,8 +116,14 @@ async def knowledge_delta(title_or_id: str) -> dict:
         c["concepts"] = [x for x in c["concepts"]
                          if not (x["name"] in seen or seen.add(x["name"]))]
 
-    watch_sec = sum((c["end_sec"] or 0) - (c["start_sec"] or 0) for c in cuts)
+    # Pegasus timestamps are approximate and can overrun the real runtime; without a
+    # clamp an 8-minute video reports "watch 12:00 of 8:07" and skip_sec collapses to 0.
     duration = video.get("duration_sec") or 0
+    if duration:
+        cuts = [c for c in cuts if (c["start_sec"] or 0) < duration]
+        for c in cuts:
+            c["end_sec"] = min(c["end_sec"] or 0, duration)
+    watch_sec = sum(max((c["end_sec"] or 0) - (c["start_sec"] or 0), 0) for c in cuts)
     return {
         "video": video,
         "stats": {
@@ -116,10 +137,10 @@ async def knowledge_delta(title_or_id: str) -> dict:
 
 
 async def capture_learning(title_or_id: str, concept_names: list[str] | None = None) -> dict:
-    """Mark novel concepts from a video as learned: create known Concept nodes
+    """Mark concepts the viewer just watched as learned: create known Concept nodes
     sourced to the video segments that taught them, plus SAME_AS edges.
 
-    With no explicit names, captures every novel concept in the video.
+    With no explicit names, captures everything the cut list told them to watch.
     Returns the created concepts so the graph panel lights them up.
     """
     delta = await knowledge_delta(title_or_id)
@@ -128,18 +149,25 @@ async def capture_learning(title_or_id: str, concept_names: list[str] | None = N
     video_id = delta["video"]["id"]
 
     wanted = {n.strip().lower() for n in concept_names or [] if n.strip()}
-    targets = []
+    targets: dict[str, dict] = {}  # key -> target, deduped across cuts
     for cut in delta["cuts"]:
         for con in cut["concepts"]:
-            if con["status"] != "novel":
+            # Goal terms are watched, so watching teaches them too. Capturing them is
+            # what lets known beat goal and drop those segments from the next cut list.
+            if con["status"] not in ("novel", "goal"):
                 continue
             if wanted and con["name"].lower() not in wanted:
                 continue
-            targets.append({"name": con["name"],
-                            "key": " ".join(con["name"].lower().split()),
-                            "start_sec": cut["start_sec"], "end_sec": cut["end_sec"]})
+            name = " ".join(con["name"].lower().split())
+            # Namespace captured concepts: a bare key would MERGE straight onto a vault
+            # note or, worse, onto a learning goal and flip it to 'known' — silently
+            # deleting the viewer's stated goal.
+            targets.setdefault(f"video:{name}", {
+                "name": con["name"], "key": f"video:{name}", "match_key": name,
+                "start_sec": cut["start_sec"], "end_sec": cut["end_sec"]})
+    targets = list(targets.values())
     if not targets:
-        return {"captured": [], "note": "No matching novel concepts to capture."}
+        return {"captured": [], "note": "No matching concepts to capture."}
 
     # Embed each new concept so future resolution passes can match against it.
     from app import twelvelabs_client as tl
@@ -160,7 +188,7 @@ async def capture_learning(title_or_id: str, concept_names: list[str] | None = N
         SET c.status = 'known'
         WITH c, t
         MATCH (x)
-        WHERE (x:Topic OR x:Entity) AND toLower(x.name) = t.key
+        WHERE (x:Topic OR x:Entity) AND toLower(x.name) = t.match_key
         MERGE (x)-[:SAME_AS]->(c)
         RETURN DISTINCT c
         """,
