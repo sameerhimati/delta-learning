@@ -451,7 +451,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
   return (
     <Flex direction="column" h="100%">
       <HStack px={4} py={3} borderBottom="1px solid" borderColor="gray.200" justifyContent="space-between">
-        <Heading size="sm">Chat</Heading>
+        <Heading size="sm">Study assistant</Heading>
         {messages.length > 0 && (
           <Button size="xs" variant="ghost" onClick={startNewConversation}>
             <RotateCcw size={14} />
@@ -464,12 +464,15 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       {messages.length === 0 && !loading && (
         <Flex direction="column" flex={1} justify="center" px={4} py={6}>
           <VStack gap={4}>
-            <Text fontSize="lg" fontWeight="medium" color="gray.700">
-🎬 Ask about your videos
+            <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+              What do you want to learn?
+            </Text>
+            <Text mt={-2} maxW="460px" textAlign="center" fontSize="sm" color="gray.500">
+              Ask about a talk, compare it with your knowledge, or plan what to watch next.
             </Text>
             <HStack gap={1} flexShrink={0} color="gray.500" fontSize="xs" fontWeight="medium">
               <Sparkles size={14} />
-              <Text>Try these</Text>
+              <Text>Start with a question</Text>
             </HStack>
             <Flex gap={2} flexWrap="wrap" justify="center" maxW="500px">
               {allPrompts.map((prompt) => (
@@ -677,7 +680,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about your videos..."
+            placeholder="Ask about a talk, concept, or learning goal…"
             border="none"
             _focus={{ boxShadow: "none" }}
             resize="none"

@@ -1,10 +1,10 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
 const config = defineConfig({
-  cssVarsPrefix: "ccg",
+  cssVarsPrefix: "delta",
   globalCss: {
     "html, body": {
-      bg: "gray.50",
+      bg: "#f5f6f8",
       color: "gray.900",
       lineHeight: "1.6",
     },
@@ -13,11 +13,11 @@ const config = defineConfig({
     tokens: {
       colors: {
         brand: {
-          50: { value: "#f0f9ff" },
-          100: { value: "#e0f2fe" },
-          500: { value: "#8b5cf6" },
-          600: { value: "#8b5cf6" },
-          700: { value: "#8b5cf6" },
+          50: { value: "#f4f3ff" },
+          100: { value: "#e8e7ff" },
+          500: { value: "#625bf6" },
+          600: { value: "#554ee8" },
+          700: { value: "#4640c8" },
         },
       },
     },

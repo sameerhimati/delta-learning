@@ -11,6 +11,33 @@ body {
   height: 100%;
 }
 
+body {
+  background: #f5f6f8;
+  color: #171922;
+  font-family:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+textarea,
+input {
+  font: inherit;
+}
+
+summary {
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+::selection {
+  background: #dddafe;
+  color: #171922;
+}
+
 /* Markdown content styling for chat messages */
 .markdown-content h1,
 .markdown-content h2,
@@ -58,7 +85,7 @@ body {
 }
 .markdown-content th { background: rgba(0, 0, 0, 0.04); }
 .markdown-content blockquote {
-  border-left: 3px solid #ddd;
+  border-left: 3px solid #a5b4fc;
   padding-left: 0.75em;
   color: #666;
   margin-bottom: 0.5em;

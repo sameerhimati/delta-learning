@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Flex,
+  Grid,
   Heading,
   HStack,
   Spinner,
@@ -37,6 +38,7 @@ interface DeltaConcept {
   why?: string;
   matched_concept?: string | null;
   source?: string | null;
+  goal_note?: string | null;
 }
 
 interface DeltaCut {
@@ -83,6 +85,33 @@ function formatTime(seconds: number): string {
 function noteName(source?: string | null): string {
   if (!source) return "your knowledge vault";
   return source.split(/[\\/]/).pop()?.replace(/\.md$/i, "") || source;
+}
+
+function ConceptPill({ concept }: { concept: DeltaConcept }) {
+  const isGoal = concept.status === "goal";
+  return (
+    <Box
+      px={2.5}
+      py={2}
+      borderWidth="1px"
+      borderColor={isGoal ? "blue.200" : "orange.200"}
+      borderRadius="lg"
+      bg={isGoal ? "blue.50" : "orange.50"}
+    >
+      <Text
+        fontSize="xs"
+        fontWeight="semibold"
+        color={isGoal ? "blue.800" : "orange.800"}
+        lineHeight="1.3"
+      >
+        {concept.name}
+      </Text>
+      <Text mt={0.5} fontSize="10px" color={isGoal ? "blue.600" : "orange.600"}>
+        {concept.why ||
+          (isGoal ? "you asked to learn this" : "not in your knowledge base")}
+      </Text>
+    </Box>
+  );
 }
 
 export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPanelProps) {
@@ -169,6 +198,7 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
       }
       const result = (await response.json()) as CaptureResponse;
       setCaptured(result.captured || []);
+      await loadDelta();
     } catch (requestError) {
       setCaptureError(
         requestError instanceof Error
@@ -218,19 +248,24 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
     : "You already know the rest.";
 
   return (
-    <VStack align="stretch" gap={3} pb={3}>
+    <VStack align="stretch" gap={4} pb={3}>
       <Box
-        p={4}
-        borderRadius="xl"
+        p={{ base: 4, lg: 5 }}
+        borderRadius="2xl"
         color="white"
-        background="linear-gradient(135deg, #111827 0%, #312e81 55%, #1d4ed8 100%)"
-        boxShadow="md"
+        background="linear-gradient(145deg, #171922 0%, #252945 65%, #30366b 100%)"
+        boxShadow="0 12px 32px rgba(17,19,24,0.16)"
       >
-        <HStack justify="space-between" mb={2}>
-          <Text fontSize="xs" fontWeight="bold" letterSpacing="0.16em" color="purple.100">
-            YOUR CUT
-          </Text>
-          <HStack gap={1.5}>
+        <HStack justify="space-between" align="start" mb={4}>
+          <Box>
+            <Text fontSize="xs" fontWeight="bold" letterSpacing="0.14em" color="purple.200">
+              YOUR CUT
+            </Text>
+            <Text mt={1} fontSize="xs" color="whiteAlpha.600">
+              Personalized from your saved knowledge
+            </Text>
+          </Box>
+          <HStack gap={1.5} flexWrap="wrap" justify="flex-end">
             {isFixture && (
               <Badge colorPalette="purple" variant="solid" size="sm">Fixture preview</Badge>
             )}
@@ -243,89 +278,161 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
             </Badge>
           </HStack>
         </HStack>
-        <Heading size="lg" lineHeight="1.1">
-          Watch {formatTime(data.stats.watch_sec)} of {formatTime(totalSeconds)}
+
+        <Heading
+          fontSize={{ base: "2xl", lg: "3xl" }}
+          lineHeight="1.05"
+          letterSpacing="-0.035em"
+          maxW="680px"
+        >
+          Watch {formatTime(data.stats.watch_sec)}{" "}
+          <Text as="span" color="whiteAlpha.500" fontWeight="normal">
+            of {formatTime(totalSeconds)}
+          </Text>
         </Heading>
-        <Text mt={2} fontSize="sm" color="blue.100" lineHeight="1.45">
+        <Text mt={3} maxW="680px" fontSize="sm" color="whiteAlpha.700" lineHeight="1.55">
           {recommendationExplanation}
         </Text>
-        <HStack mt={4} gap={2} flexWrap="wrap">
-          <Badge colorPalette="orange" variant="solid">
-            {data.stats.novel} novel
-          </Badge>
-          <Badge colorPalette="blue" variant="solid">
-            {data.stats.goal_hits} learning goals
-          </Badge>
-          <Badge colorPalette="gray" variant="solid">
-            {data.stats.known} already known
-          </Badge>
-        </HStack>
+
+        <Grid templateColumns="repeat(3, minmax(0, 1fr))" gap={2} mt={5}>
+          {[
+            { value: data.stats.novel, label: "new concepts", color: "orange.300" },
+            { value: data.stats.goal_hits, label: "goal matches", color: "blue.300" },
+            { value: data.stats.known, label: "already known", color: "green.300" },
+          ].map((stat) => (
+            <Box
+              key={stat.label}
+              px={{ base: 2, md: 3 }}
+              py={2.5}
+              bg="whiteAlpha.100"
+              borderWidth="1px"
+              borderColor="whiteAlpha.200"
+              borderRadius="xl"
+            >
+              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color={stat.color}>
+                {stat.value}
+              </Text>
+              <Text fontSize="10px" color="whiteAlpha.600">{stat.label}</Text>
+            </Box>
+          ))}
+        </Grid>
       </Box>
 
       {data.cuts.length === 0 ? (
-        <Box p={5} textAlign="center" borderWidth="1px" borderRadius="lg" bg="green.50">
-          <Text fontSize="sm" fontWeight="semibold" color="green.700">
+        <Box
+          p={6}
+          textAlign="center"
+          borderWidth="1px"
+          borderColor="green.200"
+          borderRadius="xl"
+          bg="green.50"
+        >
+          <Text fontSize="sm" fontWeight="semibold" color="green.800">
             Nothing new for you in this video — skip it entirely 🎉
+          </Text>
+          <Text mt={1} fontSize="xs" color="green.700">
+            Your saved knowledge already covers every concept we found.
           </Text>
         </Box>
       ) : (
-        <VStack align="stretch" gap={2}>
+        <VStack align="stretch" gap={3}>
+          <HStack justify="space-between" px={1}>
+            <Box>
+              <Heading size="sm">Recommended clips</Heading>
+              <Text mt={0.5} fontSize="xs" color="gray.500">
+                {data.cuts.length} focused {data.cuts.length === 1 ? "section" : "sections"} in order
+              </Text>
+            </Box>
+            <HStack gap={1.5}>
+              <Badge colorPalette="orange" variant="subtle">new</Badge>
+              <Badge colorPalette="blue" variant="subtle">your goal</Badge>
+            </HStack>
+          </HStack>
+
           {data.cuts.map((cut, index) => (
             <Box
               key={cut.segment_id}
-              p={3}
+              p={{ base: 3, md: 4 }}
               borderWidth="1px"
               borderColor="gray.200"
-              borderRadius="lg"
+              borderRadius="xl"
               bg="white"
-              boxShadow="xs"
+              transition="border-color 0.15s ease, box-shadow 0.15s ease"
+              _hover={{ borderColor: "purple.200", boxShadow: "0 4px 16px rgba(15,23,42,0.05)" }}
             >
               <HStack justify="space-between" align="start" mb={2}>
-                <Text fontSize="xs" fontWeight="bold" color="gray.500">
-                  CUT {index + 1}
-                </Text>
+                <HStack gap={2}>
+                  <Flex
+                    align="center"
+                    justify="center"
+                    w={7}
+                    h={7}
+                    borderRadius="lg"
+                    bg="gray.900"
+                    color="white"
+                    fontSize="xs"
+                    fontWeight="bold"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </Flex>
+                  <Text fontSize="xs" fontWeight="bold" letterSpacing="0.08em" color="gray.500">
+                    STUDY CLIP
+                  </Text>
+                </HStack>
                 <Button
                   size="xs"
-                  variant="subtle"
+                  variant="outline"
                   colorPalette="purple"
+                  borderRadius="full"
                   onClick={() => onSeek?.(cut.start_sec)}
                 >
                   <Play size={11} />
                   {formatTime(cut.start_sec)}–{formatTime(cut.end_sec)}
                 </Button>
               </HStack>
-              <Text fontSize="sm" color="gray.800" lineHeight="1.45">
+              <Text fontSize="sm" color="gray.800" lineHeight="1.6">
                 {cut.summary}
               </Text>
-              <VStack align="stretch" gap={1.5} mt={3}>
-                {cut.concepts.map((concept) => {
-                  const isGoal = concept.status === "goal";
-                  return (
-                    <Box
-                      key={`${cut.segment_id}-${concept.name}`}
-                      px={2.5}
-                      py={2}
-                      borderRadius="md"
-                      bg={isGoal ? "blue.50" : "orange.50"}
-                      borderLeftWidth="3px"
-                      borderLeftColor={isGoal ? "blue.400" : "orange.400"}
-                    >
-                      <Badge colorPalette={isGoal ? "blue" : "orange"} variant="solid">
-                        {concept.name}
-                      </Badge>
-                      <Text mt={1} fontSize="xs" color={isGoal ? "blue.700" : "orange.700"}>
-                        {concept.why || (isGoal ? "you asked to learn this" : "not in your knowledge base")}
+
+              {cut.concepts.length > 0 && (
+                <>
+                  <Flex gap={2} mt={3} flexWrap="wrap">
+                    {cut.concepts.slice(0, 6).map((concept) => (
+                      <ConceptPill
+                        key={`${cut.segment_id}-${concept.name}`}
+                        concept={concept}
+                      />
+                    ))}
+                  </Flex>
+                  {cut.concepts.length > 6 && (
+                    <Box as="details" mt={2}>
+                      <Text
+                        as="summary"
+                        cursor="pointer"
+                        fontSize="xs"
+                        fontWeight="semibold"
+                        color="purple.600"
+                      >
+                        Show {cut.concepts.length - 6} more concepts
                       </Text>
+                      <Flex gap={2} mt={2} flexWrap="wrap">
+                        {cut.concepts.slice(6).map((concept) => (
+                          <ConceptPill
+                            key={`${cut.segment_id}-${concept.name}`}
+                            concept={concept}
+                          />
+                        ))}
+                      </Flex>
                     </Box>
-                  );
-                })}
-              </VStack>
+                  )}
+                </>
+              )}
             </Box>
           ))}
         </VStack>
       )}
 
-      <Box as="details" borderWidth="1px" borderColor="gray.200" borderRadius="lg" bg="gray.50">
+      <Box as="details" borderWidth="1px" borderColor="gray.200" borderRadius="xl" bg="#fbfbfc">
         <Flex
           as="summary"
           cursor="pointer"
@@ -360,6 +467,11 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
                 <Text fontSize="xs" color="gray.500">
                   Covered by “{noteName(concept.source)}”
                 </Text>
+                {concept.goal_note && (
+                  <Text mt={0.5} fontSize="xs" color="blue.600">
+                    {concept.goal_note}
+                  </Text>
+                )}
               </Box>
             ))
           )}
@@ -368,7 +480,8 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
 
       <Button
         colorPalette="purple"
-        size="sm"
+        size="md"
+        borderRadius="xl"
         onClick={() => void captureLearnings()}
         loading={capturing}
         disabled={novelConcepts.length === 0}
@@ -378,7 +491,7 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
       </Button>
 
       {captured && (
-        <Box p={3} borderWidth="1px" borderColor="green.200" borderRadius="lg" bg="green.50">
+        <Box p={3} borderWidth="1px" borderColor="green.200" borderRadius="xl" bg="green.50">
           <HStack gap={2} mb={captured.length ? 2 : 0}>
             <Check size={15} color="#15803d" />
             <Text fontSize="xs" fontWeight="bold" color="green.700">
@@ -398,7 +511,7 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
       )}
 
       {captureError && (
-        <Box p={3} borderWidth="1px" borderColor="orange.200" borderRadius="lg" bg="orange.50">
+        <Box p={3} borderWidth="1px" borderColor="orange.200" borderRadius="xl" bg="orange.50">
           <HStack align="start" gap={2}>
             <Clock3 size={14} color="#c2410c" />
             <Text fontSize="xs" color="orange.700">{captureError}</Text>
