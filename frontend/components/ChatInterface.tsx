@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box, Flex, Text, Textarea, IconButton, VStack, HStack,
-  Badge, Button, Spinner, Skeleton, Collapsible, Timeline, Circle, Grid,
+  Badge, Button, Spinner, Skeleton, Collapsible, Timeline, Grid,
 } from "@chakra-ui/react";
 import {
   ArrowUpRight,
@@ -12,11 +12,13 @@ import {
   ChevronDown,
   Wrench,
   Check,
-  Bot,
-  User,
+  Plus,
+  X,
+  Square,
   Sparkles,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { API_BASE, DEMO_SCENARIOS, DOMAIN } from "@/lib/config";
 import type { GraphData } from "@/lib/config";
@@ -59,6 +61,116 @@ interface ChatInterfaceProps {
 
 const STORAGE_KEY = `ccg-chat-history-${DOMAIN.id}`;
 const SESSION_KEY = `ccg-session-id-${DOMAIN.id}`;
+// v2 holds every thread in one record. The v1 keys above are still read once,
+// to migrate an open tab's history, and then never consulted again.
+const THREADS_KEY = `ccg-chat-v2-${DOMAIN.id}`;
+
+interface Thread {
+  id: string;
+  title: string; // "" until named; the tab falls back to "Untitled"
+  sessionId: string | null; // the backend keys agent memory on this, one per thread
+  messages: Message[];
+  createdAt: number;
+  unread: boolean; // an answer landed here while another tab was in front
+}
+
+interface PersistedChat {
+  v: 2;
+  activeId: string;
+  threads: Thread[];
+}
+
+const NO_MESSAGES: Message[] = [];
+
+function newThread(title = ""): Thread {
+  return {
+    id: crypto.randomUUID(),
+    title,
+    sessionId: null,
+    messages: [],
+    createdAt: Date.now(),
+    unread: false,
+  };
+}
+
+// A tab is ~130px of text. Strip the question stem so the subject — the part
+// that tells two tabs apart — survives, then cut once and let the tooltip
+// carry the rest. Capitalisation is never altered.
+const TITLE_STEM =
+  /^\s*(tell me about|what parts of|what should i|what is|what are|what's|which|how does|how do|show the|show me|explain)\s+/i;
+
+function deriveTitle(text: string): string {
+  const stripped = text
+    .replace(TITLE_STEM, "")
+    .replace(/^the\s+/i, "")
+    .replace(/\s+/g, " ")
+    .replace(/[?!.]+$/, "")
+    .trim();
+  if (!stripped) return "";
+  if (stripped.length <= 22) return stripped;
+  const cut = stripped.slice(0, 22);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > 10 ? cut.slice(0, space) : cut).trim()}…`;
+}
+
+function loadThreads(): { threads: Thread[]; activeId: string } {
+  try {
+    const raw = sessionStorage.getItem(THREADS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as PersistedChat;
+      if (parsed?.v === 2 && Array.isArray(parsed.threads) && parsed.threads.length > 0) {
+        const threads = parsed.threads.map((thread) => ({
+          ...thread,
+          unread: !!thread.unread,
+          messages: (thread.messages ?? []).map((m) => ({
+            ...m,
+            id: m.id || crypto.randomUUID(),
+          })),
+        }));
+        const activeId = threads.some((t) => t.id === parsed.activeId)
+          ? parsed.activeId
+          : threads[0].id;
+        return { threads, activeId };
+      }
+    }
+  } catch {
+    // fall through to the v1 migration
+  }
+
+  const legacy = loadStoredMessages();
+  if (legacy.length > 0) {
+    const firstAsk = legacy.find((m) => m.role === "user");
+    const thread = newThread(firstAsk ? deriveTitle(firstAsk.content) : "");
+    thread.messages = legacy;
+    thread.sessionId = loadStoredSessionId();
+    return { threads: [thread], activeId: thread.id };
+  }
+
+  const thread = newThread();
+  return { threads: [thread], activeId: thread.id };
+}
+
+// Chakra's preflight sets `list-style: none` on ol/ul inside @layer reset, which
+// silently ate every bullet and number in the agent's answers. An emotion style
+// prop is unlayered, so it wins without !important. Destructure only `children` —
+// spreading rest props collides Components' ref type with Box's and breaks tsc.
+const MD_COMPONENTS: Components = {
+  ul: ({ children }) => (
+    <Box as="ul" listStyleType="disc" listStylePosition="outside" mb={2}>
+      {children}
+    </Box>
+  ),
+  ol: ({ children }) => (
+    <Box as="ol" listStyleType="decimal" listStylePosition="outside" mb={2}>
+      {children}
+    </Box>
+  ),
+  li: ({ children }) => (
+    <Box as="li" display="list-item" mb={1}>
+      {children}
+    </Box>
+  ),
+};
 
 // The agent's tool names are Python identifiers. Say what the tool did instead.
 const TOOL_LABELS: Record<string, string> = {
@@ -179,10 +291,11 @@ function loadStoredSessionId(): string | null {
 }
 
 export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputConsumed }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [activeId, setActiveId] = useState("");
+  const [streamingThreadId, setStreamingThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [streamingContent, setStreamingContent] = useState("");
   const [streamingToolCalls, setStreamingToolCalls] = useState<ToolCall[]>([]);
   const [streamingEntities, setStreamingEntities] = useState<ExtractedEntity[]>([]);
@@ -198,30 +311,119 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
   // one render behind when "done" fires immediately after extraction events.
   const streamingEntitiesRef = useRef<ExtractedEntity[]>([]);
   const streamingPreferencesRef = useRef<DetectedPreference[]>([]);
+  // A thread created this tick must be visible to sendMessage before React
+  // re-renders, so refs — not state — are the source of truth for thread
+  // identity. State exists only to paint.
+  const threadsRef = useRef<Thread[]>([]);
+  const activeIdRef = useRef("");
+  const draftsRef = useRef<Map<string, string>>(new Map());
+  const pendingExternalRef = useRef<{ value: string; threadId: string } | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const tabRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const prevActiveRef = useRef("");
+
+  const commitThreads = useCallback((fn: (prev: Thread[]) => Thread[]) => {
+    const next = fn(threadsRef.current);
+    if (next === threadsRef.current) return;
+    threadsRef.current = next;
+    setThreads(next);
+  }, []);
+
+  const patchThread = useCallback(
+    (id: string, fn: (thread: Thread) => Thread) => {
+      commitThreads((prev) => {
+        if (!prev.some((t) => t.id === id)) return prev;
+        return prev.map((t) => (t.id === id ? fn(t) : t));
+      });
+    },
+    [commitThreads],
+  );
+
+  const setActive = useCallback((id: string) => {
+    activeIdRef.current = id;
+    setActiveId(id);
+  }, []);
+
+  const activeThread = threads.find((t) => t.id === activeId) ?? null;
+  const messages = activeThread?.messages ?? NO_MESSAGES;
+  const isActiveStreaming = loading && streamingThreadId === activeId;
+  const streamingTitle =
+    threads.find((t) => t.id === streamingThreadId)?.title || "Untitled";
 
   // Hydrate from sessionStorage after mount to avoid SSR mismatch
   useEffect(() => {
-    setMessages(loadStoredMessages());
-    setSessionId(loadStoredSessionId());
+    const loaded = loadThreads();
+    threadsRef.current = loaded.threads;
+    setThreads(loaded.threads);
+    activeIdRef.current = loaded.activeId;
+    setActiveId(loaded.activeId);
+    prevActiveRef.current = loaded.activeId;
     setHydrated(true);
   }, []);
 
-  // Handle external input from graph "Ask about this" button.
-  // `loading` is read inside but intentionally tracked here so a click that
-  // arrives mid-stream re-fires once the previous response completes.
-  // `sendMessage`/`onExternalInputConsumed` change identity every render and
-  // are omitted to avoid an effect storm.
+  // A concept clicked anywhere else in the app (the knowledge map, What I know)
+  // arrives here as `externalInput`. It opens its OWN thread rather than
+  // appending to whatever conversation happens to be in front — clicking a note
+  // is a new question, not a follow-up.
+  //
+  // `loading` stays in the deps deliberately: only one request may stream at a
+  // time, so a click that lands mid-answer creates its thread immediately and
+  // sends the moment the in-flight answer finishes.
   useEffect(() => {
-    if (externalInput && !loading) {
-      sendMessage(externalInput);
+    if (!hydrated) return;
+    if (!externalInput) {
+      pendingExternalRef.current = null;
+      return;
+    }
+
+    let threadId: string | null = null;
+    const pending = pendingExternalRef.current;
+    // The pending thread must still exist — the user may have closed it while
+    // the send was deferred, and targeting a dead id would swallow the question.
+    const pendingThread = pending
+      ? threadsRef.current.find((t) => t.id === pending.threadId)
+      : undefined;
+
+    if (pending && pendingThread) {
+      if (pending.value === externalInput) {
+        threadId = pending.threadId;
+      } else if (pendingThread.messages.length === 0) {
+        threadId = pending.threadId;
+        patchThread(threadId, (t) => ({ ...t, title: deriveTitle(externalInput) }));
+        pendingExternalRef.current = { value: externalInput, threadId };
+      }
+    }
+
+    if (!threadId) {
+      const title = deriveTitle(externalInput);
+      const active = threadsRef.current.find((t) => t.id === activeIdRef.current);
+      if (active && active.messages.length === 0 && active.id !== streamingThreadId) {
+        // Reuse an idle blank thread rather than opening a blank tab beside it.
+        threadId = active.id;
+        patchThread(threadId, (t) => ({ ...t, title }));
+      } else {
+        threadId = createThread(title);
+      }
+      pendingExternalRef.current = { value: externalInput, threadId };
+    }
+
+    if (!loading) {
+      void sendMessage(externalInput, threadId);
       onExternalInputConsumed?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalInput, loading]);
+  }, [externalInput, loading, hydrated]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streamingContent, streamingToolCalls]);
+    // Switching tabs should jump, not animate through the other thread's history.
+    const behavior = prevActiveRef.current === activeId ? "smooth" : "auto";
+    prevActiveRef.current = activeId;
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, [activeId, messages, streamingContent, streamingToolCalls]);
+
+  useEffect(() => {
+    tabRefs.current.get(activeId)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [activeId]);
 
   // Elapsed time counter during loading
   useEffect(() => {
@@ -230,13 +432,18 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
     return () => clearInterval(interval);
   }, [loading]);
 
-  // Persist chat history to sessionStorage
+  // Persist every thread to sessionStorage. The `hydrated` guard matters now:
+  // without it the first commit writes an empty thread list over stored history
+  // before the hydrate effect lands.
   useEffect(() => {
+    if (!hydrated) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-      if (sessionId) sessionStorage.setItem(SESSION_KEY, sessionId);
-    } catch { console.warn("Failed to persist chat history to sessionStorage"); }
-  }, [messages, sessionId]);
+      sessionStorage.setItem(
+        THREADS_KEY,
+        JSON.stringify({ v: 2, activeId, threads } satisfies PersistedChat),
+      );
+    } catch { console.warn("Failed to persist chat threads to sessionStorage"); }
+  }, [threads, activeId, hydrated]);
 
   // Throttle streaming text updates to ~50ms to avoid excessive ReactMarkdown re-renders
   const flushTextBuffer = useCallback(() => {
@@ -256,31 +463,79 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
     abortControllerRef.current = null;
   }
 
-  function startNewConversation() {
-    cancelRequest();
-    setMessages([]);
-    setSessionId(null);
-    setStreamingContent("");
-    setStreamingToolCalls([]);
-    setStreamingEntities([]);
-    setStreamingPreferences([]);
-    streamingEntitiesRef.current = [];
-    streamingPreferencesRef.current = [];
-    setLoading(false);
-    try {
-      sessionStorage.removeItem(STORAGE_KEY);
-      sessionStorage.removeItem(SESSION_KEY);
-    } catch { /* ignore */ }
+  function switchTo(id: string) {
+    if (id === activeIdRef.current) return;
+    draftsRef.current.set(activeIdRef.current, input);
+    setInput(draftsRef.current.get(id) ?? "");
+    setActive(id);
+    patchThread(id, (t) => (t.unread ? { ...t, unread: false } : t));
   }
 
-  async function sendMessage(text?: string) {
+  function createThread(title = ""): string {
+    draftsRef.current.set(activeIdRef.current, input);
+    const thread = newThread(title);
+    commitThreads((prev) => [...prev, thread]);
+    setActive(thread.id);
+    setInput("");
+    return thread.id;
+  }
+
+  function handleNewThread() {
+    // Always produce a tab. A + whose first press does nothing reads as broken,
+    // and this is the button's only introduction.
+    createThread();
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }
+
+  function closeThread(id: string) {
+    // Closing the streaming thread is the only path that aborts — there is no
+    // longer anywhere to deliver the answer.
+    if (id === streamingThreadId) {
+      cancelRequest();
+      setLoading(false);
+      setStreamingThreadId(null);
+    }
+    if (pendingExternalRef.current?.threadId === id) pendingExternalRef.current = null;
+    draftsRef.current.delete(id);
+
+    const prev = threadsRef.current;
+    const index = prev.findIndex((t) => t.id === id);
+    const rest = prev.filter((t) => t.id !== id);
+
+    if (rest.length === 0) {
+      const thread = newThread();
+      commitThreads(() => [thread]);
+      setActive(thread.id);
+      setInput("");
+      return;
+    }
+
+    commitThreads(() => rest);
+    if (id === activeIdRef.current) {
+      const next = rest[Math.min(index, rest.length - 1)];
+      setActive(next.id);
+      setInput(draftsRef.current.get(next.id) ?? "");
+      patchThread(next.id, (t) => (t.unread ? { ...t, unread: false } : t));
+    }
+  }
+
+  async function sendMessage(text?: string, targetThreadId?: string) {
     const messageText = text || input.trim();
+    const targetId = targetThreadId ?? activeIdRef.current;
     if (!messageText || loading) return;
+    if (!threadsRef.current.some((t) => t.id === targetId)) return;
 
     const userMessage: Message = { id: crypto.randomUUID(), role: "user", content: messageText };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+    patchThread(targetId, (t) => ({
+      ...t,
+      title: t.title || deriveTitle(messageText),
+      messages: [...t.messages, userMessage],
+    }));
+    // Only a send that came from the composer may clear it — a prompt card, a
+    // retry or a deferred note click must not wipe a draft in another tab.
+    if (!text) setInput("");
     setLoading(true);
+    setStreamingThreadId(targetId);
     setStreamingContent("");
     setStreamingToolCalls([]);
     setStreamingEntities([]);
@@ -304,7 +559,11 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: messageText,
-          session_id: sessionId,
+          // Read the session at call time from the thread being sent to —
+          // taking it from the rendered thread would send one thread's agent
+          // memory key with another thread's message.
+          session_id:
+            threadsRef.current.find((t) => t.id === targetId)?.sessionId ?? null,
         }),
         signal: controller.signal,
       });
@@ -343,7 +602,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
               const data = JSON.parse(line.slice(6));
               switch (eventType) {
                 case "session_id":
-                  setSessionId(data.session_id);
+                  patchThread(targetId, (t) => ({ ...t, sessionId: data.session_id }));
                   break;
 
                 case "tool_start":
@@ -375,7 +634,13 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                     return tc;
                   });
                   setStreamingToolCalls([...toolCalls]);
-                  if (data.graph_data?.results?.length && onGraphUpdate) {
+                  // A background thread must not yank the graph panel out from
+                  // under whatever the viewer is currently looking at.
+                  if (
+                    data.graph_data?.results?.length &&
+                    onGraphUpdate &&
+                    targetId === activeIdRef.current
+                  ) {
                     onGraphUpdate(data.graph_data);
                   }
                   break;
@@ -416,17 +681,22 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                   // be one render behind for events that fired this tick).
                   const finalEntities = streamingEntitiesRef.current;
                   const finalPreferences = streamingPreferencesRef.current;
-                  setMessages((prev) => [
-                    ...prev,
-                    {
-                      id: crypto.randomUUID(),
-                      role: "assistant",
-                      content: data.response || fullText,
-                      toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-                      entities: finalEntities.length > 0 ? [...finalEntities] : undefined,
-                      preferences: finalPreferences.length > 0 ? [...finalPreferences] : undefined,
-                    },
-                  ]);
+                  patchThread(targetId, (t) => ({
+                    ...t,
+                    unread: targetId !== activeIdRef.current,
+                    messages: [
+                      ...t.messages,
+                      {
+                        id: crypto.randomUUID(),
+                        role: "assistant",
+                        content: data.response || fullText,
+                        toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
+                        entities: finalEntities.length > 0 ? [...finalEntities] : undefined,
+                        preferences:
+                          finalPreferences.length > 0 ? [...finalPreferences] : undefined,
+                      },
+                    ],
+                  }));
                   setStreamingContent("");
                   setStreamingToolCalls([]);
                   setStreamingEntities([]);
@@ -465,10 +735,21 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       } else {
         errorMsg = "Cannot reach the backend. Is it running?";
       }
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), role: "assistant", content: `**Error:** ${errorMsg}`, retryInput: messageText },
-      ]);
+      // A failure in a background thread needs its unread dot too, or the
+      // error stays invisible until the viewer happens to switch back.
+      patchThread(targetId, (t) => ({
+        ...t,
+        unread: targetId !== activeIdRef.current,
+        messages: [
+          ...t.messages,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: `**Error:** ${errorMsg}`,
+            retryInput: messageText,
+          },
+        ],
+      }));
       setStreamingContent("");
       setStreamingToolCalls([]);
       setStreamingEntities([]);
@@ -480,11 +761,15 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       clearTimeout(timeout);
       abortControllerRef.current = null;
       setLoading(false);
+      setStreamingThreadId(null);
     }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
+      // While another thread streams, let the newline through rather than
+      // eating the keystroke on a send that would be silently rejected.
+      if (loading) return;
       e.preventDefault();
       sendMessage();
     }
@@ -495,27 +780,107 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
 
   return (
     <Flex direction="column" h="100%" bg="#fbfbfc">
-      {/* The page header already says "Ask Delta"; a second title underneath it
-          just competed. This bar exists to reset the thread, so it only
-          appears once there is a thread to reset. */}
-      {messages.length > 0 && (
+      {/* Parallel conversations. The page header already says "Ask Delta", so
+          this strip carries no title of its own — only the threads and the +,
+          which is always present so the affordance is visible before there is
+          a second chat to switch to. */}
+      <HStack
+        px={2}
+        py={2}
+        gap={1}
+        bg="white"
+        borderBottom="1px solid"
+        borderColor="#e5e6e9"
+        flexShrink={0}
+      >
         <HStack
-          px={4}
-          py={3}
-          borderBottom="1px solid"
-          borderColor="#e5e6e9"
-          bg="white"
-          justifyContent="flex-end"
+          role="tablist"
+          flex={1}
+          minW={0}
+          gap={1}
+          overflowX="auto"
+          css={{ scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}
         >
-          <Button size="xs" variant="ghost" color="gray.500" onClick={startNewConversation}>
-            <RotateCcw size={14} />
-            New conversation
-          </Button>
+          {threads.map((thread) => {
+            const isActive = thread.id === activeId;
+            const isStreaming = thread.id === streamingThreadId;
+            return (
+              <HStack
+                key={thread.id}
+                ref={(el) => {
+                  if (el) tabRefs.current.set(thread.id, el);
+                  else tabRefs.current.delete(thread.id);
+                }}
+                className="group"
+                role="tab"
+                aria-selected={isActive}
+                title={thread.title || "Untitled"}
+                onClick={() => switchTo(thread.id)}
+                h="32px"
+                maxW="200px"
+                flexShrink={0}
+                ps={3}
+                pe={1}
+                gap={2}
+                borderRadius="8px"
+                cursor="pointer"
+                bg={isActive ? "#f4f3ff" : "transparent"}
+                color={isActive ? "#4640c8" : "gray.500"}
+                fontWeight={isActive ? "medium" : "normal"}
+                _hover={isActive ? undefined : { bg: "#f3f4f6", color: "gray.700" }}
+                transition="background-color 0.12s, color 0.12s"
+              >
+                {(isStreaming || thread.unread) && (
+                  <Box
+                    w="8px"
+                    h="8px"
+                    borderRadius="full"
+                    flexShrink={0}
+                    bg={isStreaming ? "#625bf6" : "gray.400"}
+                    animation={isStreaming ? "delta-pulse 1.4s ease-in-out infinite" : undefined}
+                  />
+                )}
+                <Text fontSize="sm" minW={0} lineClamp={1}>
+                  {thread.title || "Untitled"}
+                </Text>
+                {/* The slot is always reserved so a tab does not reflow on hover. */}
+                <IconButton
+                  aria-label={`Close ${thread.title || "this chat"}`}
+                  size="2xs"
+                  variant="ghost"
+                  color="gray.400"
+                  flexShrink={0}
+                  opacity={0}
+                  _groupHover={{ opacity: 1 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeThread(thread.id);
+                  }}
+                >
+                  <X size={12} />
+                </IconButton>
+              </HStack>
+            );
+          })}
         </HStack>
-      )}
+        {/* Outside the scroller, so it holds the same pixel with 1 tab or 12. */}
+        <IconButton
+          aria-label="Start a new chat"
+          title="Start a new chat"
+          size="xs"
+          variant="ghost"
+          color="gray.500"
+          borderRadius="8px"
+          flexShrink={0}
+          onClick={handleNewThread}
+        >
+          <Plus size={16} />
+        </IconButton>
+      </HStack>
 
-      {/* Demo scenario suggested questions */}
-      {messages.length === 0 && !loading && (
+      {/* Suggested questions. Gated on THIS thread streaming, not on any thread —
+          otherwise opening a tab mid-answer shows a blank column. */}
+      {messages.length === 0 && !isActiveStreaming && (
         <Flex direction="column" flex={1} justify="center" px={{ base: 4, md: 8 }} py={8}>
           <VStack gap={0} w="100%" maxW="760px" mx="auto">
             <Flex
@@ -541,11 +906,9 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             <Text mt={2} maxW="500px" textAlign="center" fontSize="sm" color="gray.500">
               Ask about a talk, compare it with your knowledge, or plan what to watch next.
             </Text>
-            <Text alignSelf="stretch" mt={8} mb={3} fontSize="xs" color="gray.500">
-              Start with a question
-            </Text>
             <Grid
               w="100%"
+              mt={8}
               templateColumns={{ base: "1fr", lg: "repeat(2, minmax(0, 1fr))" }}
               gap={2}
             >
@@ -568,13 +931,10 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                   textAlign="left"
                   height="auto"
                   lineHeight="1.45"
-                  boxShadow="0 1px 2px rgba(17,24,39,0.025)"
-                  _hover={{
-                    borderColor: "#c8c4fa",
-                    bg: "#faf9ff",
-                    color: "gray.900",
-                    transform: "translateY(-1px)",
-                  }}
+                  _hover={{ borderColor: "#c8c4fa", bg: "#faf9ff", color: "gray.900" }}
+                  // Only one request streams at a time. Without this the cards
+                  // look live and silently do nothing while another tab answers.
+                  disabled={loading}
                   onClick={() => sendMessage(prompt)}
                   title={prompt}
                 >
@@ -591,43 +951,61 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       <VStack
         flex={1}
         w="100%"
-        maxW="820px"
+        maxW="768px"
         mx="auto"
         overflow="auto"
         px={4}
         py={4}
-        gap={3}
+        gap={6}
         align="stretch"
-        display={messages.length === 0 && !loading ? "none" : "flex"}
+        display={messages.length === 0 && !isActiveStreaming ? "none" : "flex"}
       >
-        {messages.map((msg) => (
-          <Box key={msg.id}>
-            {/* Completed tool call cards */}
-            {msg.toolCalls && msg.toolCalls.length > 0 && (
-              <ToolCallTimeline toolCalls={msg.toolCalls} />
-            )}
-            <Flex gap={2} alignItems="flex-start">
-              <Circle
-                size="7"
-                bg={msg.role === "user" ? "purple.500" : "gray.700"}
-                color="white"
-                flexShrink={0}
-                mt={0.5}
-              >
-                {msg.role === "user" ? <User size={14} /> : <Bot size={14} />}
-              </Circle>
-              <Box
-                bg={msg.role === "user" ? "purple.50" : "white"}
-                borderWidth="1px"
-                borderColor={msg.role === "user" ? "purple.100" : "#e6e7e9"}
-                px={3}
-                py={2}
-                borderRadius="lg"
-                flex={1}
-                maxW="95%"
-              >
-                {msg.role === "assistant" ? (
-                  <Box fontSize="sm" className="markdown-content">
+        {messages.map((msg) =>
+          /* Speaker is carried by position and weight rather than by giving every
+             turn a card — the identical bordered boxes were what made the thread
+             read as one undifferentiated wall. */
+          msg.role === "user" ? (
+            <Box
+              key={msg.id}
+              alignSelf="flex-end"
+              maxW="80%"
+              bg="#f0efff"
+              color="gray.900"
+              px={3}
+              py={2}
+              borderRadius="12px"
+              borderBottomRightRadius="4px"
+            >
+              <Text fontSize="sm" whiteSpace="pre-wrap">{msg.content}</Text>
+            </Box>
+          ) : (
+            <Box key={msg.id}>
+              {msg.toolCalls && msg.toolCalls.length > 0 && (
+                <ToolCallTimeline toolCalls={msg.toolCalls} />
+              )}
+              <Box>
+                <Box>
+                  {/* 15px/1.7 is a reading measure, not a UI measure, and these
+                      answers are long. tabular-nums stops the timecodes this
+                      product is full of wobbling out of column. */}
+                  <Box
+                    className="markdown-content"
+                    fontSize="15px"
+                    lineHeight="1.7"
+                    color="gray.800"
+                    fontVariantNumeric="tabular-nums"
+                    overflowWrap="anywhere"
+                    {...(msg.retryInput
+                      ? {
+                          bg: "#fdf9f9",
+                          borderStartWidth: "2px",
+                          borderColor: "red.400",
+                          ps: 3,
+                          py: 2,
+                          borderRadius: "8px",
+                        }
+                      : {})}
+                  >
                     {(() => {
                       const { thinking, response } = splitThinkingAndResponse(msg.content);
                       return (
@@ -642,12 +1020,12 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                               </Collapsible.Trigger>
                               <Collapsible.Content>
                                 <Box px={2} py={1} mb={2} bg="gray.100" borderRadius="sm" fontSize="xs" color="gray.600">
-                                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{thinking}</ReactMarkdown>
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>{thinking}</ReactMarkdown>
                                 </Box>
                               </Collapsible.Content>
                             </Collapsible.Root>
                           )}
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{response || msg.content}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>{response || msg.content}</ReactMarkdown>
                         </>
                       );
                     })()}
@@ -700,7 +1078,11 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                         variant="outline"
                         mt={2}
                         onClick={() => {
-                          setMessages((prev) => prev.filter((m) => m.id !== msg.id));
+                          // Retry only ever renders inside the active thread.
+                          patchThread(activeIdRef.current, (t) => ({
+                            ...t,
+                            messages: t.messages.filter((m) => m.id !== msg.id),
+                          }));
                           sendMessage(msg.retryInput);
                         }}
                       >
@@ -709,85 +1091,58 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                       </Button>
                     )}
                   </Box>
-                ) : (
-                  <Text fontSize="sm" whiteSpace="pre-wrap">
-                    {msg.content}
-                  </Text>
-                )}
-              </Box>
-            </Flex>
-          </Box>
-        ))}
-
-        {/* Streaming in progress */}
-        {loading && (
-          <Box>
-            {/* Real-time tool call timeline */}
-            {streamingToolCalls.length > 0 && (
-              <ToolCallTimeline toolCalls={streamingToolCalls} />
-            )}
-            {/* Streaming text */}
-            {streamingContent ? (
-              <Flex gap={2} alignItems="flex-start">
-                <Circle size="7" bg="gray.600" color="white" flexShrink={0} mt={0.5}>
-                  <Bot size={14} />
-                </Circle>
-                <Box bg="gray.50" px={3} py={2} borderRadius="lg" flex={1}>
-                  <Box fontSize="sm" className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {streamingContent}
-                    </ReactMarkdown>
-                  </Box>
                 </Box>
-              </Flex>
+              </Box>
+            </Box>
+          ),
+        )}
+
+        {/* Streaming — only for the thread on screen, and styled identically to
+            a committed answer so the text does not jump when the stream ends. */}
+        {isActiveStreaming && (
+          <Box>
+            {streamingToolCalls.length > 0 && (
+              <ToolCallTimeline toolCalls={streamingToolCalls} live />
+            )}
+            {streamingContent ? (
+              <Box
+                className="markdown-content"
+                fontSize="15px"
+                lineHeight="1.7"
+                color="gray.800"
+                fontVariantNumeric="tabular-nums"
+                overflowWrap="anywhere"
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                  {streamingContent}
+                </ReactMarkdown>
+              </Box>
             ) : (
-              /* Loading skeleton when waiting for first content */
-              <Flex gap={2} alignItems="flex-start">
-                <Circle size="7" bg="gray.600" color="white" flexShrink={0} mt={0.5}>
-                  <Bot size={14} />
-                </Circle>
-                <Box bg="gray.50" px={3} py={2} borderRadius="lg" flex={1}>
-                  {streamingToolCalls.length === 0 ? (
-                    <VStack align="stretch" gap={2}>
-                      <HStack gap={2}>
-                        <Spinner size="xs" />
-                        <Text fontSize="sm" color="gray.500">Thinking…</Text>
-                        {elapsedSeconds > 3 && (
-                          <Text fontSize="xs" color="gray.400">{elapsedSeconds}s</Text>
-                        )}
-                      </HStack>
-                      <Skeleton height="4" width="80%" />
-                      <Skeleton height="4" width="60%" />
-                    </VStack>
-                  ) : (
-                    <HStack gap={2}>
-                      <Spinner size="xs" />
-                      {/* Name the step. "Running tool 3 of 2" — which the old
-                          counter produced once every call finished — is not a
-                          sentence anyone can act on. */}
-                      <Text fontSize="sm" color="gray.500">
-                        {toolLabel(
+              <VStack align="stretch" gap={2}>
+                <HStack gap={2}>
+                  <Spinner size="xs" color="#625bf6" />
+                  {/* Name the step. "Running tool 3 of 2" — which the old counter
+                      produced once every call finished — is not a sentence
+                      anyone can act on. */}
+                  <Text fontSize="sm" color="gray.500">
+                    {streamingToolCalls.length === 0
+                      ? "Thinking…"
+                      : `${toolLabel(
                           (streamingToolCalls.find((tc) => tc.status === "running") ||
                             streamingToolCalls[streamingToolCalls.length - 1]).name,
-                        )}
-                        …
-                      </Text>
-                      {elapsedSeconds > 3 && (
-                        <Text fontSize="xs" color="gray.400">{elapsedSeconds}s</Text>
-                      )}
-                    </HStack>
+                        )}…`}
+                  </Text>
+                  {elapsedSeconds > 3 && (
+                    <Text fontSize="xs" color="gray.400">{elapsedSeconds}s</Text>
                   )}
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    mt={2}
-                    onClick={cancelRequest}
-                    color="gray.500"
-                  >
-                    Cancel
-                  </Button>
-                </Box>
-              </Flex>
+                </HStack>
+                {streamingToolCalls.length === 0 && (
+                  <>
+                    <Skeleton height="4" width="80%" />
+                    <Skeleton height="4" width="60%" />
+                  </>
+                )}
+              </VStack>
             )}
           </Box>
         )}
@@ -796,8 +1151,25 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
 
       {/* Input area — Chakra UI Pro inspired bordered container */}
       <Box px={4} py={3} borderTop="1px solid" borderColor="#e5e6e9" bg="white">
+        {/* One request streams at a time. Say so, and say where — otherwise a
+            disabled composer just reads as a hang. */}
+        {loading && streamingThreadId && streamingThreadId !== activeId && (
+          <HStack maxW="768px" mx="auto" mb={2} gap={1}>
+            <Text fontSize="xs" color="gray.500">
+              Answering in “{streamingTitle}”
+            </Text>
+            <Button
+              size="xs"
+              variant="ghost"
+              color="gray.600"
+              onClick={() => switchTo(streamingThreadId)}
+            >
+              Go there
+            </Button>
+          </HStack>
+        )}
         <Box
-          maxW="820px"
+          maxW="768px"
           mx="auto"
           borderWidth="1px"
           borderColor="#dedfe3"
@@ -808,6 +1180,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
           transition="border-color 0.2s, box-shadow 0.2s"
         >
           <Textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -822,19 +1195,39 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             bg="transparent"
           />
           <HStack px={2} py={2} justify="space-between">
-            <Text fontSize="xs" color="gray.400" display={{ base: "none", sm: "block" }}>
+            {/* Teach the shortcut at the moment of use. `visibility` rather than
+                `display` so the row does not change height when it appears. */}
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              display={{ base: "none", sm: "block" }}
+              visibility={input ? "visible" : "hidden"}
+            >
               Enter to send, Shift+Enter for new line
             </Text>
-            <IconButton
-              aria-label="Send"
-              onClick={() => sendMessage()}
-              disabled={!input.trim() || loading}
-              size="xs"
-              colorPalette="purple"
-              rounded="8px"
-            >
-              <Send size={14} />
-            </IconButton>
+            {isActiveStreaming ? (
+              <IconButton
+                aria-label="Stop generating"
+                title="Stop generating"
+                onClick={cancelRequest}
+                size="xs"
+                variant="outline"
+                rounded="8px"
+              >
+                <Square size={12} fill="currentColor" />
+              </IconButton>
+            ) : (
+              <IconButton
+                aria-label="Send"
+                onClick={() => sendMessage()}
+                disabled={!input.trim() || loading}
+                size="xs"
+                colorPalette="purple"
+                rounded="8px"
+              >
+                <Send size={14} />
+              </IconButton>
+            )}
           </HStack>
         </Box>
       </Box>
@@ -846,7 +1239,28 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
 // Tool call timeline component
 // ---------------------------------------------------------------------------
 
-function ToolCallTimeline({ toolCalls }: { toolCalls: ToolCall[] }) {
+// Open while the agent is working — watching it traverse the graph is the point.
+// Once the answer has landed it collapses to one grey line of finished plumbing.
+function ToolCallTimeline({ toolCalls, live }: { toolCalls: ToolCall[]; live?: boolean }) {
+  return (
+    <Collapsible.Root defaultOpen={live}>
+      {!live && (
+        <Collapsible.Trigger asChild>
+          <Button variant="ghost" size="xs" px={0} mb={1} color="gray.500" fontWeight="normal">
+            <Wrench size={12} />
+            {toolCalls.length === 1 ? "1 step" : `${toolCalls.length} steps`}
+            <ChevronDown size={12} />
+          </Button>
+        </Collapsible.Trigger>
+      )}
+      <Collapsible.Content>
+        <ToolCallSteps toolCalls={toolCalls} />
+      </Collapsible.Content>
+    </Collapsible.Root>
+  );
+}
+
+function ToolCallSteps({ toolCalls }: { toolCalls: ToolCall[] }) {
   return (
     <Timeline.Root size="sm" mb={2}>
       {toolCalls.map((tc, j) => (
