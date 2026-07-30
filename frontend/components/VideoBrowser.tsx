@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { Play, Film } from "lucide-react";
 import { API_BASE, NODE_COLORS } from "@/lib/config";
+import { DELTA_FIXTURE, YourCutPanel } from "@/components/YourCutPanel";
 
 interface Video {
   id: string;
@@ -25,6 +26,15 @@ interface Segment {
   entities: string[];
 }
 
+const FIXTURE_VIDEO: Video = {
+  id: DELTA_FIXTURE.video.id,
+  title: DELTA_FIXTURE.video.title,
+  url: "",
+  duration_sec: DELTA_FIXTURE.video.duration_sec,
+  summary: "Personalized cut preview using the frozen Delta Learning API contract.",
+  segment_count: DELTA_FIXTURE.cuts.length,
+};
+
 function fmt(sec: number | null): string {
   if (sec == null) return "--:--";
   const m = Math.floor(sec / 60);
@@ -35,20 +45,25 @@ function fmt(sec: number | null): string {
 export function VideoBrowser() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Video | null>(null);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [segLoading, setSegLoading] = useState(false);
+  const [usingFixture, setUsingFixture] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch(`${API_BASE}/videos`, { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) throw new Error(`Video list request failed (${res.status})`);
         const data = await res.json();
-        setVideos(data.videos || []);
+        const loadedVideos = data.videos || [];
+        if (loadedVideos.length === 0) throw new Error("No live videos are available yet");
+        setVideos(loadedVideos);
       } catch {
-        setError("Unable to load videos. Is the backend running and the graph seeded?");
+        setVideos([FIXTURE_VIDEO]);
+        setSelected(FIXTURE_VIDEO);
+        setUsingFixture(true);
       } finally {
         setLoading(false);
       }
@@ -58,6 +73,10 @@ export function VideoBrowser() {
   async function openVideo(v: Video) {
     setSelected(v);
     setSegments([]);
+    if (usingFixture && v.id === FIXTURE_VIDEO.id) {
+      setSegLoading(false);
+      return;
+    }
     setSegLoading(true);
     try {
       const res = await fetch(`${API_BASE}/videos/${encodeURIComponent(v.id)}/segments`, {
@@ -86,14 +105,6 @@ export function VideoBrowser() {
     );
   }
 
-  if (error) {
-    return (
-      <Flex h="100%" align="center" justify="center" p={6}>
-        <Text color="gray.500" fontSize="sm" textAlign="center">{error}</Text>
-      </Flex>
-    );
-  }
-
   if (selected) {
     return (
       <VStack align="stretch" h="100%" gap={0}>
@@ -111,43 +122,52 @@ export function VideoBrowser() {
           )}
         </Box>
         <Box flex={1} overflow="auto" px={3} pb={3}>
-          <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={1}>
-            SEGMENTS {segLoading && <Spinner size="xs" ml={2} />}
-          </Text>
-          <VStack align="stretch" gap={1.5}>
-            {segments.map((s) => (
-              <Box
-                key={s.id}
-                p={2}
-                bg="gray.50"
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor="gray.200"
-                cursor="pointer"
-                _hover={{ borderColor: "blue.300", bg: "blue.50" }}
-                onClick={() => seekTo(s.start_sec)}
-              >
-                <HStack justify="space-between" mb={1}>
-                  <Badge size="sm" colorPalette="blue" variant="subtle">
-                    <Play size={9} /> {fmt(s.start_sec)}–{fmt(s.end_sec)}
-                  </Badge>
-                </HStack>
-                <Text fontSize="xs" color="gray.800">{s.summary}</Text>
-                {s.entities?.length > 0 && (
-                  <HStack gap={1} mt={1} flexWrap="wrap">
-                    {s.entities.filter(Boolean).map((e) => (
-                      <Badge key={e} size="xs" style={{ backgroundColor: NODE_COLORS.Entity, color: "white" }}>
-                        {e}
+          <YourCutPanel
+            videoId={selected.id}
+            useFixture={usingFixture && selected.id === FIXTURE_VIDEO.id}
+            onSeek={seekTo}
+          />
+          {!usingFixture && (
+            <>
+              <Text fontSize="xs" fontWeight="bold" color="gray.500" mt={2} mb={1}>
+                ALL SEGMENTS {segLoading && <Spinner size="xs" ml={2} />}
+              </Text>
+              <VStack align="stretch" gap={1.5}>
+                {segments.map((s) => (
+                  <Box
+                    key={s.id}
+                    p={2}
+                    bg="gray.50"
+                    borderRadius="md"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    cursor="pointer"
+                    _hover={{ borderColor: "blue.300", bg: "blue.50" }}
+                    onClick={() => seekTo(s.start_sec)}
+                  >
+                    <HStack justify="space-between" mb={1}>
+                      <Badge size="sm" colorPalette="blue" variant="subtle">
+                        <Play size={9} /> {fmt(s.start_sec)}–{fmt(s.end_sec)}
                       </Badge>
-                    ))}
-                  </HStack>
+                    </HStack>
+                    <Text fontSize="xs" color="gray.800">{s.summary}</Text>
+                    {s.entities?.length > 0 && (
+                      <HStack gap={1} mt={1} flexWrap="wrap">
+                        {s.entities.filter(Boolean).map((e) => (
+                          <Badge key={e} size="xs" style={{ backgroundColor: NODE_COLORS.Entity, color: "white" }}>
+                            {e}
+                          </Badge>
+                        ))}
+                      </HStack>
+                    )}
+                  </Box>
+                ))}
+                {!segLoading && segments.length === 0 && (
+                  <Text fontSize="xs" color="gray.400">No segments.</Text>
                 )}
-              </Box>
-            ))}
-            {!segLoading && segments.length === 0 && (
-              <Text fontSize="xs" color="gray.400">No segments.</Text>
-            )}
-          </VStack>
+              </VStack>
+            </>
+          )}
         </Box>
       </VStack>
     );
