@@ -18,6 +18,7 @@ fail the density test are reported separately under "skipped" so nothing is hidd
 from __future__ import annotations
 
 import asyncio
+import re
 
 from pydantic import BaseModel
 
@@ -87,8 +88,21 @@ RETURN v.id AS video_id, v.title AS title, v.duration_sec AS duration_sec,
 """
 
 
+def _title_tokens(text: str) -> set[str]:
+    """Lowercase alphanumeric tokens. yt-dlp writes titles like
+    `L8_Principal_s_Agentic_Engineering_Workflow`, so word boundaries in the stored
+    title are underscores that no one types."""
+    return {t for t in re.split(r"[^a-z0-9]+", text.lower()) if t}
+
+
 async def find_video(title_or_id: str) -> dict | None:
-    """Resolve a video by id or fuzzy title match."""
+    """Resolve a video by id, substring, or — failing those — title tokens.
+
+    Substring alone made every underscore-titled video unreachable by natural phrasing:
+    'L8 agentic engineering' matched nothing because the stored title separates those
+    words with underscores, so only the fragment 'L8' worked. A 404 there reads as a
+    broken app, which is exactly what someone typing a real title into chat would find.
+    """
     rows = await execute_cypher(
         """
         MATCH (v:Video)
@@ -99,7 +113,28 @@ async def find_video(title_or_id: str) -> dict | None:
         {"q": title_or_id},
         collect=False,
     )
-    return rows[0] if rows else None
+    if rows:
+        return rows[0]
+
+    wanted = _title_tokens(title_or_id)
+    if not wanted:
+        return None
+
+    candidates = await execute_cypher(
+        "MATCH (v:Video) RETURN v.id AS id, v.title AS title, v.duration_sec AS duration_sec",
+        {},
+        collect=False,
+    )
+    # Rank by how much of the query a title accounts for, then prefer the shorter title
+    # so a generic query cannot be captured by whichever video has the longest name.
+    scored = [
+        (len(wanted & _title_tokens(c["title"])) / len(wanted), -len(c["title"]), c)
+        for c in candidates or []
+    ]
+    scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
+    # Half the query's words is the floor: below that this is a different video, and
+    # confidently returning the wrong one is worse than saying it isn't here.
+    return scored[0][2] if scored and scored[0][0] >= 0.5 else None
 
 
 async def knowledge_delta(title_or_id: str) -> dict:
