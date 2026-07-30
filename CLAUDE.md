@@ -26,9 +26,16 @@ Tasks, in priority order:
 3. Garnish (only if 1–2 are done): repoint `cypher/gds_projections.cypher` at the real
    ontology (Concept/Topic co-occurrence → Louvain communities, PageRank).
 
-**Runtime topology:** ONE shared backend. Luke does NOT run Neo4j or FastAPI; his dev
-server points at Sameer's laptop: `NEXT_PUBLIC_API_URL=http://<sameer-lan-ip>:8000/api npm run dev`.
-Ask Sameer for the IP. Frontend-only commits; pull often, push small.
+**Runtime topology:** ONE shared backend (Sameer's laptop). Venue Wi-Fi isolates clients,
+so integration goes through a Cloudflare quick tunnel, and until that's up Luke needs no
+network at all:
+1. **Build against the fixture first**: `frontend/fixtures/delta.json` is a realistic
+   `GET /api/delta/{video}` response matching the frozen contract. Render that; wire the
+   fetch behind `API_BASE` exactly like existing components so swapping to live is one env var.
+2. **Integration**: Sameer runs `cloudflared tunnel --url http://localhost:8000` and shares
+   the printed https URL. Luke restarts his dev server with
+   `NEXT_PUBLIC_API_URL=https://<tunnel-url>/api npm run dev`.
+Frontend-only commits; pull often, push small.
 
 **Fallback rule:** the demo must survive Luke not finishing — chat + default graph view
 already demo everything (agent tools return the same data). The panel is polish, not spine.

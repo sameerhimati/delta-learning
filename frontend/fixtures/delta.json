@@ -1,0 +1,41 @@
+{
+  "video": {
+    "id": "tl-video-abc123",
+    "title": "L8 Principal's Agentic Engineering Workflow",
+    "duration_sec": 2746
+  },
+  "stats": {
+    "concepts_total": 14,
+    "known": 9,
+    "novel": 3,
+    "goal_hits": 2,
+    "watch_sec": 412,
+    "skip_sec": 2334
+  },
+  "known_concepts": [
+    { "name": "Agent Orchestration", "status": "known", "matched_concept": "every knowledge tool ive built is half of one loop", "source": "/Users/sameer/Desktop/knowledge/ideas/every-knowledge-tool-ive-built-is-half-of-one-loop.md" },
+    { "name": "Prompt Caching", "status": "known", "matched_concept": "filter first score second saves money", "source": "/Users/sameer/Desktop/knowledge/research/ai-ml/filter-first-score-second-saves-money.md" },
+    { "name": "MCP", "status": "known", "matched_concept": "mcp course notes", "source": "/Users/sameer/Desktop/knowledge/research/ai-ml/mcp-course-notes.md" }
+  ],
+  "cuts": [
+    {
+      "start_sec": 192,
+      "end_sec": 340,
+      "summary": "Walkthrough of the verifier-first workflow: writing the failing check before dispatching the agent.",
+      "segment_id": "tl-video-abc123#3",
+      "concepts": [
+        { "name": "Verifier-First Development", "status": "novel", "why": "not in your knowledge base" },
+        { "name": "Context Engineering", "status": "goal", "why": "you asked to learn this" }
+      ]
+    },
+    {
+      "start_sec": 1105,
+      "end_sec": 1369,
+      "summary": "How the team meters agent token spend per PR and gates merges on cost regressions.",
+      "segment_id": "tl-video-abc123#11",
+      "concepts": [
+        { "name": "Token Budget Gating", "status": "novel", "why": "not in your knowledge base" }
+      ]
+    }
+  ]
+}
