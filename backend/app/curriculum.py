@@ -124,6 +124,7 @@ MATCH (s:Segment)-[:ABOUT|MENTIONS]->(a)
 MATCH (s)-[:ABOUT|MENTIONS]->(b)
 WHERE ((a:Topic) OR (a:Entity AND a.type IN $learnable_types))
   AND ((b:Topic) OR (b:Entity AND b.type IN $learnable_types))
+  AND coalesce(a.learnable, true) AND coalesce(b.learnable, true)
   AND elementId(a) < elementId(b)
 WITH a, b, count(DISTINCT s) AS w
 WITH gds.graph.project($graph, a, b,
@@ -173,7 +174,8 @@ RETURN communityId,
 _GOALS = """
 MATCH (g:Concept {status: 'goal'})
 OPTIONAL MATCH (x)-[:ADVANCES]->(g)
-WHERE (x:Topic) OR (x:Entity AND x.type IN $learnable_types)
+WHERE ((x:Topic) OR (x:Entity AND x.type IN $learnable_types))
+  AND coalesce(x.learnable, true)
 RETURN g.name AS goal,
        count(DISTINCT toLower(trim(x.name))) AS corpus_terms,
        collect(DISTINCT x.name)[0..6] AS sample

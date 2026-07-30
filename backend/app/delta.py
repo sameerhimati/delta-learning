@@ -61,7 +61,8 @@ DISCOUNT_REPEATED_TERMS = False
 # list, since Topics are shared across videos and the goal branch would always win.
 _LEARNABLE_MATCH = """
 MATCH (v:Video {id: $video_id})-[:HAS_SEGMENT]->(s:Segment)-[r:ABOUT|MENTIONS]->(x)
-WHERE (x:Topic) OR (x:Entity AND x.type IN $learnable_types)
+WHERE ((x:Topic) OR (x:Entity AND x.type IN $learnable_types))
+  AND coalesce(x.learnable, true)
 WITH v, x, collect(DISTINCT s) AS segs
 OPTIONAL MATCH (x)-[:SAME_AS]->(k:Concept {status: 'known'})
 WITH v, x, segs, collect(DISTINCT k) AS known_c
