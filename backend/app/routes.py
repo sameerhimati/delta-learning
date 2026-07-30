@@ -257,6 +257,26 @@ async def quiz(video: str, count: int = 5):
     return result
 
 
+class QuizGradeRequest(BaseModel):
+    video: str
+    answers: list[dict]
+
+
+@router.post("/quiz/grade")
+async def quiz_grade(request: QuizGradeRequest):
+    """Grade quiz answers and capture only the concepts actually demonstrated.
+
+    The honest version of the capture button: what you cannot answer for stays novel,
+    so the cut list keeps recommending exactly the parts you could not demonstrate.
+    """
+    _require_neo4j()
+    from app.delta import grade_quiz
+    result = await grade_quiz(request.video, request.answers)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
 @router.get("/knowledge-map")
 async def knowledge_map_view(limit: int = 90):
     """Concept-level map of the corpus coloured by the viewer's knowledge state.

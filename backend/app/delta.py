@@ -346,6 +346,93 @@ QUIZ_SYSTEM = (
 )
 
 
+class _Grade(BaseModel):
+    concept: str
+    correct: bool
+    verdict: str
+
+
+class _Grades(BaseModel):
+    grades: list[_Grade]
+
+
+GRADE_SYSTEM = (
+    "You grade short free-text answers about a concept against a model answer. Mark "
+    "correct=true only when the answer shows real understanding of the concept — the "
+    "wording need not match the model answer, but a vague gesture at the topic, a "
+    "restatement of the question, a guess, or an empty answer is NOT correct. When you "
+    "are unsure, mark it false: wrongly recording that someone knows something makes a "
+    "video's teaching invisible to them forever. 'verdict' is one short sentence the "
+    "learner will read, saying what they got right or what they missed. Use the concept "
+    "name verbatim. Return exactly one grade per submitted answer."
+)
+
+
+async def grade_quiz(title_or_id: str, answers: list[dict]) -> dict:
+    """Grade quiz answers and capture ONLY the concepts actually demonstrated.
+
+    This is what makes 'I watched it' honest. Capturing a whole video on a button press
+    records knowledge nobody proved — the same mistake as trusting vault filenames, and
+    it silently deletes those segments from every future recommendation. Here a concept
+    becomes known only when the viewer answers for it, and anything failed stays novel,
+    so the cut list keeps recommending exactly the parts they could not demonstrate.
+    """
+    video = await find_video(title_or_id)
+    if not video:
+        return {"error": f"No ingested video matches '{title_or_id}'."}
+    submitted = [{"concept": str(a.get("concept", "")).strip(),
+                  "answer": str(a.get("answer", "")).strip()}
+                 for a in answers if str(a.get("concept", "")).strip()]
+    if not submitted:
+        return {"error": "No answers submitted."}
+
+    from openai import OpenAI
+
+    def _call() -> _Grades:
+        client = OpenAI(api_key=settings.openai_api_key or None)
+        listing = "\n".join(
+            f'- concept: "{a["concept"]}"\n  answer: "{a["answer"] or "(no answer given)"}"'
+            for a in submitted
+        )
+        r = client.responses.parse(
+            model=settings.openai_extraction_model,
+            reasoning={"effort": settings.openai_reasoning_effort},
+            input=[{"role": "system", "content": GRADE_SYSTEM},
+                   {"role": "user", "content": f"Grade these answers:\n\n{listing}"}],
+            text_format=_Grades,
+        )
+        if r.output_parsed is None:
+            raise RuntimeError("OpenAI returned no grades.")
+        return r.output_parsed
+
+    graded = (await asyncio.to_thread(_call)).grades
+    by_name = {g.concept.strip().lower(): g for g in graded}
+
+    passed, failed = [], []
+    for a in submitted:
+        g = by_name.get(a["concept"].lower())
+        # No grade returned means unproven, which means not captured.
+        entry = {"concept": a["concept"],
+                 "verdict": g.verdict if g else "Not graded, so left unproven."}
+        (passed if (g and g.correct) else failed).append(entry)
+
+    captured = []
+    if passed:
+        result = await capture_learning(title_or_id, [p["concept"] for p in passed])
+        captured = result.get("captured", [])
+
+    return {
+        "video": video,
+        "passed": passed,
+        "failed": failed,
+        "captured": captured,
+        # The whole point: what you could not demonstrate is still recommended.
+        "still_recommended": [f["concept"] for f in failed],
+        "summary": (f"{len(passed)} of {len(submitted)} demonstrated. "
+                    f"{len(failed)} still in your cut list."),
+    }
+
+
 async def quiz_questions(title_or_id: str, count: int = 5) -> dict:
     """Quiz the viewer on what a video would teach them, so demonstrated knowledge —
     not just what they wrote down — can grow the knowledge state.
