@@ -12,6 +12,9 @@ from strands.tools import tool
 
 from app.config import settings
 from app.context_graph_client import execute_cypher, get_schema
+from app.delta import capture_learning as _capture_learning
+from app.delta import knowledge_delta as _knowledge_delta
+from app.delta import rank_videos as _rank_videos
 from app.memory import store_message, get_context, resolve_session_id
 from app.vector_client import segment_vector_search
 
@@ -44,6 +47,20 @@ knowledge graph built from videos analyzed by TwelveLabs. The graph contains:
 - Entity and Topic nodes that are SHARED across videos (the same entity in two videos is ONE node)
 Relationships: (Video)-[:HAS_SEGMENT]->(Segment), (Segment)-[:NEXT]->(Segment),
 (Segment)-[:MENTIONS]->(Entity), (Segment)-[:ABOUT]->(Topic).
+
+THE VIEWER IS IN THE GRAPH TOO. Concept nodes model what the user already knows
+(status='known', sourced from their knowledge vault or previously captured video
+learnings) and what they want to learn (status='goal'). (Topic|Entity)-[:SAME_AS]->(Concept)
+edges link video content to the viewer's knowledge state. This lets you answer the
+question retrieval cannot: "what's in this video that I don't already know?"
+- "what should I watch / what's new to me in X" -> knowledge_delta. Present the cut
+  list as timecoded ranges with WHY (novel vs an explicit learning goal), then the
+  skipped concepts with the vault note that covers each ("you already know X — it's
+  your note 'x.md'").
+- "I watched it / I learned that / capture this" -> capture_learning. Afterwards,
+  tell the user their knowledge state grew — future videos will skip these concepts.
+- "which video should I watch next" -> what_should_i_watch.
+Be honest about coverage: if a video contains nothing on a goal, say so explicitly.
 
 Tool selection:
 - "find the moment where..." / semantic recall -> search_video_moments
@@ -125,6 +142,28 @@ def twelvelabs_search(query: str) -> str:
 
 
 @tool
+def knowledge_delta(video: str) -> str:
+    """Compute what a video teaches that the viewer does NOT already know: the personalized, timecoded cut list. Use for "what should I watch in X" / "what's new to me". `video` is a title fragment or video id."""
+    result = _run_sync(_knowledge_delta(video))
+    return json.dumps(result, default=str)
+
+
+@tool
+def capture_learning(video: str, concepts: str = "") -> str:
+    """Capture concepts the viewer just learned from a video into their knowledge base (status becomes 'known', sourced to the teaching segment). `concepts` is comma-separated names; empty captures ALL novel concepts in the video."""
+    names = [c for c in (s.strip() for s in concepts.split(",")) if c] or None
+    result = _run_sync(_capture_learning(video, names))
+    return json.dumps(result, default=str)
+
+
+@tool
+def what_should_i_watch() -> str:
+    """Rank all ingested videos by novel-content density for this viewer — which video is most worth their time right now."""
+    result = _run_sync(_rank_videos())
+    return json.dumps(result, default=str)
+
+
+@tool
 def run_cypher(query: str, parameters: str = "{}") -> str:
     """Execute a read-only Cypher query against the video knowledge graph."""
     try:
@@ -158,6 +197,9 @@ agent = Agent(
     model=model,
     system_prompt=SYSTEM_PROMPT,
     tools=[
+        knowledge_delta,
+        capture_learning,
+        what_should_i_watch,
         search_video_moments,
         explore_graph,
         twelvelabs_search,

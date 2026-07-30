@@ -40,9 +40,9 @@ def test_scenarios():
     response = client.get("/api/scenarios")
     assert response.status_code == 200
     data = response.json()
-    assert data["domain"] == "Video Context Graph"
+    assert data["domain"] == "Delta Learning"
     assert {scenario["name"] for scenario in data["scenarios"]} == {
+        "What's new to me",
+        "Grow the knowledge base",
         "Explore",
-        "Find a moment",
-        "Cross-video",
     }

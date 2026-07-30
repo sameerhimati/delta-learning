@@ -211,6 +211,41 @@ async def video_segments(video_id: str):
     return {"video_id": video_id, "segments": results}
 
 
+class CaptureRequest(BaseModel):
+    video: str
+    concepts: list[str] | None = None
+
+
+@router.get("/delta/{video}")
+async def delta(video: str):
+    """The 'Your Cut' contract: what this video teaches that the viewer doesn't know."""
+    _require_neo4j()
+    from app.delta import knowledge_delta
+    result = await knowledge_delta(video)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.post("/capture")
+async def capture(request: CaptureRequest):
+    """Mark novel concepts from a video as learned (grows the knowledge state)."""
+    _require_neo4j()
+    from app.delta import capture_learning
+    result = await capture_learning(request.video, request.concepts)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.get("/watchlist")
+async def watchlist():
+    """All ingested videos ranked by novel-content density for this viewer."""
+    _require_neo4j()
+    from app.delta import rank_videos
+    return {"videos": await rank_videos()}
+
+
 @router.post("/search")
 async def search(request: SearchRequest):
     """Live multimodal search over the raw videos via TwelveLabs (Marengo)."""
@@ -228,19 +263,19 @@ async def search(request: SearchRequest):
 async def scenarios():
     """Demo prompts for the frontend."""
     return {
-        "domain": "Video Context Graph",
+        "domain": "Delta Learning",
         "scenarios": [
+            {"name": "What's new to me", "prompts": [
+                "I don't have 20 minutes — what in this talk is actually new to me?",
+                "What should I watch next?",
+            ]},
+            {"name": "Grow the knowledge base", "prompts": [
+                "I watched those segments — capture what they taught me",
+                "Which of my learning goals does this corpus cover?",
+            ]},
             {"name": "Explore", "prompts": [
                 "What videos do we have and what are they about?",
-                "Show me the graph around the rabbit",
-            ]},
-            {"name": "Find a moment", "prompts": [
-                "Find the moment where a butterfly lands on the rabbit",
-                "Where does the rabbit eat an apple?",
-            ]},
-            {"name": "Cross-video", "prompts": [
-                "Which entities appear in more than one video?",
-                "What connects the two clips to each other?",
+                "Which concepts do I already know that show up across videos?",
             ]},
         ],
     }

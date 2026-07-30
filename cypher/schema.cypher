@@ -12,6 +12,11 @@ CREATE CONSTRAINT segment_id_unique IF NOT EXISTS FOR (n:Segment) REQUIRE n.id I
 CREATE CONSTRAINT entity_key_unique IF NOT EXISTS FOR (n:Entity) REQUIRE n.key IS UNIQUE;
 CREATE CONSTRAINT topic_key_unique IF NOT EXISTS FOR (n:Topic) REQUIRE n.key IS UNIQUE;
 
+// The viewer's knowledge state lives in the same graph (Delta Learning):
+// status 'known' (vault note / captured video learning) or 'goal' (wants to learn).
+CREATE CONSTRAINT concept_key_unique IF NOT EXISTS FOR (n:Concept) REQUIRE n.key IS UNIQUE;
+CREATE INDEX concept_status IF NOT EXISTS FOR (n:Concept) ON (n.status);
+
 CREATE INDEX video_title IF NOT EXISTS FOR (n:Video) ON (n.title);
 CREATE INDEX segment_video_id IF NOT EXISTS FOR (n:Segment) ON (n.video_id);
 CREATE INDEX entity_name IF NOT EXISTS FOR (n:Entity) ON (n.name);

@@ -41,6 +41,17 @@ schema:
 seed:
 	cd backend && uv run python scripts/ingest.py $(VIDEOS)
 
+# Ingest the viewer's knowledge state (vault claim-filenames + learning goals)
+vault:
+	cd backend && uv run python scripts/ingest_vault.py
+
+# Link video Topics/Entities to viewer Concepts (embedding cosine + LLM adjudication)
+resolve:
+	cd backend && uv run python scripts/resolve_concepts.py
+
+# Full pipeline for a demo corpus: videos, then knowledge state, then resolution
+demo-seed: seed vault resolve
+
 # Reset Neo4j data (drop and recreate)
 reset:
 	cd backend && uv run python -c "from app.context_graph_client import reset_database; import asyncio; asyncio.run(reset_database())"

@@ -1,0 +1,9 @@
+# Things Sameer explicitly wants to learn — these become (:Concept {status: 'goal'})
+# nodes. Segments teaching a goal concept are ALWAYS in the cut list, flagged
+# "you asked to learn this". Edit freely; re-run `make vault` after changes.
+goals:
+  - KV-cache optimization
+  - reinforcement learning from verifiable rewards
+  - speculative decoding
+  - context engineering for agents
+  - GPU memory hierarchy
