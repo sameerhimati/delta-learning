@@ -1,104 +1,102 @@
-# Session handoff — 2026-07-30 ~12:57pm (hackathon day)
+# Session handoff — 2026-07-30 ~2:05pm (hackathon day)
 
-## Handoff state
+## State: corpus complete, delta layer works end to end, demo beat measured. Pushed.
 
-Sprint 1 is partially complete. The shared runtime is up, the L8 talk is fully
-ingested, and resolution has been calibrated once. Do **not** run `make reset`.
+Do **not** run `make reset`. Do **not** touch `frontend/` (Luke's).
 
-- `.env` now contains a valid OpenAI key; never print, commit, or copy it.
-- Neo4j was already running. FastAPI was started with `make dev-backend` on `:8000`.
-- Cloudflare quick tunnel was started and was externally reachable at:
-  `https://mold-oliver-prisoner-payroll.trycloudflare.com`
-  (Quick-tunnel URLs are ephemeral; verify before sharing/reusing.)
-- Verified both `http://127.0.0.1:8000/api/videos` and the public
-  `/api/videos` route returned HTTP 200 before corpus completion.
-- Never edit `frontend/`; Luke owns it.
+Pushed to `main`: `81f8e9d` (delta layer correctness) and `931c5e6` (novelty-density
+cuts, goal precision, Neo4j GDS). Backend tests 2/2 green.
 
-## Completed and verified
+## Runtime
 
-1. **L8 first, explicit absolute path** — successfully ingested:
-   - File: `/Users/sameer/Code/delta-learning/data/videos/L8_Principal_s_Agentic_Engineering_Workflow.mp4`
-   - TwelveLabs index: `video-context-graph` / `6a6ba9df0d774e7cec6c16a8`
-   - Video id: `6a6baa1c0d774e7cec6c1a66`
-   - Result: 11 analyzed segments written to Neo4j; `segment_embeddings` vector
-     index ready at 512 dimensions.
-2. Ran `make resolve` at the original `0.70` threshold. It created one
-   `SAME_AS` edge: `Agent Harness` → `agent harnesses` (0.91).
-3. Measured the L8 delta through the live API:
-   - `concepts_total: 60`, `known: 1`, `novel: 59`, `goal_hits: 0`
-   - It currently recommends the whole 45:46 because the known term does not
-     eliminate a complete segment.
-4. Inspected semantic scores and changed the *candidate pre-filter* in
-   `backend/scripts/resolve_concepts.py` from `0.70` to `0.55`. OpenAI remains
-   the semantic acceptance gate; this is not a blind similarity match.
-   - Re-running `make resolve` produced 27 candidates.
-   - The adjudicator confirmed one additional `SAME_AS` edge:
-     `Agent Harness` → `agent anatomy loop harness and the stack` (0.73).
-   - There are now `SAME_AS > 0` (two edges), but only **one distinct L8 term**
-     is known. The required “several known concepts” gate is **not yet met**.
-5. Chat behavior now explicitly explains the policy: skip only concepts with
-   positive evidence of existing knowledge; recommend a full video when none
-   exists; distinguish a learning goal from prior knowledge. Backend tests pass
-   (2/2).
+- Neo4j in docker, `neo4j/password`, GDS **2.13.2 installed** (real PageRank, not a shim).
+- FastAPI on `:8000` (`make dev-backend`), auto-reload on.
+- Cloudflare quick tunnel live: `https://mold-oliver-prisoner-payroll.trycloudflare.com`
+  (verified 200). `cloudflared` pid was 62259 — if it dies, restart and reshare, the URL
+  changes every time.
+- Luke's env: `NEXT_PUBLIC_API_URL=https://mold-oliver-prisoner-payroll.trycloudflare.com/api`
 
-## Git state
+## Corpus (all 4 ingested, already indexed in TwelveLabs)
 
-- Pushed to `main`: `ebac33c Clarify full-video recommendations`
-- `backend/scripts/resolve_concepts.py` has the threshold change above and is
-  intentionally **uncommitted** at handoff. Inspect/verify it, then either
-  commit it as its own checkpoint or refine/revert it deliberately.
-- Video files are ignored by Git. No frontend files were modified.
+| video | runtime | segments | TL video_id |
+|---|---|---|---|
+| L8 Agentic Engineering | 45:46 | 34 | `6a6baa1c0d774e7cec6c1a66` |
+| Postgres | 8:07 | 11 | `6a6bae84eb0afeafecfac472` |
+| Game Theory A ("How Decision Making") | 9:50 | 13 | `6a6bae85c1ac59f5d1d0a8a8` |
+| Game Theory B ("A Simple Strategy") | 17:47 | 25 | `6a6bae86c1ac59f5d1d0a8b0` |
 
-## Downloaded, not yet seeded
+TL index `6a6ba9df0d774e7cec6c16a8`. **Re-analysis is cheap** — they're already indexed,
+so `make seed VIDEOS="--index-id=<idx> --video-id=<vid>"` skips upload and only re-runs
+Pegasus → structure → embed → write (~2 min for all four in parallel).
 
-All files below are present and must be passed by explicit **absolute** path.
-The Makefile changes into `backend/`, so `data/videos/...` fails from `make seed`.
+Graph: 419 learnable terms, 117 Concepts (109 known from vault, 8 goals),
+~54 `SAME_AS` + ~168 `ADVANCES` edges.
 
-- `/Users/sameer/Code/delta-learning/data/videos/Postgres_is_the_Only_Database_You_Need_in_2026.mp4` (8:07)
-- `/Users/sameer/Code/delta-learning/data/videos/How Decision Making is Actually Science： Game Theory Explained.mp4` (9:50)
-- `/Users/sameer/Code/delta-learning/data/videos/Game Theory： A Simple Strategy That Will Change Your Life Forever.mp4` (17:47)
+## THE DEMO BEAT — measured, not claimed
 
-Because the game-video filenames contain spaces, quote each path *inside* the
-`VIDEOS` make variable. Safest: seed one at a time, beginning with Postgres:
+Run from a clean state (no `video:`-prefixed Concepts):
 
-```zsh
-make seed VIDEOS='"/Users/sameer/Code/delta-learning/data/videos/Postgres_is_the_Only_Database_You_Need_in_2026.mp4"'
-make seed VIDEOS='"/Users/sameer/Code/delta-learning/data/videos/How Decision Making is Actually Science： Game Theory Explained.mp4"'
-make seed VIDEOS='"/Users/sameer/Code/delta-learning/data/videos/Game Theory： A Simple Strategy That Will Change Your Life Forever.mp4"'
+```
+Game Theory B before:  watch 17:46  ·  1 cut   ·  known 2
+POST /api/capture {"video": "How Decision Making"}   → captures 24 concepts
+Game Theory B after:   watch 13:22  ·  5 cuts  ·  known 12
 ```
 
-Then run `make resolve` again and measure `GET /api/delta/<title-fragment>` for
-all four videos. The vault contains **game theory as a learning goal**, not as
-known knowledge: the game talks should be recommended in full because nothing
-is safe to skip, while also explaining that they serve a stated goal.
+**25% less to watch, and one undifferentiated blob becomes 5 timecoded cuts.**
+That is "the corpus didn't change, I changed", live.
 
-## Required next gates
+To reset to the clean pre-capture state between rehearsals:
+```cypher
+MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
+```
+That only removes capture artifacts. Vault and goal Concepts are a different key
+namespace and are untouched — this is safe to run repeatedly.
 
-1. Make the L8 delta show several *distinct* known concepts without fabricating
-   matches. Lower the candidate pre-filter only if the LLM adjudicator can
-   truthfully approve more pairs; otherwise improve matching context/terms and
-   rerun. Use the API, not inference, to verify.
-2. Seed Postgres and both game talks using the exact commands above; resolve
-   again; verify `SAME_AS > 0` and the expected L8/Postgres/game cut-list story.
-3. Golden-path test through `/api/chat`:
-   - What in the agentic engineering talk is new to me?
-   - Which learning goals does this corpus cover? (be honest about gaps)
-   - Capture what those segments taught me.
-   - Re-ask on an **overlapping agentic talk** and prove its cut list shrinks.
+## Demo script (6 questions, `/api/chat`, same session_id)
 
-   Important product constraint: the new game-theory videos do **not** overlap
-   L8, so capturing L8 cannot legitimately shrink their cut lists. Keep one
-   10–20 minute overlapping agentic talk for the capture-shrink finale, or
-   explicitly revise that demo claim before recording.
-4. Before rehearsal: pull Luke’s frontend commits, smoke-test the hosted API
-   integration, then commit and push each completed sprint. Hard stop building
-   3:00pm; rehearse 3:00–3:15; record at 3:15; submit by 4:00.
+1. "What in the L8 agentic engineering talk is new to me?" → watch nearly all of it,
+   83 novel terms. **This is honest, not a bug** — the vault has almost nothing on
+   agentic engineering, and the agent explains that it only skips with positive evidence.
+2. "What about the Postgres talk?" → also watch it all, 0 known. Same reasoning, said out loud.
+3. "Which of my learning goals does this corpus cover, and which does it not?" →
+   covers game theory, database internals, context engineering. Reports **zero** coverage
+   for speculative decoding, KV-cache optimization, GPU memory hierarchy, Bayesian stats.
+   The honesty beat.
+4. "What should I learn first?" → `learning_frontier` tool: Neo4j GDS PageRank over the
+   co-occurrence graph of terms you do NOT know.
+5. "I just watched the game theory explainer — capture what it taught me." → 24 concepts.
+6. "Now what should I watch in 'A Simple Strategy'?" → **17:46 → 13:22, 5 cuts.** The finale.
 
-## Luke integration prompt already supplied
+## Honest framing decision (Sameer signed off on the shape, not the numbers)
 
-Luke’s frontend consumes:
+The vault genuinely contains no game theory and no Postgres knowledge, and little on
+agentic engineering. Vault scanning was widened from one subfolder to four (33 → 109
+concepts) and that is the ceiling. So **the demo's contrast comes from capture, not from
+vault overlap.** Do not promise "watch 4 minutes of an 18-minute talk" off the vault
+alone — promise it off the capture loop, which is measured above.
 
-`NEXT_PUBLIC_API_URL=https://mold-oliver-prisoner-payroll.trycloudflare.com/api`
+## What changed this session (why, not what)
 
-He should use the fixture first, implement the frozen `/api/delta` panel and
-capture action, make small frontend-only commits, and never alter backend files.
+- `goal` outranked `known`, so capture could never shrink a cut list; and
+  `capture_learning` skipped goal-status concepts entirely, making the capture button a
+  no-op on exactly the videos a goal covers. Both fixed — this was the finale silently
+  failing.
+- Captured Concepts MERGE'd on bare names, sharing a key namespace with goals: capturing
+  a term called "Game Theory" would have flipped the stated goal to `known` and deleted
+  it mid-demo. Now namespaced `video:`.
+- Resolver's absolute cosine floor rejected true matches before the LLM saw them (median
+  best-match cosine 0.43). Marengo now ranks, the adjudicator decides, chunks write edges
+  as they land so an interrupted run keeps its work.
+- Pegasus was capped at 2000 tokens and truncated long videos mid-way; now duration-aware
+  within its hard 4096 ceiling.
+- Cuts required only one novel term in a segment → every video read "watch 100%".
+- Goal adjudication answered on shared discipline → claimed 4 goals the corpus misses.
+
+## Remaining / known risks
+
+- Quick-tunnel URL is ephemeral. Verify before the recording.
+- L8 and Postgres both read "watch ~100%". Correct, but if two flat answers in a row feel
+  weak on camera, lead with Q5→Q6 (the capture beat) and use Q1/Q2 as setup.
+- `data/videos/bbb_1080p_30fps_normal_85sec.mp4` (vendored sample) is **not** ingested.
+  Never run bare `make seed` — it would ingest it and pollute the graph.
+- Hard stop building 3:00pm → rehearse 3:00–3:15 → record 3:15–3:45 → submit 4:00.
