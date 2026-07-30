@@ -1,36 +1,114 @@
-# Session handoff — 2026-07-30 ~1:50pm (hackathon day)
+# Session Handoff
+> Last updated: 2026-07-30 ~2:55pm PDT — hackathon build day, hard stop 3:00pm,
+> record 3:15–3:45, submit 4:00.
 
-## State: full stack running locally, all 6 demo questions verified live, everything pushed.
+## Completed This Session
 
-## Start the demo (both services)
+- [x] `81f8e9d` Delta layer correctness — `known` now beats `goal` (capture could never
+      shrink a cut list before), `capture_learning` no longer skips goal-status concepts,
+      captured Concepts namespaced `video:` so they can't overwrite a learning goal,
+      resolver switched from an absolute cosine floor to top-K + LLM adjudication,
+      Pegasus given a duration-aware token budget, vault scanning widened 33 → 109 concepts.
+- [x] `21369a4` Lean ontology — structuring prompt capped at 3 genuinely-teachable topics
+      per segment. Terms/video 103→71, 45→27, 30→22. **Capture beat 25% → 41%.**
+- [x] `931c5e6` Novelty-density cuts + goal precision + Neo4j GDS wired (`learning_frontier`).
+- [x] `6efda81` Stopped serializing 512-float embeddings into agent context (one graph
+      question was asking for 386k tokens and returning a rate-limit error).
+- [x] `d61d07c` Merged Luke's frontend (5 commits, +1287/−321, frontend-only, tsc clean).
+- [x] `6a60291` Recorded the demo-script trap that made the finale circular.
+- [x] `0ecfdab` Quiz loop, `/api/knowledge-map`, `/api/knowledge`, Topic/Entity dedupe.
 
-```zsh
-make docker-up        # Neo4j, if not already up
-make dev-backend      # :8000   — or `make start` for both
-make dev-frontend     # :3000   — inlines NEXT_PUBLIC_API_URL at build time
+## Current State
+
+- **Branch:** `main`, clean, pushed to `origin/main` at `0ecfdab`.
+- **Build:** backend pytest 2/2 green; frontend `tsc --noEmit` clean.
+- **Services:** Neo4j (docker, GDS 2.13.2), FastAPI `:8000`, Next `:3000`,
+  cloudflared tunnel `https://mold-oliver-prisoner-payroll.trycloudflare.com`.
+- **Uncommitted:** none.
+- **Blockers:** none. One loose end below.
+
+### ⚠️ Loose end: graph is NOT in clean demo state
+
+A verification subagent ran a capture and left artifacts (`known_from_video: 4`).
+**Before rehearsing or recording, run:**
+```cypher
+MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 ```
-Open **http://localhost:3000**. Both were verified running at 1:50pm: backend `/health`
-ok with `neo4j: true`, frontend 200 with the merged "Your Cut" panel, and
-`/api/videos`, `/api/watchlist`, `/api/delta/...` all 200.
+Verify with `curl localhost:8000/api/knowledge` → `stats.known_from_video` must be **0**.
+This only removes capture artifacts; vault and goal Concepts use a different key namespace.
 
-The graph is in the **clean pre-capture state** (0 `video:` Concepts). Do not run the
-capture question before recording — it spends the finale.
+## Next Session Should
 
-Do **not** run `make reset`. Do **not** touch `frontend/` (Luke's).
+1. **Opening gambit:** run the clean-state Cypher above, then
+   `curl -s "localhost:8000/api/delta/A%20Simple%20Strategy"` and confirm
+   **watch_sec 968, cuts 2, known 0**. That is the verified pre-capture baseline; if it
+   doesn't match, something captured and the finale is already spent.
+2. Rehearse the 6-question demo script below. **Q5 must name the video explicitly.**
+3. Pull Luke's ongoing UI work: `git fetch luke && git merge luke/codex/luke-your-cut`,
+   then `cd frontend && npm exec -- tsc --noEmit --incremental false`.
+4. If flat answers read badly on camera, consider the `DISCOUNT_REPEATED_TERMS` lever
+   (see Context). Re-measure before recording if you flip it.
+5. Post-hackathon: **curriculum generation** — the strongest unbuilt feature.
 
-Pushed to `main`: `81f8e9d` (delta layer correctness) and `931c5e6` (novelty-density
-cuts, goal precision, Neo4j GDS). Backend tests 2/2 green.
+## The demo — measured, not claimed
 
-## Runtime
+```
+Game Theory B before:  watch 16:08 of 17:47 · 2 cuts · known 0
+POST /api/capture {"video": "How Decision Making"}  → 11 concepts
+Game Theory B after:   watch  9:32 of 17:47 · 3 cuts · known 6
+```
+**41% less to watch, from watching one 9-minute video.**
 
-- Neo4j in docker, `neo4j/password`, GDS **2.13.2 installed** (real PageRank, not a shim).
-- FastAPI on `:8000` (`make dev-backend`), auto-reload on.
-- Cloudflare quick tunnel live: `https://mold-oliver-prisoner-payroll.trycloudflare.com`
-  (verified 200). `cloudflared` pid was 62259 — if it dies, restart and reshare, the URL
-  changes every time.
-- Luke's env: `NEXT_PUBLIC_API_URL=https://mold-oliver-prisoner-payroll.trycloudflare.com/api`
+Six questions, `/api/chat`, same `session_id`, 9–40s each:
 
-## Corpus (all 4 ingested, already indexed in TwelveLabs)
+1. "What in the L8 agentic engineering talk is new to me?" → 43:03 of 45:46, cites real
+   vault notes (`agent-harnesses.md`, `05-memory.md`).
+2. "What about the Postgres talk?" → watch all 8:06, 0 known, says why.
+3. "Which of my learning goals does this corpus cover, and which does it not?" → honest;
+   volunteers that GPU memory hierarchy / KV-cache / speculative decoding are uncovered.
+4. "What should I learn first?" → GDS PageRank over the frontier. Picks PostgreSQL (5.15).
+5. **"I just watched 'How Decision Making is Actually Science' — capture what it taught me."**
+   ⚠️ **Name the video.** Saying "the game theory explainer" makes the agent pick the *other*
+   game-theory video, so Q6 then asks about the video it just captured and answers
+   "skip all of it" — circular, kills the beat. Verified failure mode.
+6. "Now what should I watch in 'A Simple Strategy'?" → 9:32 across 3 cuts, and it names
+   *where* the skipped material was learned. The finale.
+
+## Context to Remember
+
+- **The vault holds 109 concepts and exactly 3 touch this corpus** (`02-the-agent-loop.md`,
+  `05-memory.md`, `agent-harnesses.md`). This is why every video answers "watch most of it"
+  before any capture. It is honest, not a bug — say it out loud rather than hedging. It is
+  also *why the quiz exists*: the vault is evidence of what Sameer wrote down, not of what
+  he knows.
+- **`DISCOUNT_REPEATED_TERMS`** in `backend/app/delta.py`, default `False`. When True a term
+  stops counting as new once an earlier segment of the same video taught it. Measured:
+  Postgres 91%, L8 73%, GT-B 34%, GT-A 0% — four visibly different verdicts vs the default's
+  two-at-100%. Off because it can drop a segment that is 100% novel-to-the-viewer as a
+  "repeat", contradicting "mostly new is always kept". One-word flip, but re-measure.
+- **Three bugs that would have silently broken the demo**, all found by adversarial review
+  rather than by tests: `goal` outranking `known` (capture could never shrink anything);
+  captured Concepts sharing a key namespace with goals (capturing "Game Theory" would have
+  deleted the stated goal mid-demo); embeddings serialized into agent context (386k-token
+  requests → rate-limit errors that read as a broken product).
+- **Re-analysis is cheap.** All 4 videos are already indexed in TwelveLabs, so
+  `make seed VIDEOS="--index-id=6a6ba9df0d774e7cec6c16a8 --video-id=<vid>"` skips upload
+  and re-runs analyze→structure→embed→write. All four in parallel ≈ 2 min.
+  Pegasus caps `max_tokens` at **4096** — exceeding it 400s.
+- **Never run bare `make seed`** — it would ingest the vendored Big Buck Bunny sample and
+  pollute the graph. Never run `make reset`.
+- **Luke works in a fork**, `https://github.com/huluk98/delta-learning`, branch
+  `codex/luke-your-cut`. Nothing appears on `origin/main` until merged from there. His agent
+  is still working on UI/UX. If he ever touches `backend/`, stop and review rather than merge.
+- **The graph panel still defaults to `/api/schema/visualization`** (Neo4j index metadata —
+  a data-model diagram, not knowledge). `/api/knowledge-map` exists to replace it; Luke has
+  been given the prompt but had not landed it as of this handoff.
+- `GET /api/delta` gained additive fields only: `skipped`, `minor_concepts`,
+  `stats.segments_kept` / `segments_skipped` / `min_novelty_density`, `cuts[].novelty`,
+  `known_concepts[].goal_note`. No existing field renamed, retyped, or removed.
+- Quick-tunnel URLs are ephemeral — verify before sharing or recording.
+
+## Corpus
 
 | video | runtime | segments | TL video_id |
 |---|---|---|---|
@@ -39,195 +117,17 @@ cuts, goal precision, Neo4j GDS). Backend tests 2/2 green.
 | Game Theory A ("How Decision Making") | 9:50 | 13 | `6a6bae85c1ac59f5d1d0a8a8` |
 | Game Theory B ("A Simple Strategy") | 17:47 | 25 | `6a6bae86c1ac59f5d1d0a8b0` |
 
-TL index `6a6ba9df0d774e7cec6c16a8`. **Re-analysis is cheap** — they're already indexed,
-so `make seed VIDEOS="--index-id=<idx> --video-id=<vid>"` skips upload and only re-runs
-Pegasus → structure → embed → write (~2 min for all four in parallel).
+TL index `6a6ba9df0d774e7cec6c16a8`. Graph: 4 Videos, 83 Segments, 63 Topics,
+109 Entities, 117 Concepts (109 vault-known, 8 goals).
 
-Graph: 4 Videos, 83 Segments, 63 Topics + 109 Entities, 117 Concepts (109 known from
-vault, 8 goals), ~58 `SAME_AS` + ~196 `ADVANCES` edges.
-
-The ontology was deliberately thinned late in the session: the structuring prompt used to
-emit every entity it saw (~105 terms per video, including filler like "Artificial
-Intelligence" and "Performance Optimization"), which buried the signal and made badges
-unreadable. It now emits at most 3 genuinely-teachable topics per segment and none at all
-for intros and sponsor reads. Terms per video fell 103→71, 45→27, 30→22, and the capture
-beat nearly doubled (25% → 41%) because the concepts that remain are ones that actually
-overlap between the two talks.
-
-## THE DEMO BEAT — measured, not claimed
-
-The graph is currently sitting in the clean pre-capture state. Do not capture before
-the recording or the beat is already spent.
-
-```
-Game Theory B before:  watch 16:08 of 17:46  ·  2 cuts  ·  known 0
-POST /api/capture {"video": "How Decision Making"}   → captures 11 concepts
-Game Theory B after:   watch  9:32 of 17:46  ·  3 cuts  ·  known 6
-```
-
-**41% less to watch — 6:36 saved — from watching one 9-minute video.**
-That is "the corpus didn't change, I changed", live.
-
-To reset to the clean pre-capture state between rehearsals:
-```cypher
-MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
-```
-That only removes capture artifacts. Vault and goal Concepts are a different key
-namespace and are untouched — this is safe to run repeatedly.
-
-## Demo script — all 6 verified live at 3:10pm, full transcript behaviour below
-
-Use the **same session_id** throughout. Answers took 9–40s each; none rate-limited.
-
-1. "What in the L8 agentic engineering talk is new to me?" → **43:03 of 45:46** in three
-   ranges, 51 novel + 15 goal-aligned. Cites the five real overlaps back to their notes
-   (`agent-harnesses.md`, `05-memory.md`, `02-the-agent-loop.md`). Watching nearly all of
-   it is **honest, not a bug** — the vault barely covers agentic engineering, and the
-   agent says so.
-2. "What about the Postgres talk?" → watch all **0:00–8:06**, 0 known, 28 goal-aligned.
-   States plainly that no saved-knowledge overlap exists so nothing is safe to skip.
-3. "Which of my learning goals does this corpus cover, and which does it not?" →
-   1 of 8 strictly linked (game theory), then volunteers the nuance that Postgres
-   *supports* database internals and L8 *supports* context engineering without a strict
-   link, and that GPU memory hierarchy / KV-cache / speculative decoding have no
-   meaningful coverage at all. The honesty beat, and it lands.
-4. "What should I learn first?" → `learning_frontier`: Neo4j **GDS PageRank** over the
-   co-occurrence graph of terms you do NOT know. Picks PostgreSQL (score 5.15) and
-   explains the ranking rule.
-5. **"I just watched 'How Decision Making is Actually Science' — capture what it taught me."**
-   → captures 11 concepts (Game Theory, Prisoner's Dilemma, Nash Equilibrium, Dominant
-   Strategy, Shapley Value…).
-   ⚠️ **Name the video explicitly.** Saying "the game theory explainer" makes the agent
-   pick the *other* game-theory video, and Q6 then asks about the one you just captured —
-   it answers "skip all of it", which is circular and kills the beat. Verified failure.
-6. "Now what should I watch in 'A Simple Strategy'?" → **9:32 of 17:47 across 3 cuts**, and
-   the agent names the source: *"skip 0:00–5:08 … you learned that from How Decision
-   Making."* Cross-video transfer, said out loud. The finale.
-
-## Built after the first handoff: quiz, knowledge map, knowledge state
-
-**Quiz** — `GET /api/quiz/{video}?count=5` and the `quiz_me` agent tool. Generates
-questions about the *concepts* a video would teach (verified: "What makes a strategy
-optimal in a decision or game setting?", not "what colour was the slide"). The agent asks
-them, grades the answers itself, then calls `capture_learning` with **only the ones the
-viewer got right**. This closes the loop from the other side: the vault records what he
-wrote down, the quiz records what he can demonstrate. It is also the fastest way to grow
-the knowledge state on camera without watching a whole video.
-
-**`GET /api/knowledge-map`** — the fix for "this knowledge map sucks". The graph panel's
-default view calls `/api/schema/visualization`, which returns Neo4j **index and constraint
-metadata** — a data-model diagram, not anyone's knowledge. The new endpoint returns the
-concepts the corpus actually teaches, coloured `known`/`goal`/`novel`, plus the 8 goals as
-hub nodes sized by coverage, with **co-occurrence edges** (two concepts taught by the same
-segment) so subject areas cluster without anyone labelling them. 98 nodes, 225 edges,
-`known_pct: 26`. **Luke's panel should default to this instead of `/schema/visualization`.**
-
-**`GET /api/knowledge`** — the place that defines what the viewer knows, which previously
-existed nowhere in the UI (it was implicit in vault filenames plus a YAML file). Returns
-goals with coverage, and known concepts split by provenance: `from_vault` (109, each with
-its note filename), `from_video` (captured), and `matched_in_corpus`.
-
-That last number is the most honest line in the project: **the vault holds 109 concepts and
-exactly 3 of them touch this corpus** (`02-the-agent-loop.md`, `05-memory.md`,
-`agent-harnesses.md`). Say it out loud in the demo — it explains every "watch the whole
-video" answer better than any hedge.
-
-## A one-word lever if the demo needs more contrast
-
-`DISCOUNT_REPEATED_TERMS` in `backend/app/delta.py` (default **False**). When True, a term
-stops counting as new once an earlier segment of the same video taught it. Measured live it
-produces four visibly different verdicts — Postgres 91%, L8 73%, Game Theory B 34%,
-Game Theory A 0% — where the default rule leaves L8 and Postgres both at ~100%. It is off
-because it lets a segment that is 100% novel-to-the-viewer be dropped as a repeat, which
-contradicts "mostly new is always kept". The trade is a smaller capture drop on Game Theory
-B. Flip it only if flat answers read badly on camera, and re-measure before recording.
-
-## Honest framing decision (Sameer signed off on the shape, not the numbers)
-
-The vault genuinely contains no game theory and no Postgres knowledge, and little on
-agentic engineering. Vault scanning was widened from one subfolder to four (33 → 109
-concepts) and that is the ceiling. So **the demo's contrast comes from capture, not from
-vault overlap.** Do not promise "watch 4 minutes of an 18-minute talk" off the vault
-alone — promise it off the capture loop, which is measured above.
-
-## What changed this session (why, not what)
-
-- `goal` outranked `known`, so capture could never shrink a cut list; and
-  `capture_learning` skipped goal-status concepts entirely, making the capture button a
-  no-op on exactly the videos a goal covers. Both fixed — this was the finale silently
-  failing.
-- Captured Concepts MERGE'd on bare names, sharing a key namespace with goals: capturing
-  a term called "Game Theory" would have flipped the stated goal to `known` and deleted
-  it mid-demo. Now namespaced `video:`.
-- Resolver's absolute cosine floor rejected true matches before the LLM saw them (median
-  best-match cosine 0.43). Marengo now ranks, the adjudicator decides, chunks write edges
-  as they land so an interrupted run keeps its work.
-- Pegasus was capped at 2000 tokens and truncated long videos mid-way; now duration-aware
-  within its hard 4096 ceiling.
-- Cuts required only one novel term in a segment → every video read "watch 100%".
-- Goal adjudication answered on shared discipline → claimed 4 goals the corpus misses.
-
-## Luke / frontend integration — MERGED
-
-Luke works in a **fork**: `https://github.com/huluk98/delta-learning`, branch
-`codex/luke-your-cut`. Nothing lands on `origin/main` until it is merged from there:
-
-```
-git remote add luke https://github.com/huluk98/delta-learning.git
-git fetch luke && git merge luke/codex/luke-your-cut
-```
-
-Merged at 3:05pm (`d61d07c`): 5 commits, +1287/-321 across 10 files, **frontend-only, zero
-backend files touched**, `tsc --noEmit` clean. Adds `YourCutPanel.tsx` (523 lines),
-`StudyNotes.tsx`, concept coloring by knowledge status in `ContextGraphView`, and a rebuilt
-`page.tsx` / `VideoBrowser`. Frontend runs on `:3000` and returns 200.
-
-**His Codex is still working on UI/UX cleanup**, so expect more commits on that branch.
-To pick them up (repeat as needed — it stays a fast-forward-ish merge as long as he keeps
-to `frontend/`):
+## Start Command
 
 ```zsh
-git fetch luke && git merge luke/codex/luke-your-cut
-cd frontend && npm exec -- tsc --noEmit --incremental false   # must stay clean
+cd ~/Code/delta-learning
+make docker-up          # Neo4j, if not already up
+make start              # backend :8000 + frontend :3000
+# then, before demoing:
+docker exec delta-learning-neo4j-1 cypher-shell -u neo4j -p password \
+  "MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c"
+open http://localhost:3000
 ```
-If he ever touches `backend/`, stop and review rather than merging — the delta logic and
-the response contract are load-bearing and were verified against live measurements.
-
-The API is verified working through the tunnel, including CORS for `http://localhost:3000`:
-
-```
-curl https://mold-oliver-prisoner-payroll.trycloudflare.com/api/videos      # 4 videos
-curl "https://mold-oliver-prisoner-payroll.trycloudflare.com/api/delta/A%20Simple%20Strategy"
-```
-
-If his panel shows no data, in likelihood order: (1) dev server not restarted — Next
-inlines `NEXT_PUBLIC_*` at build time so it must be `NEXT_PUBLIC_API_URL=<tunnel>/api npm
-run dev`; (2) still reading `frontend/fixtures/delta.json`; (3) double `/api/api/` because
-the env var already ends in `/api`.
-
-`GET /api/delta` gained **additive** fields he can use but does not have to:
-`skipped` (segments deliberately not recommended, with their concepts, so a skip can be
-explained rather than silently vanishing), `minor_concepts`, and
-`stats.segments_kept` / `segments_skipped` / `min_novelty_density`. Every original field
-is unchanged in name, type, and meaning — a fixture-built panel still works untouched.
-
-## Remaining / known risks
-
-- Quick-tunnel URL is ephemeral. Verify before the recording.
-- **Before capture every video reads 91–100% watch.** That is the honest starting state,
-  not a bug — the vault covers almost none of this material. The contrast is produced by
-  the capture loop, so the demo must show a capture. Lead Q1/Q2 as setup and land on Q5→Q6.
-- Still not built, in rough value order:
-  - **Curriculum generation.** The pieces already exist and are not yet joined up: GDS
-    PageRank ranks the frontier, Louvain already clusters the corpus into unlabelled
-    subject areas (`cypher/gds_projections.cypher` — community 79 is PostgreSQL/GIN/JSONB
-    at 0/30 known, community 100 is game theory at 14/14). A curriculum is those clusters
-    ordered by prerequisite depth and filtered to what the viewer does not know — i.e.
-    "here is your path through this corpus", not just "watch this next". Strongest
-    remaining feature.
-  - Ranking videos from **outside** the corpus (today `/api/watchlist` ranks only the 4
-    ingested ones).
-  - Spaced repetition over captured concepts, using each concept's teaching timecode.
-- `data/videos/bbb_1080p_30fps_normal_85sec.mp4` (vendored sample) is **not** ingested.
-  Never run bare `make seed` — it would ingest it and pollute the graph.
-- Hard stop building 3:00pm → rehearse 3:00–3:15 → record 3:15–3:45 → submit 4:00.
