@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { X, RotateCcw } from "lucide-react";
 import {
+  CONCEPT_STATUS_COLORS,
   NODE_COLORS,
   NODE_SIZES,
   SCHEMA_NODE_SIZE,
@@ -146,7 +147,11 @@ function extractNodesAndRels(results: Record<string, unknown>[]): InternalGraphD
   };
 }
 
-function getNodeColor(labels: string[]): string {
+function getNodeColor(labels: string[], properties: Record<string, unknown>): string {
+  if (labels.includes("Concept") && typeof properties.status === "string") {
+    const statusColor = CONCEPT_STATUS_COLORS[properties.status];
+    if (statusColor) return statusColor;
+  }
   for (const label of labels) {
     if (NODE_COLORS[label]) return NODE_COLORS[label];
   }
@@ -366,7 +371,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
           ? "#E53E3E"
           : isExpanded
             ? "#38A169"
-            : getNodeColor(node.labels),
+            : getNodeColor(node.labels, node.properties),
         size: isSchema
           ? SCHEMA_NODE_SIZE
           : isSelected
@@ -459,6 +464,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         css={{ backdropFilter: "blur(2px)" }}
       >
         {Object.entries(NODE_COLORS)
+          .filter(([label]) => label !== "Concept")
           .map(([label, color]) => (
             <Badge
               key={label}
@@ -471,6 +477,18 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
               {label}
             </Badge>
           ))}
+        {Object.entries(CONCEPT_STATUS_COLORS).map(([status, color]) => (
+          <Badge
+            key={`concept-${status}`}
+            size="sm"
+            px={2}
+            py={0.5}
+            whiteSpace="nowrap"
+            style={{ backgroundColor: color, color: "white" }}
+          >
+            {status === "known" ? "Known concept" : "Learning goal"}
+          </Badge>
+        ))}
       </Flex>
 
       {/* Properties panel — fixed to the viewport's lower-right (overlays the
