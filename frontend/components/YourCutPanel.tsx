@@ -67,6 +67,8 @@ interface YourCutPanelProps {
   videoId: string;
   useFixture?: boolean;
   onSeek?: (seconds: number) => void;
+  /** Emits the cut ranges so a sibling panel (the transcript) can highlight them. */
+  onCutsChange?: (cuts: { start_sec: number; end_sec: number }[]) => void;
 }
 
 export const DELTA_FIXTURE = fixtureJson as DeltaResponse;
@@ -114,7 +116,12 @@ function ConceptPill({ concept }: { concept: DeltaConcept }) {
   );
 }
 
-export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPanelProps) {
+export function YourCutPanel({
+  videoId,
+  useFixture = false,
+  onSeek,
+  onCutsChange,
+}: YourCutPanelProps) {
   const [data, setData] = useState<DeltaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +167,15 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
     setCaptureError(null);
     void loadDelta();
   }, [loadDelta]);
+
+  useEffect(() => {
+    onCutsChange?.(
+      (data?.cuts || []).map((cut) => ({
+        start_sec: cut.start_sec,
+        end_sec: cut.end_sec,
+      })),
+    );
+  }, [data, onCutsChange]);
 
   const novelConcepts = useMemo(() => {
     if (!data) return [];
@@ -260,8 +276,8 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
       >
         <HStack justify="space-between" align="start" mb={4}>
           <Box>
-            <Text fontSize="10px" fontWeight="bold" letterSpacing="0.15em" color="#aaa5ff">
-              YOUR CUT
+            <Text fontSize="xs" fontWeight="semibold" letterSpacing="0.02em" color="#aaa5ff">
+              Your cut
             </Text>
             <Text mt={1} fontSize="xs" color="whiteAlpha.600">
               Personalized from your saved knowledge
@@ -353,7 +369,7 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
           bg="green.50"
         >
           <Text fontSize="sm" fontWeight="semibold" color="green.800">
-            Nothing new for you in this video — skip it entirely 🎉
+            Nothing new for you in this video — skip it entirely.
           </Text>
           <Text mt={1} fontSize="xs" color="green.700">
             Your saved knowledge already covers every concept we found.
@@ -401,8 +417,8 @@ export function YourCutPanel({ videoId, useFixture = false, onSeek }: YourCutPan
                   >
                     {String(index + 1).padStart(2, "0")}
                   </Flex>
-                  <Text fontSize="xs" fontWeight="bold" letterSpacing="0.08em" color="gray.500">
-                    STUDY CLIP
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.500">
+                    Study clip
                   </Text>
                 </HStack>
                 <Button

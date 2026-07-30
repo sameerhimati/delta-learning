@@ -8,31 +8,47 @@ import {
   Heading,
   HStack,
   IconButton,
-  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { BookOpen, BrainCircuit, MessageCircle, Network } from "lucide-react";
+import {
+  BookOpen,
+  BrainCircuit,
+  MessageCircle,
+  Network,
+  NotebookText,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { VideoBrowser } from "@/components/VideoBrowser";
+import { WhatIKnowPanel } from "@/components/WhatIKnowPanel";
 import { API_BASE } from "@/lib/config";
 import type { GraphData } from "@/lib/config";
+
+function PanelPlaceholder({ message }: { message: string }) {
+  return (
+    <Flex h="100%" align="center" justify="center" direction="column" gap={4} px={6}>
+      <VStack gap={2} w="100%" maxW="180px" animation="delta-pulse 1.6s ease-in-out infinite">
+        <Box w="100%" h="6px" borderRadius="full" bg="gray.300" />
+        <Box w="70%" h="6px" borderRadius="full" bg="gray.300" alignSelf="flex-start" />
+      </VStack>
+      <Text fontSize="sm" color="gray.500">
+        {message}
+      </Text>
+    </Flex>
+  );
+}
 
 const ContextGraphView = dynamic(
   () => import("@/components/ContextGraphView").then((mod) => mod.ContextGraphView),
   {
     ssr: false,
-    loading: () => (
-      <Flex align="center" justify="center" h="100%" color="gray.400">
-        <Spinner size="lg" />
-      </Flex>
-    ),
+    loading: () => <PanelPlaceholder message="Laying out your knowledge map…" />,
   },
 );
 
-type ViewId = "study" | "chat" | "graph";
+type ViewId = "study" | "knowledge" | "chat" | "graph";
 
 const VIEWS = {
   study: {
@@ -40,6 +56,12 @@ const VIEWS = {
     title: "Study workspace",
     description: "Watch only the parts that add to what you know.",
     icon: BookOpen,
+  },
+  knowledge: {
+    label: "What I know",
+    title: "What I know",
+    description: "Your vault notes, captures, and goals as the graph sees them.",
+    icon: NotebookText,
   },
   chat: {
     label: "Ask Delta",
@@ -50,7 +72,7 @@ const VIEWS = {
   graph: {
     label: "Knowledge map",
     title: "Knowledge map",
-    description: "See how your videos, concepts, and goals connect.",
+    description: "See how your concepts, goals, and talks connect.",
     icon: Network,
   },
 } satisfies Record<ViewId, {
@@ -59,6 +81,8 @@ const VIEWS = {
   description: string;
   icon: typeof BookOpen;
 }>;
+
+const VIEW_ORDER = Object.keys(VIEWS) as ViewId[];
 
 function ConnectionStatus({
   status,
@@ -73,12 +97,12 @@ function ConnectionStatus({
   return (
     <HStack
       gap={2}
-      px={2.5}
-      py={1}
+      px={3}
+      py={1.5}
       borderWidth="1px"
-      borderColor="#e3e5e8"
+      borderColor="line"
       borderRadius="full"
-      bg="#fafafa"
+      bg="white"
       title={
         status === "ok"
           ? "Backend connected"
@@ -87,8 +111,8 @@ function ConnectionStatus({
             : "Backend offline"
       }
     >
-      <Box w={1.5} h={1.5} borderRadius="full" bg={color} />
-      <Text fontSize="11px" fontWeight="semibold" color="gray.600">
+      <Box w={2} h={2} borderRadius="full" bg={color} />
+      <Text fontSize="xs" fontWeight="medium" color="gray.600">
         {copy}
       </Text>
     </HStack>
@@ -101,6 +125,7 @@ export default function Home() {
   const [backendStatus, setBackendStatus] =
     useState<"ok" | "degraded" | "offline">("offline");
   const [askAboutInput, setAskAboutInput] = useState<string | null>(null);
+  const [knowledgeToken, setKnowledgeToken] = useState(0);
 
   const handleGraphUpdate = useCallback((data: GraphData) => {
     setGraphData(data);
@@ -109,6 +134,12 @@ export default function Home() {
   const handleAskAbout = useCallback((entityName: string) => {
     setAskAboutInput(`Tell me about ${entityName}`);
     setActiveView("chat");
+  }, []);
+
+  // Captures happen in the study view, so re-read the knowledge state each visit.
+  const selectView = useCallback((viewId: ViewId) => {
+    setActiveView(viewId);
+    if (viewId === "knowledge") setKnowledgeToken((token) => token + 1);
   }, []);
 
   useEffect(() => {
@@ -138,122 +169,111 @@ export default function Home() {
   const activeMeta = VIEWS[activeView];
 
   return (
-    <Flex h="100dvh" bg="#f3f4f6" color="#17181c" overflow="hidden">
+    <Flex h="100dvh" bg="#f3f4f6" color="ink" overflow="hidden">
       <Flex
         as="aside"
         aria-label="Primary navigation"
         display={{ base: "none", md: "flex" }}
         direction="column"
-        w="216px"
+        w="224px"
         flexShrink={0}
-        px={3}
-        py={4}
-        bg="#15171c"
+        px={4}
+        py={6}
+        bg="ink"
         color="white"
-        borderRightWidth="1px"
-        borderColor="whiteAlpha.100"
       >
-        <HStack gap={2.5} px={2} mb={7}>
+        <HStack gap={3} px={2} mb={8}>
           <Flex
             align="center"
             justify="center"
-            w="34px"
-            h="34px"
-            borderRadius="10px"
-            bg="#625bf6"
+            w={8}
+            h={8}
+            flexShrink={0}
+            borderRadius="control"
+            bg="brand.500"
             color="white"
-            boxShadow="0 6px 16px rgba(98,91,246,0.28)"
           >
             <BrainCircuit size={18} />
           </Flex>
           <Box>
-            <Heading size="sm" letterSpacing="-0.025em">Delta</Heading>
-            <Text fontSize="10px" color="gray.500" letterSpacing="0.03em">
-              LEARNING WORKSPACE
+            <Heading size="sm" letterSpacing="-0.02em">
+              Delta
+            </Heading>
+            <Text fontSize="xs" color="#7d828e">
+              Learning workspace
             </Text>
           </Box>
         </HStack>
 
         <VStack align="stretch" gap={1}>
-          {(Object.entries(VIEWS) as [ViewId, typeof VIEWS[ViewId]][]).map(
-            ([viewId, view]) => {
-              const Icon = view.icon;
-              const isActive = activeView === viewId;
-              return (
-                <Button
-                  key={viewId}
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  h="44px"
-                  px={3}
-                  borderRadius="10px"
-                  fontSize="sm"
-                  fontWeight={isActive ? "semibold" : "medium"}
-                  color={isActive ? "white" : "#969aa4"}
-                  bg={isActive ? "#24272f" : "transparent"}
-                  boxShadow={isActive ? "inset 0 0 0 1px rgba(255,255,255,0.04)" : "none"}
-                  _hover={{ bg: "#20232a", color: "white" }}
-                  onClick={() => setActiveView(viewId)}
-                >
-                  <Box
-                    w="3px"
-                    h="18px"
-                    ml={-3}
-                    mr={1}
-                    borderRadius="full"
-                    bg={isActive ? "#7c74ff" : "transparent"}
-                  />
-                  <Icon size={16} />
-                  {view.label}
-                </Button>
-              );
-            },
-          )}
+          {VIEW_ORDER.map((viewId) => {
+            const view = VIEWS[viewId];
+            const Icon = view.icon;
+            const isActive = activeView === viewId;
+            return (
+              <Button
+                key={viewId}
+                variant="ghost"
+                justifyContent="flex-start"
+                gap={3}
+                h={10}
+                px={3}
+                borderRadius="control"
+                fontSize="sm"
+                fontWeight={isActive ? "semibold" : "normal"}
+                color={isActive ? "white" : "#9297a3"}
+                bg={isActive ? "#24272f" : "transparent"}
+                _hover={{ bg: "#20232a", color: "white" }}
+                onClick={() => selectView(viewId)}
+              >
+                <Icon size={16} color={isActive ? "#8f88ff" : "currentColor"} />
+                {view.label}
+              </Button>
+            );
+          })}
         </VStack>
 
-        <Box mt="auto" mx={1} p={3} borderTopWidth="1px" borderColor="whiteAlpha.100">
-          <Text fontSize="10px" fontWeight="bold" color="#858a96" letterSpacing="0.08em">
-            ADAPTIVE STUDY
-          </Text>
-          <Text mt={1.5} fontSize="11px" color="#6f7480" lineHeight="1.55">
-            Your watch list updates as your knowledge grows.
-          </Text>
-        </Box>
+        <Text mt="auto" px={2} fontSize="xs" color="#6f7480" lineHeight="1.6">
+          Your watch list shrinks as your knowledge grows.
+        </Text>
       </Flex>
 
       <Flex direction="column" flex={1} minW={0}>
         <Flex
           as="header"
-          minH={{ base: "64px", md: "68px" }}
-          px={{ base: 4, md: 5 }}
+          minH={16}
+          px={{ base: 4, md: 6 }}
           align="center"
           justify="space-between"
+          gap={4}
           borderBottomWidth="1px"
-          borderColor="#e3e5e8"
+          borderColor="line"
           bg="rgba(255,255,255,0.94)"
           backdropFilter="blur(12px)"
         >
-          <HStack gap={3}>
+          <HStack gap={3} minW={0}>
             <Flex
               display={{ base: "flex", md: "none" }}
               align="center"
               justify="center"
-              w={9}
-              h={9}
-              borderRadius="xl"
-              bg="#625bf6"
+              w={8}
+              h={8}
+              flexShrink={0}
+              borderRadius="control"
+              bg="brand.500"
               color="white"
             >
               <BrainCircuit size={18} />
             </Flex>
-            <Box>
-              <Heading size={{ base: "sm", md: "md" }} letterSpacing="-0.025em">
+            <Box minW={0}>
+              <Heading size="md" letterSpacing="-0.02em" lineHeight="1.25">
                 {activeMeta.title}
               </Heading>
               <Text
                 display={{ base: "none", sm: "block" }}
-                fontSize="xs"
+                fontSize="sm"
                 color="gray.500"
+                lineHeight="1.5"
               >
                 {activeMeta.description}
               </Text>
@@ -262,21 +282,41 @@ export default function Home() {
           <ConnectionStatus status={backendStatus} />
         </Flex>
 
-        <Box as="main" flex={1} minH={0} p={{ base: 0, md: 3 }} pb={{ base: "68px", md: 3 }}>
+        <Box
+          as="main"
+          flex={1}
+          minH={0}
+          p={{ base: 0, md: 4 }}
+          pb={{ base: "72px", md: 4 }}
+        >
           <Box
             h="100%"
             overflow="hidden"
             bg="white"
             borderWidth={{ base: 0, md: "1px" }}
-            borderColor="#dedfe3"
-            borderRadius={{ base: 0, md: "14px" }}
-            boxShadow={{
-              base: "none",
-              md: "0 1px 2px rgba(17,24,39,0.03), 0 12px 34px rgba(17,24,39,0.035)",
-            }}
+            borderColor="line"
+            borderRadius={{ base: 0, md: "panel" }}
+            boxShadow={{ base: "none", md: "panel" }}
           >
             <Box h="100%" display={activeView === "study" ? "block" : "none"}>
               <VideoBrowser />
+            </Box>
+            <Box
+              as="section"
+              aria-label="What I know"
+              h="100%"
+              overflowY="auto"
+              bg="#f8f8f9"
+              display={activeView === "knowledge" ? "block" : "none"}
+            >
+              <Box px={{ base: 4, lg: 6 }} py={{ base: 4, lg: 6 }} maxW="1180px" mx="auto">
+                <ErrorBoundary fallbackMessage="Knowledge state error">
+                  <WhatIKnowPanel
+                    refreshToken={knowledgeToken}
+                    onConceptClick={handleAskAbout}
+                  />
+                </ErrorBoundary>
+              </Box>
             </Box>
             <Box
               as="section"
@@ -294,7 +334,7 @@ export default function Home() {
               as="section"
               aria-label="Graph visualization"
               h="100%"
-              bg="gray.50"
+              bg="#f8f8f9"
               display={activeView === "graph" ? "block" : "none"}
             >
               <ErrorBoundary fallbackMessage="Graph visualization error">
@@ -310,37 +350,37 @@ export default function Home() {
         aria-label="Mobile navigation"
         display={{ base: "flex", md: "none" }}
         position="fixed"
-        left={3}
-        right={3}
-        bottom={3}
+        left={4}
+        right={4}
+        bottom={4}
         zIndex={20}
         justify="space-around"
         px={2}
         py={2}
         borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="2xl"
+        borderColor="line"
+        borderRadius="panel"
         bg="rgba(255,255,255,0.96)"
-        boxShadow="0 10px 30px rgba(15,23,42,0.14)"
+        boxShadow="panel"
         backdropFilter="blur(14px)"
       >
-        {(Object.entries(VIEWS) as [ViewId, typeof VIEWS[ViewId]][]).map(
-          ([viewId, view]) => {
-            const Icon = view.icon;
-            return (
-              <IconButton
-                key={viewId}
-                aria-label={`${view.label} panel`}
-                variant={activeView === viewId ? "solid" : "ghost"}
-                colorPalette={activeView === viewId ? "purple" : "gray"}
-                borderRadius="xl"
-                onClick={() => setActiveView(viewId)}
-              >
-                <Icon size={18} />
-              </IconButton>
-            );
-          },
-        )}
+        {VIEW_ORDER.map((viewId) => {
+          const view = VIEWS[viewId];
+          const Icon = view.icon;
+          return (
+            <IconButton
+              key={viewId}
+              aria-label={`${view.label} panel`}
+              variant="ghost"
+              borderRadius="control"
+              color={activeView === viewId ? "brand.500" : "gray.400"}
+              bg={activeView === viewId ? "brand.50" : "transparent"}
+              onClick={() => selectView(viewId)}
+            >
+              <Icon size={18} />
+            </IconButton>
+          );
+        })}
       </HStack>
     </Flex>
   );

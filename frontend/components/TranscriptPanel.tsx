@@ -279,10 +279,10 @@ export function TranscriptPanel({
                         colorPalette="purple"
                         variant="solid"
                         borderRadius="full"
-                        fontSize="9px"
+                        fontSize="10px"
                         flexShrink={0}
                       >
-                        IN YOUR CUT
+                        In your cut
                       </Badge>
                     )}
                   </HStack>

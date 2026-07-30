@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  Box, Flex, Heading, Text, Textarea, IconButton, VStack, HStack,
+  Box, Flex, Text, Textarea, IconButton, VStack, HStack,
   Badge, Button, Spinner, Skeleton, Collapsible, Timeline, Circle, Grid,
 } from "@chakra-ui/react";
 import {
@@ -59,6 +59,41 @@ interface ChatInterfaceProps {
 
 const STORAGE_KEY = `ccg-chat-history-${DOMAIN.id}`;
 const SESSION_KEY = `ccg-session-id-${DOMAIN.id}`;
+
+// The agent's tool names are Python identifiers. Say what the tool did instead.
+const TOOL_LABELS: Record<string, string> = {
+  knowledge_delta: "Compared this talk with what you know",
+  capture_learning: "Saved what you just learned",
+  what_should_i_watch: "Ranked your talks by what is new",
+  quiz_me: "Wrote questions to check what you know",
+  learning_frontier: "Worked out what to learn next",
+  search_video_moments: "Searched the talks",
+  twelvelabs_search: "Searched inside the video",
+  explore_graph: "Looked up how this connects",
+  run_cypher: "Queried your knowledge graph",
+  get_graph_schema: "Checked how the graph is organised",
+};
+
+function toolLabel(name: string): string {
+  if (TOOL_LABELS[name]) return TOOL_LABELS[name];
+  const words = name.replace(/_/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+// Video ids, session ids and hashes mean nothing to a viewer — they only
+// identify a row to the backend. Never render one.
+function isOpaqueId(value: string): boolean {
+  return /^[0-9a-f]{16,}(#\d+)?$/i.test(value) || /^[0-9a-f-]{32,}$/i.test(value);
+}
+
+/** Tool arguments worth showing, as `label: value` with ids and blanks dropped. */
+function readableInputs(inputs: Record<string, unknown>): string[] {
+  return Object.entries(inputs)
+    .filter(([, value]) => value != null && value !== "")
+    .map(([key, value]) => [key.replace(/_/g, " "), String(value)] as const)
+    .filter(([, value]) => !isOpaqueId(value))
+    .map(([label, value]) => `${label}: ${value}`);
+}
 
 const THINKING_PATTERNS = [
   /^let me /i, /^i'll /i, /^i will /i, /^first,? i /i,
@@ -460,22 +495,24 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
 
   return (
     <Flex direction="column" h="100%" bg="#fbfbfc">
-      <HStack
-        px={5}
-        py={3.5}
-        borderBottom="1px solid"
-        borderColor="#e5e6e9"
-        bg="white"
-        justifyContent="space-between"
-      >
-        <Heading size="sm">Study assistant</Heading>
-        {messages.length > 0 && (
-          <Button size="xs" variant="ghost" onClick={startNewConversation}>
+      {/* The page header already says "Ask Delta"; a second title underneath it
+          just competed. This bar exists to reset the thread, so it only
+          appears once there is a thread to reset. */}
+      {messages.length > 0 && (
+        <HStack
+          px={4}
+          py={3}
+          borderBottom="1px solid"
+          borderColor="#e5e6e9"
+          bg="white"
+          justifyContent="flex-end"
+        >
+          <Button size="xs" variant="ghost" color="gray.500" onClick={startNewConversation}>
             <RotateCcw size={14} />
-            New
+            New conversation
           </Button>
-        )}
-      </HStack>
+        </HStack>
+      )}
 
       {/* Demo scenario suggested questions */}
       {messages.length === 0 && !loading && (
@@ -504,23 +541,13 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             <Text mt={2} maxW="500px" textAlign="center" fontSize="sm" color="gray.500">
               Ask about a talk, compare it with your knowledge, or plan what to watch next.
             </Text>
-            <HStack
-              gap={2}
-              alignSelf="stretch"
-              mt={8}
-              mb={3}
-              color="gray.500"
-              fontSize="10px"
-              fontWeight="bold"
-              letterSpacing="0.1em"
-            >
-              <Box w={6} h="1px" bg="gray.300" />
-              <Text>START WITH A QUESTION</Text>
-            </HStack>
+            <Text alignSelf="stretch" mt={8} mb={3} fontSize="xs" color="gray.500">
+              Start with a question
+            </Text>
             <Grid
               w="100%"
               templateColumns={{ base: "1fr", lg: "repeat(2, minmax(0, 1fr))" }}
-              gap={2.5}
+              gap={2}
             >
               {allPrompts.map((prompt) => (
                 <Button
@@ -624,25 +651,48 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                         </>
                       );
                     })()}
-                    {/* Extracted entities */}
+                    {/* Things this answer named. The type is a backend label —
+                        keep it in the tooltip, not on the chip. */}
                     {msg.entities && msg.entities.length > 0 && (
-                      <HStack gap={1} mt={2} flexWrap="wrap">
-                        {msg.entities.map((e, i) => (
-                          <Badge key={`${e.type}-${e.name}-${i}`} size="xs" colorPalette="teal" variant="subtle">
-                            {e.type}{e.subtype ? `/${e.subtype}` : ""}: {e.name}
-                          </Badge>
-                        ))}
-                      </HStack>
+                      <Box mt={3}>
+                        <Text fontSize="xs" color="gray.500" mb={1}>
+                          Mentioned here
+                        </Text>
+                        <HStack gap={1} flexWrap="wrap">
+                          {msg.entities.map((e, i) => (
+                            <Badge
+                              key={`${e.type}-${e.name}-${i}`}
+                              size="xs"
+                              colorPalette="gray"
+                              variant="subtle"
+                              title={e.subtype ? `${e.type} · ${e.subtype}` : e.type}
+                            >
+                              {e.name}
+                            </Badge>
+                          ))}
+                        </HStack>
+                      </Box>
                     )}
                     {/* Detected preferences */}
                     {msg.preferences && msg.preferences.length > 0 && (
-                      <HStack gap={1} mt={1} flexWrap="wrap">
-                        {msg.preferences.map((p, i) => (
-                          <Badge key={`${p.category}-${p.preference}-${i}`} size="xs" colorPalette="orange" variant="subtle">
-                            {p.category}: {p.preference}
-                          </Badge>
-                        ))}
-                      </HStack>
+                      <Box mt={2}>
+                        <Text fontSize="xs" color="gray.500" mb={1}>
+                          Noted about you
+                        </Text>
+                        <HStack gap={1} flexWrap="wrap">
+                          {msg.preferences.map((p, i) => (
+                            <Badge
+                              key={`${p.category}-${p.preference}-${i}`}
+                              size="xs"
+                              colorPalette="gray"
+                              variant="subtle"
+                              title={p.category}
+                            >
+                              {p.preference}
+                            </Badge>
+                          ))}
+                        </HStack>
+                      </Box>
                     )}
                     {msg.retryInput && (
                       <Button
@@ -701,7 +751,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                     <VStack align="stretch" gap={2}>
                       <HStack gap={2}>
                         <Spinner size="xs" />
-                        <Text fontSize="sm" color="gray.500">Thinking...</Text>
+                        <Text fontSize="sm" color="gray.500">Thinking…</Text>
                         {elapsedSeconds > 3 && (
                           <Text fontSize="xs" color="gray.400">{elapsedSeconds}s</Text>
                         )}
@@ -712,10 +762,15 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
                   ) : (
                     <HStack gap={2}>
                       <Spinner size="xs" />
+                      {/* Name the step. "Running tool 3 of 2" — which the old
+                          counter produced once every call finished — is not a
+                          sentence anyone can act on. */}
                       <Text fontSize="sm" color="gray.500">
-                        Running tool {streamingToolCalls.filter(tc => tc.status === "complete").length + 1}
-                        {" of "}
-                        {streamingToolCalls.length}...
+                        {toolLabel(
+                          (streamingToolCalls.find((tc) => tc.status === "running") ||
+                            streamingToolCalls[streamingToolCalls.length - 1]).name,
+                        )}
+                        …
                       </Text>
                       {elapsedSeconds > 3 && (
                         <Text fontSize="xs" color="gray.400">{elapsedSeconds}s</Text>
@@ -740,7 +795,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
       </VStack>
 
       {/* Input area — Chakra UI Pro inspired bordered container */}
-      <Box px={4} py={3.5} borderTop="1px solid" borderColor="#e5e6e9" bg="white">
+      <Box px={4} py={3} borderTop="1px solid" borderColor="#e5e6e9" bg="white">
         <Box
           maxW="820px"
           mx="auto"
@@ -766,7 +821,7 @@ export function ChatInterface({ onGraphUpdate, externalInput, onExternalInputCon
             py={2}
             bg="transparent"
           />
-          <HStack px={2} py={1.5} justify="space-between">
+          <HStack px={2} py={2} justify="space-between">
             <Text fontSize="xs" color="gray.400" display={{ base: "none", sm: "block" }}>
               Enter to send, Shift+Enter for new line
             </Text>
@@ -798,8 +853,10 @@ function ToolCallTimeline({ toolCalls }: { toolCalls: ToolCall[] }) {
         <Timeline.Item key={`${tc.name}-${j}`}>
           <Timeline.Connector>
             <Timeline.Separator />
+            {/* Green means "you already know this" everywhere else in the
+                product — a finished tool call is not that. */}
             <Timeline.Indicator
-              bg={tc.status === "running" ? "purple.500" : "green.500"}
+              bg={tc.status === "running" ? "purple.500" : "gray.400"}
               color="white"
             >
               {tc.status === "running" ? (
@@ -812,16 +869,18 @@ function ToolCallTimeline({ toolCalls }: { toolCalls: ToolCall[] }) {
           <Timeline.Content pb={2}>
             <Collapsible.Root>
               <HStack gap={2}>
-                <Badge colorPalette="purple" size="sm">
-                  <Wrench size={10} />
-                  {tc.name}
-                </Badge>
+                <HStack gap={1.5} color="gray.600">
+                  <Wrench size={11} />
+                  <Text fontSize="xs" fontWeight="medium" title={tc.name}>
+                    {toolLabel(tc.name)}
+                  </Text>
+                </HStack>
                 {tc.status === "running" && (
-                  <Text fontSize="xs" color="gray.500">running...</Text>
+                  <Text fontSize="xs" color="gray.400">working…</Text>
                 )}
                 {tc.output_preview && (
                   <Collapsible.Trigger asChild>
-                    <Button variant="ghost" size="xs" px={1}>
+                    <Button variant="ghost" size="xs" px={1} color="gray.400">
                       <ChevronDown size={12} />
                     </Button>
                   </Collapsible.Trigger>
@@ -836,16 +895,17 @@ function ToolCallTimeline({ toolCalls }: { toolCalls: ToolCall[] }) {
                     bg="gray.50"
                     borderRadius="sm"
                     fontSize="xs"
-                    fontFamily="mono"
                     maxH="120px"
                     overflow="auto"
                   >
-                    <Text color="gray.600" mb={1} fontWeight="medium">
-                      Inputs: {JSON.stringify(tc.inputs).slice(0, 120)}
-                    </Text>
-                    <Text color="gray.500">
+                    {readableInputs(tc.inputs).length > 0 && (
+                      <Text color="gray.600" mb={1} fontWeight="medium">
+                        {readableInputs(tc.inputs).join(" · ")}
+                      </Text>
+                    )}
+                    <Text color="gray.500" whiteSpace="pre-wrap">
                       {tc.output_preview.slice(0, 300)}
-                      {tc.output_preview.length > 300 && "..."}
+                      {tc.output_preview.length > 300 && "…"}
                     </Text>
                   </Box>
                 </Collapsible.Content>

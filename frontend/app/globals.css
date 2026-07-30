@@ -38,6 +38,36 @@ summary::-webkit-details-marker {
   color: #171922;
 }
 
+/* Scrollbars are everywhere in a reading tool; keep them quiet. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d3d5d9 transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d3d5d9;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Loading placeholders breathe instead of spinning. */
+@keyframes delta-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 /* Markdown content styling for chat messages */
 .markdown-content h1,
 .markdown-content h2,

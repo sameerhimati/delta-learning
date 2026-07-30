@@ -278,8 +278,8 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
       >
         <HStack justify="space-between" align="start" mb={4}>
           <Box>
-            <Text fontSize="10px" fontWeight="bold" letterSpacing="0.15em" color="#aaa5ff">
-              WHAT I KNOW
+            <Text fontSize="xs" fontWeight="semibold" letterSpacing="0.02em" color="#aaa5ff">
+              What I know
             </Text>
             <Text mt={1} fontSize="xs" color="whiteAlpha.600">
               Your vault and your captures, as the graph sees them

@@ -41,20 +41,21 @@ export function StudyNotes({ videoId }: StudyNotesProps) {
   }
 
   return (
+    // Notes are a secondary surface next to the cut list. A hairline is enough;
+    // the lifted shadow made it compete with the panel it sits beside.
     <Box
       borderWidth="1px"
       borderColor="#e1e2e5"
       borderRadius="14px"
       bg="white"
       overflow="hidden"
-      boxShadow="0 1px 2px rgba(17,24,39,0.035), 0 8px 24px rgba(17,24,39,0.035)"
     >
-      <HStack px={4} py={3.5} justify="space-between" borderBottomWidth="1px" borderColor="#e8e9eb">
+      <HStack px={4} py={3} justify="space-between" borderBottomWidth="1px" borderColor="#e8e9eb">
         <HStack gap={2}>
-          <NotebookPen size={16} color="#625bf6" />
+          <NotebookPen size={16} color="#8b8f98" />
           <Box>
             <Heading size="sm">Study notes</Heading>
-            <Text mt={0.5} fontSize="10px" color="gray.400">
+            <Text mt={1} fontSize="xs" color="gray.500">
               Private to this video
             </Text>
           </Box>
@@ -76,7 +77,7 @@ export function StudyNotes({ videoId }: StudyNotesProps) {
           value={notes}
           onChange={(event) => updateNotes(event.target.value)}
           placeholder={"Capture the idea in your own words…\n\n• What changed?\n• What will you try?"}
-          minH={{ base: "180px", xl: "326px" }}
+          minH={{ base: "180px", xl: "320px" }}
           resize="vertical"
           borderWidth="1px"
           borderColor="#e8e9eb"
@@ -90,7 +91,7 @@ export function StudyNotes({ videoId }: StudyNotesProps) {
           _focus={{ borderColor: "#aaa5f7", boxShadow: "0 0 0 3px rgba(98,91,246,0.10)" }}
         />
         <HStack justify="space-between" px={1} pt={2}>
-          <Text fontSize="10px" color="gray.400">Autosaved on this device</Text>
+          <Text fontSize="xs" color="gray.500">Autosaved on this device</Text>
           {saved && (
             <HStack gap={1} color="green.600">
               <Check size={12} />

@@ -220,6 +220,11 @@ const KNOWLEDGE_STATUS_LABELS: Record<string, string> = {
   goal_hub: "Learning goal",
 };
 
+// Vault sources come back as absolute paths; the note name is what the viewer recognises
+function noteName(source: string): string {
+  return source.split("/").pop() || source;
+}
+
 function isKnowledgeNode(properties: Record<string, unknown>): boolean {
   return typeof properties.status === "string" && properties.status in KNOWLEDGE_COLORS;
 }
@@ -490,7 +495,9 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         ? [
             caption,
             KNOWLEDGE_STATUS_LABELS[node.properties.status as string] || "",
-            node.properties.source ? `From: ${node.properties.source}` : "",
+            typeof node.properties.source === "string"
+              ? `From your notes: ${noteName(node.properties.source)}`
+              : "",
             (node.properties.advances_goals as string[] | undefined)?.length
               ? `Goals: ${(node.properties.advances_goals as string[]).join(", ")}`
               : "",
@@ -528,7 +535,6 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
               ? knowledgeNodeColor(node.properties)
               : getNodeColor(node.labels, node.properties),
         size: isSchema ? SCHEMA_NODE_SIZE : isSelected ? baseSize * 1.3 : baseSize,
-        captionSize: isKnowledge && node.properties.type === "goal" ? 20 : undefined,
         selected: isSelected,
       };
     });
@@ -796,8 +802,12 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                       <Text fontWeight="medium" color="gray.600">
                         From your notes
                       </Text>
-                      <Text color="gray.800" wordBreak="break-word">
-                        {selectedNodeProps.source}
+                      <Text
+                        color="gray.800"
+                        wordBreak="break-word"
+                        title={selectedNodeProps.source}
+                      >
+                        {noteName(selectedNodeProps.source)}
                       </Text>
                       {typeof selectedNodeProps.matched_concept === "string" &&
                         selectedNodeProps.matched_concept && (
@@ -966,7 +976,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
               Your knowledge graph will appear here
             </Text>
             <Text color="gray.500" fontSize="sm" textAlign="center" maxW="300px">
-              Ask a question in the chat to query entities, or double-click a node in the schema view to explore data.
+              Ask a question in the chat to query entities, or double-click a concept to see the segments that teach it.
             </Text>
           </Flex>
         )}
@@ -1027,7 +1037,8 @@ function NvlGraph({
       rels={relationships}
       nvlOptions={{
         layout: "d3Force",
-        initialZoom: 1,
+        // the knowledge map is ~100 nodes — start zoomed out enough to see the clusters
+        initialZoom: nodes.length > 40 ? 0.45 : 1,
         minZoom: 0.1,
         maxZoom: 5,
         relationshipThickness: 2,
