@@ -35,3 +35,7 @@ data/videos/*.mp4
 # agent scratch scripts
 frontend/_*.mjs
 frontend/app/_*/
+
+# yt-dlp auth for the URL-ingest path — session cookies, never commit
+cookies.txt
+*.cookies

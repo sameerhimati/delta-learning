@@ -39,11 +39,10 @@ Game Theory B ("A Simple Strategy…", 17:46)   BEFORE   watch 16:08 · 2 cuts �
   → watch Game Theory A ("How Decision Making…", 9:50)
     POST /api/capture {"video": "How Decision Making"}      captures 11 concepts
 
-Game Theory B                                  AFTER   watch 10:16 · 3 cuts · 3 known concepts
-                                                        cuts: 5:08–5:52 · 7:20–10:16 · 11:44–17:36
+Game Theory B                                  AFTER   watch  9:32 ·          3 known concepts
 ```
 
-**36% less to watch. 5:52 saved on one talk, from having watched a different one.**
+**41% less to watch. 6:36 saved on one talk, from having watched a different one.**
 
 And the agent says *why*, out loud, citing the source:
 > *"Skip 0:00–5:08 … you learned that from* How Decision Making is Actually Science.*"*
@@ -76,6 +75,15 @@ video ──TwelveLabs index (Marengo)──▶ Pegasus analyze  ──▶ timec
 
 Topics and Entities are keyed on their normalized name, so a term taught in two videos is
 **one node with two teachers**. That MERGE is what makes cross-video transfer possible at all.
+
+Pegasus describes what it *sees*, so the extracted ontology also contains things nobody
+studies — a game-show clip's props, every person and company named in passing, a promo code.
+`backend/scripts/classify_terms.py` runs one OpenAI structured-outputs pass over the term
+names (each judged alongside the segment it came from) and marks `x.learnable`. Neither the
+node label nor `x.type` separates noise from signal — `concept` holds both *Grass Camp* and
+*TS Vector*, `product` holds both *FRIENDS10* and *Tmux* — so the judgement has to be
+semantic. Queries read `coalesce(x.learnable, true)`, so an unclassified graph behaves
+exactly as before and the pass is optional.
 
 ### 2. Knowledge state — the viewer → the same graph
 
@@ -160,7 +168,7 @@ without sitting through the video that teaches it. Get it wrong and nothing is c
 | **TwelveLabs — Marengo** | indexing + embedding **both sides**: video terms *and* vault concepts, one 512-d space | This is the load-bearing one. Video terms and a person's notes are only comparable because the same model embedded both. It ranks candidates for resolution and powers segment vector search. |
 | **OpenAI — `gpt-5.6`** | Strands agent brain (`OpenAIResponsesModel`) | Runs the tools, grades the quiz, and narrates *why* a range is skippable. |
 | **OpenAI — structured outputs (`gpt-5.6-terra`)** | Pegasus prose → typed segments; resolution adjudication; quiz generation | Every schema-validated boundary in the pipeline. The `SAME_AS` / `ADVANCES` acceptance gate *is* an OpenAI structured-output verdict. |
-| **AWS Strands** | agent + tool orchestration, SSE streaming, 10 tools | Tool results stream to the frontend and auto-render into the graph panel. |
+| **AWS Strands** | agent + tool orchestration, SSE streaming, 13 tools | Tool results stream to the frontend and auto-render into the graph panel. |
 | **Neo4j** | the graph; 2 vector indexes (`segment_embeddings`, `concept_embeddings`); **GDS 2.13.2** | Viewer and corpus in one graph is the entire premise. GDS PageRank runs over a Cypher-projected co-occurrence graph of terms the viewer does *not* know — that's "what should I learn first". See [`cypher/gds_projections.cypher`](cypher/gds_projections.cypher). |
 
 Current demo graph: **4 videos · 83 segments · 63 topics + 109 entities · 117 concepts**
@@ -207,6 +215,10 @@ make vault                                                          # viewer sid
 make resolve                                                        # link the two
 #   make demo-seed  runs all three in order (seed → vault → resolve)
 
+# optional: mark transcript noise as not-learnable (one OpenAI pass, idempotent)
+cd backend && uv run python scripts/classify_terms.py --dry-run   # inspect first
+cd backend && uv run python scripts/classify_terms.py
+
 make start                # backend :8000 + frontend :3000
 ```
 
@@ -250,29 +262,28 @@ MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 | `POST /api/chat` · `/api/chat/stream` | Agent turn (one-shot / SSE). |
 | `GET /api/videos` · `/api/videos/{id}/segments` | Corpus + segments in order. |
 | `POST /api/search` | Live multimodal Marengo search over the raw video. |
+| `POST /api/quiz/grade` | Grades free-text answers and captures **only** what the viewer proved. |
+| `GET /api/knowledge` · `/api/knowledge-map` | The viewer's knowledge state; concept graph coloured by status. |
+| `GET /api/curriculum` · `/api/coverage` | Ordered units through the corpus; which goals it can and cannot teach. |
+| `GET /api/discover/{goal}` | Real outside-corpus videos for a goal the library cannot teach. |
+| `POST /api/ingest` · `GET /api/ingest/{job_id}` | Ingest a video by URL; poll the job. |
 | `GET /api/schema` · `POST /api/expand` · `POST /api/cypher` | Graph schema, drill-down, read-only Cypher. |
 | `GET /health` | Backend + Neo4j status. |
 
-**Agent tools** (Strands): `knowledge_delta` · `capture_learning` · `quiz_me` ·
-`what_should_i_watch` · `learning_frontier` (GDS PageRank) · `search_video_moments` ·
-`explore_graph` · `twelvelabs_search` · `run_cypher` · `get_graph_schema`.
+**Agent tools** (Strands, 13): `knowledge_delta` · `capture_learning` · `quiz_me` ·
+`what_should_i_watch` · `learning_path` · `learning_frontier` (GDS PageRank) ·
+`find_outside_material` · `add_video` · `search_video_moments` · `explore_graph` ·
+`twelvelabs_search` · `run_cypher` · `get_graph_schema`.
 
-The first five are new here; the last five come from the starter.
+The first eight are new here; the last five come from the starter.
 
 ---
 
 ## Roadmap
 
-- **Quiz-driven onboarding.** Today the quiz is per-video and reactive. The real fix for
-  "watch 100% of it" is a bootstrap pass at signup: adaptive quizzing over the frontier of
-  the graph until the knowledge state reflects what the person actually knows, not what they
-  happened to take notes on.
-- **Rank videos from outside the corpus.** `/api/watchlist` can only rank the four videos
-  already ingested. The same delta math run against a TwelveLabs index — or a YouTube search
-  — turns "what should I watch?" from a re-ranker into a recommender.
-- **Spaced repetition over captured concepts.** Every captured concept has a timestamp and a
-  source segment. Decay `status` over time and the graph can re-surface a 12-second range
-  from a talk you watched two months ago, instead of assuming knowledge is permanent.
+The three ideas that would make this a product rather than a demo — quiz-driven onboarding,
+recommending from outside the corpus, and spaced repetition over captured concepts — plus a
+dated two-week plan and the known defect list, are in **[`ROADMAP.md`](ROADMAP.md)**.
 
 ---
 
