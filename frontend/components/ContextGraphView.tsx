@@ -595,6 +595,14 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
     setHiddenGroups(new Set());
   }, [view]);
 
+  // Only offer a filter for something actually on screen. NODE_COLORS carries the
+  // starter's label palette, most of which this ontology never uses, so the legend
+  // showed toggles that could not change anything — six of ten were inert.
+  const presentGroups = useMemo(() => {
+    if (!graphData) return new Set<string>();
+    return new Set(graphData.nodes.map((n) => nodeGroup(n, view)));
+  }, [graphData, view]);
+
   const toggleGroup = useCallback((group: string) => {
     setHiddenGroups((prev) => {
       const next = new Set(prev);
@@ -729,7 +737,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         ) : (
           <>
             {Object.entries(NODE_COLORS)
-              .filter(([label]) => label !== "Concept")
+              .filter(([label]) => label !== "Concept" && presentGroups.has(label))
               .map(([label, color]) => (
                 <Badge
                   key={label}
@@ -747,7 +755,9 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                   {label}
                 </Badge>
               ))}
-            {Object.entries(CONCEPT_STATUS_COLORS).map(([status, color]) => (
+            {Object.entries(CONCEPT_STATUS_COLORS)
+              .filter(([status]) => presentGroups.has(`Concept:${status}`))
+              .map(([status, color]) => (
               <Badge
                 key={`concept-${status}`}
                 size="sm"
@@ -1020,6 +1030,21 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
             onRelationshipClick={handleRelationshipClick}
             onCanvasClick={handleCanvasClick}
           />
+        ) : graphData && graphData.nodes.length > 0 ? (
+          /* The graph loaded fine — the filters are just hiding all of it. Showing
+             "your graph will appear here" there reads as data loss. */
+          <Flex h="100%" align="center" justify="center" direction="column" gap={3} p={8}>
+            <Text color="gray.500" fontWeight="medium">
+              Every category is hidden
+            </Text>
+            <Text color="gray.500" fontSize="sm" textAlign="center" maxW="320px">
+              {graphData.nodes.length} nodes are loaded — the legend filters are hiding
+              them all.
+            </Text>
+            <Button size="sm" variant="outline" onClick={() => setHiddenGroups(new Set())}>
+              Show everything
+            </Button>
+          </Flex>
         ) : (
           <Flex h="100%" align="center" justify="center" direction="column" gap={4} p={8}>
             <Box color="gray.400" fontSize="4xl">🔗</Box>

@@ -237,6 +237,23 @@ export function YourCutPanel({
     );
   }, [data]);
 
+  // What the quiz can actually test — not just novel. A video can be all goal-aligned
+  // and zero novel (one of ours is exactly that), and the quiz endpoint happily returns
+  // questions for it. Gating capture on `novel` alone left the product's centrepiece
+  // behind a dead button on that video, which reads as broken rather than as a decision.
+  const quizzableConcepts = useMemo(() => {
+    if (!data) return [];
+    return Array.from(
+      new Set(
+        data.cuts.flatMap((cut) =>
+          cut.concepts
+            .filter((c) => c.status === "novel" || c.status === "goal")
+            .map((c) => c.name),
+        ),
+      ),
+    );
+  }, [data]);
+
   async function captureLearnings() {
     if (!data) return;
     setCapturing(true);
@@ -308,9 +325,15 @@ export function YourCutPanel({
         ? "This video matches a stated learning goal, but I found no overlap with your saved knowledge, so I’m not claiming any part is safe to skip."
         : "I found no overlap with your saved knowledge or stated goals, so I’m not claiming any part is safe to skip."
       : "Every section still contains something new, so I’m not claiming any part is safe to skip."
-    : data.stats.known === 0
-      ? "I’m skipping the rest for relevance, not familiarity — none of it introduced a new concept or touched a goal."
-      : "You already know the rest.";
+    : // "You already know the rest" is a claim about the viewer, so it needs the graph
+      // to back it. On a talk with 4 known and 36 novel concepts, four notes cannot
+      // explain forty minutes of skipping — the rest was dropped for low novelty
+      // density, which is a statement about the video, not about the viewer.
+      data.stats.known > 0 && data.stats.known >= data.stats.novel
+      ? "You already know the rest."
+      : data.stats.known > 0
+        ? `The rest is skippable on density, not because you know it — ${data.stats.known} concept${data.stats.known === 1 ? "" : "s"} here overlap your notes.`
+        : "I’m skipping the rest for relevance, not familiarity — none of it introduced a new concept or touched a goal.";
 
   return (
     <VStack align="stretch" gap={4} pb={3}>
@@ -584,7 +607,12 @@ export function YourCutPanel({
           // gets captured. The fixture has no backend to grade against.
           onClick={() => (isFixture ? void captureLearnings() : setQuizOpen(true))}
           loading={capturing}
-          disabled={novelConcepts.length === 0}
+          disabled={quizzableConcepts.length === 0}
+          title={
+            quizzableConcepts.length === 0
+              ? "Nothing here to capture — this video taught no concept you don't already have."
+              : undefined
+          }
         >
           <Sparkles size={15} />
           Capture learnings
