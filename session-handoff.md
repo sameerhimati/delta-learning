@@ -23,7 +23,7 @@
 - **Branch:** `main`, clean, pushed to `origin/main` at `0ecfdab`.
 - **Build:** backend pytest 2/2 green; frontend `tsc --noEmit` clean.
 - **Services:** Neo4j (docker, GDS 2.13.2), FastAPI `:8000`, Next `:3000`,
-  cloudflared tunnel `https://mold-oliver-prisoner-payroll.trycloudflare.com`.
+  cloudflared tunnel `<TUNNEL-URL>`.
 - **Uncommitted:** none.
 - **Blockers:** none. One loose end below.
 
@@ -93,7 +93,7 @@ Six questions, `/api/chat`, same `session_id`, 9–40s each:
   deleted the stated goal mid-demo); embeddings serialized into agent context (386k-token
   requests → rate-limit errors that read as a broken product).
 - **Re-analysis is cheap.** All 4 videos are already indexed in TwelveLabs, so
-  `make seed VIDEOS="--index-id=6a6ba9df0d774e7cec6c16a8 --video-id=<vid>"` skips upload
+  `make seed VIDEOS="--index-id=<TL_INDEX_ID> --video-id=<vid>"` skips upload
   and re-runs analyze→structure→embed→write. All four in parallel ≈ 2 min.
   Pegasus caps `max_tokens` at **4096** — exceeding it 400s.
 - **Never run bare `make seed`** — it would ingest the vendored Big Buck Bunny sample and
@@ -113,12 +113,12 @@ Six questions, `/api/chat`, same `session_id`, 9–40s each:
 
 | video | runtime | segments | TL video_id |
 |---|---|---|---|
-| L8 Agentic Engineering | 45:46 | 34 | `6a6baa1c0d774e7cec6c1a66` |
-| Postgres | 8:07 | 11 | `6a6bae84eb0afeafecfac472` |
-| Game Theory A ("How Decision Making") | 9:50 | 13 | `6a6bae85c1ac59f5d1d0a8a8` |
-| Game Theory B ("A Simple Strategy") | 17:47 | 25 | `6a6bae86c1ac59f5d1d0a8b0` |
+| L8 Agentic Engineering | 45:46 | 34 | `<TL_VIDEO_ID>` |
+| Postgres | 8:07 | 11 | `<TL_VIDEO_ID>` |
+| Game Theory A ("How Decision Making") | 9:50 | 13 | `<TL_VIDEO_ID>` |
+| Game Theory B ("A Simple Strategy") | 17:47 | 25 | `<TL_VIDEO_ID>` |
 
-TL index `6a6ba9df0d774e7cec6c16a8`. Graph: 4 Videos, 83 Segments, 63 Topics,
+TL index `<TL_INDEX_ID>`. Graph: 4 Videos, 83 Segments, 63 Topics,
 109 Entities, 117 Concepts (109 vault-known, 8 goals).
 
 ## Start Command

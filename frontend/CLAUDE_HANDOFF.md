@@ -2,32 +2,29 @@
 
 Last updated: 2026-07-30, hackathon day
 
-Owner: Luke (`frontend/` only)
+Owner: the frontend owner (`frontend/` only)
 
-Teammate: Sameer (backend, Neo4j, data, Cypher, Makefile)
+Teammate: the backend owner (backend, Neo4j, data, Cypher, Makefile)
 
 ## Read this first
 
-1. Read `/Users/luke/Documents/Delta/delta-learning/CLAUDE.md` in full.
-2. Read `/Users/luke/Documents/Delta/delta-learning/session-handoff.md`.
+1. Read `CLAUDE.md` at the repo root in full.
+2. Read `session-handoff.md` at the repo root.
 3. Stay inside `frontend/`. Never edit `backend/`, `cypher/`, `data/`, or `Makefile`.
-4. Pull/fetch Sameer's `origin/main` before every new slice and immediately before
-   every commit. Sameer pushes frequently.
-5. Keep commits small, working, and frontend-only. Push each one to Luke's fork.
+4. Pull/fetch the backend owner's `origin/main` before every new slice and immediately
+   before every commit. The backend owner pushes frequently.
+5. Keep commits small, working, and frontend-only. Push each one to the frontend owner's
+   fork.
 
 ## Git topology and exact current state
 
-Repository:
-
-```text
-/Users/luke/Documents/Delta/delta-learning
-```
+All paths in this handoff are relative to the repo root.
 
 Remotes:
 
 ```text
 origin  https://github.com/sameerhimati/delta-learning.git
-luke    https://github.com/huluk98/delta-learning.git
+fork    the frontend owner's fork of the same repository
 ```
 
 Working branch:
@@ -44,38 +41,37 @@ local branch base                   2491dbe
 latest backend/frontend integration 2491dbe Say where knowledge came from in words a person can read
 ```
 
-Sameer has already merged the earlier frontend series and the professional-polish
-commit into `origin/main`. Sameer then independently implemented the conceptual map,
-knowledge-state component, and transcript component on `main`.
+The backend owner has already merged the earlier frontend series and the
+professional-polish commit into `origin/main`, then independently implemented the
+conceptual map, knowledge-state component, and transcript component on `main`.
 
-Luke's duplicate map commit `60446b6` was intentionally dropped during rebase because it
-conflicted with Sameer's richer implementation in `2491dbe`. Do not resurrect or
-cherry-pick `60446b6`.
+The frontend owner's duplicate map commit `60446b6` was intentionally dropped during
+rebase because it conflicted with the backend owner's richer implementation in
+`2491dbe`. Do not resurrect or cherry-pick `60446b6`.
 
-Before doing anything:
+Before doing anything, from the repo root:
 
 ```zsh
-cd /Users/luke/Documents/Delta/delta-learning
 git fetch origin main
 git status -sb
 git rebase origin/main
 ```
 
-If Sameer merged Luke's latest commit while this handoff was being read, Git may say a
-commit was already applied or skip it during rebase. That is expected. Never resolve
-this by editing backend files.
+If the backend owner merged the frontend owner's latest commit while this handoff was
+being read, Git may say a commit was already applied or skip it during rebase. That is
+expected. Never resolve this by editing backend files.
 
 Push frontend work with:
 
 ```zsh
-git push luke codex/luke-your-cut
+git push fork codex/luke-your-cut
 ```
 
-Sameer currently syncs Luke's branch with:
+The backend owner currently syncs the frontend branch with:
 
 ```zsh
-git fetch luke
-git merge luke/codex/luke-your-cut
+git fetch fork
+git merge fork/codex/luke-your-cut
 ```
 
 ## Running the app
@@ -83,14 +79,14 @@ git merge luke/codex/luke-your-cut
 The public backend is:
 
 ```text
-https://mold-oliver-prisoner-payroll.trycloudflare.com/api
+<TUNNEL-URL>/api
 ```
 
 The URL is a Cloudflare quick tunnel and can expire. Verify it before debugging the
 frontend:
 
 ```zsh
-curl -fsS https://mold-oliver-prisoner-payroll.trycloudflare.com/api/videos
+curl -fsS <TUNNEL-URL>/api/videos
 ```
 
 It should return four videos.
@@ -99,8 +95,8 @@ Next.js inlines `NEXT_PUBLIC_*` at build/dev-server start time. Restart the serv
 changing the URL:
 
 ```zsh
-cd /Users/luke/Documents/Delta/delta-learning/frontend
-NEXT_PUBLIC_API_URL=https://mold-oliver-prisoner-payroll.trycloudflare.com/api npm run dev -- --hostname 127.0.0.1 --port 3000
+cd frontend
+NEXT_PUBLIC_API_URL=<TUNNEL-URL>/api npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 Open:
@@ -109,7 +105,7 @@ Open:
 http://localhost:3000
 ```
 
-Do not open `http://[::1]:3000`. Sameer's backend CORS allows
+Do not open `http://[::1]:3000`. The backend CORS config allows
 `http://localhost:3000`; the IPv6 literal was rejected and caused the UI to fall back
 to `frontend/fixtures/delta.json`.
 
@@ -123,28 +119,7 @@ fetch(`${API_BASE}/delta/${videoId}`)
 
 Never add another `/api`.
 
-### Port 3000 machine note
-
-An unrelated FirstStepBasketball Python server previously occupied
-`127.0.0.1:3000`. It was managed by this launch agent:
-
-```text
-com.luke.firststepbasketball
-/Users/luke/Library/LaunchAgents/com.luke.firststepbasketball.plist
-```
-
-It was intentionally unloaded because Luke explicitly asked Delta to replace it:
-
-```zsh
-launchctl bootout gui/501/com.luke.firststepbasketball
-```
-
-Leave it unloaded while working on Delta. If Luke later explicitly asks to restore the
-basketball app:
-
-```zsh
-launchctl bootstrap gui/501 /Users/luke/Library/LaunchAgents/com.luke.firststepbasketball.plist
-```
+### Port 3000
 
 Check the current listener before assuming port behavior:
 
@@ -254,9 +229,9 @@ would require either:
 Do not replace the current working map just to solve that nuance unless the graph is
 visibly failing.
 
-## Design direction from Luke
+## Design direction
 
-Luke explicitly rejected the “vibe-coded dashboard” look. The visual references are:
+The visual references are:
 
 - https://stripe.com
 - https://www.apple.com
@@ -308,7 +283,7 @@ one large commit.
 
 ### 1. Wire the existing knowledge/provenance panel into the app
 
-Sameer already created:
+The backend owner already created:
 
 ```text
 frontend/components/WhatIKnowPanel.tsx
@@ -414,7 +389,7 @@ viewer still cannot reach it.
 
 ### 2. Wire the existing transcript component
 
-Sameer also created:
+The backend owner also created:
 
 ```text
 frontend/components/TranscriptPanel.tsx
@@ -522,24 +497,23 @@ The live map and knowledge counts are also stateful and will change after captur
 Run:
 
 ```zsh
-cd /Users/luke/Documents/Delta/delta-learning/frontend
+cd frontend
 npm exec -- tsc --noEmit
 ```
 
 For larger slices, stop the dev server before the build, then run:
 
 ```zsh
-NEXT_PUBLIC_API_URL=https://mold-oliver-prisoner-payroll.trycloudflare.com/api npm run build
+NEXT_PUBLIC_API_URL=<TUNNEL-URL>/api npm run build
 ```
 
 Restart the dev server afterward with the env command near the top of this handoff.
 
 Also verify in a browser, not only by reading code.
 
-Before committing:
+Before committing, from the repo root:
 
 ```zsh
-cd /Users/luke/Documents/Delta/delta-learning
 git fetch origin main
 git rebase origin/main --autostash   # only if the working tree is intentionally dirty
 git diff --check
@@ -550,8 +524,8 @@ Stage explicit frontend paths. Do not use `git add -A` in a mixed worktree.
 
 ## macOS/iCloud filesystem hazard
 
-This workspace is under `/Users/luke/Documents`, and macOS repeatedly marks files as
-`compressed,dataless` while the repository is open. Symptoms:
+On a cloud-synced volume, macOS repeatedly marks files as `compressed,dataless` while
+the repository is open. Symptoms:
 
 - `npm exec -- tsc --noEmit` sits at 0% CPU for minutes;
 - Next compilation takes multiple minutes;
@@ -569,15 +543,15 @@ ls -lO frontend/node_modules/@types/node
 Repairs used successfully:
 
 ```zsh
-cd /Users/luke/Documents/Delta/delta-learning/frontend
+cd frontend
 npm ci
 ```
 
-For an offloaded Git pack, reading the exact file hydrates it:
+For an offloaded Git pack, reading the exact file hydrates it (from the repo root):
 
 ```zsh
-dd if=/Users/luke/Documents/Delta/delta-learning/.git/objects/pack/<exact-pack>.pack of=/dev/null bs=1048576
-dd if=/Users/luke/Documents/Delta/delta-learning/.git/objects/pack/<exact-pack>.rev of=/dev/null bs=1048576
+dd if=.git/objects/pack/<exact-pack>.pack of=/dev/null bs=1048576
+dd if=.git/objects/pack/<exact-pack>.rev of=/dev/null bs=1048576
 ```
 
 Resolve the exact filename with `ls -lhO`; never use a broad destructive command.
@@ -600,8 +574,8 @@ git restore -- frontend/tsconfig.tsbuildinfo
 2. `style(frontend): simplify study workspace shell`
 3. `style(frontend): make Your Cut editorial and restrained`
 
-Run type checking and push after each one. Sameer is actively merging Luke's branch, so
-fetch/rebase before every commit.
+Run type checking and push after each one. The backend owner is actively merging the
+frontend branch, so fetch/rebase before every commit.
 
 ## Product story to preserve
 

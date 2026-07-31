@@ -76,7 +76,7 @@ WITH v, x, segs, goal_c,
      [c IN known_c + goal_c | coalesce(c.note_path, c.video_id)][0] AS matched_source,
      [c IN known_c | c.video_id][0] AS learned_from_id
 // A captured concept records the id of the video that taught it. Showing a raw
-// '6a6baa1c0d774e7cec6c1a66' to a human is meaningless — resolve it to the title.
+// '<TL_VIDEO_ID>' to a human is meaningless — resolve it to the title.
 OPTIONAL MATCH (src:Video {id: learned_from_id})
 RETURN v.id AS video_id, v.title AS title, v.duration_sec AS duration_sec,
        src.title AS learned_from,
