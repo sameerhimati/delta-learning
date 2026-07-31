@@ -709,7 +709,14 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
             </IconButton>
           )}
           {view !== "schema" && (
-            <Button size="xs" variant="ghost" color="gray.500" onClick={loadSchema}>
+            // Ghost grey on white read as disabled text, not a control.
+            <Button
+              size="xs"
+              variant="outline"
+              color="gray.600"
+              borderColor="#dcdde0"
+              onClick={loadSchema}
+            >
               Schema
             </Button>
           )}
@@ -1132,6 +1139,11 @@ function NvlGraph({
       return () => clearTimeout(timer);
     }
   }, [NvlComponent, nodes.length]);
+
+  // Tried nvl.fit() here to kill the dead space under the graph; it zooms to a
+  // bounding box that includes the far-flung uncovered-goal nodes and shrinks
+  // the whole map to an unreadable speck. The fixed initialZoom below is worse
+  // on paper and better on screen.
 
   if (!NvlComponent) {
     return (
