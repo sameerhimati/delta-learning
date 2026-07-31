@@ -359,6 +359,22 @@ def _extract_text(result) -> str:
         return "I processed your request but couldn't format the response."
 
 
+def _reset_agent_history() -> None:
+    """Drop the shared Agent's own message buffer before each turn.
+
+    `agent` is a process-wide singleton and Strands accumulates every turn it has
+    ever seen in `agent.messages` — across sessions. Conversation context is already
+    supplied per-session by _build_input, so that buffer is redundant, and it leaks:
+    a judge clicking "+" for a fresh thread would get answers informed by the
+    previous person's conversation. Verified by planting a fact in one session and
+    reading it back from a brand-new one.
+
+    Safe because routes.py serializes chat turns behind a lock, so no other request
+    is mid-flight when this runs.
+    """
+    agent.messages.clear()
+
+
 def _build_input(message: str, history: list[dict]) -> str:
     if history:
         history_block = "\n\n".join(
@@ -377,6 +393,7 @@ async def handle_message(message: str, session_id: str | None = None) -> dict:
     await store_message(session_id, "user", message)
     context = await get_context(session_id, query=message)
     input_message = _build_input(message, context.get("messages", []))
+    _reset_agent_history()
 
     _capture_loop()
     try:
@@ -403,6 +420,7 @@ async def handle_message_stream(message: str, session_id: str | None = None) -> 
     await store_message(session_id, "user", message)
     context = await get_context(session_id, query=message)
     input_message = _build_input(message, context.get("messages", []))
+    _reset_agent_history()
 
     _capture_loop()
 
