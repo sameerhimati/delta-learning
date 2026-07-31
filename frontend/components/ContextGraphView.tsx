@@ -615,6 +615,31 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
   const selectedNodeProps =
     selectedElement?.type === "node" ? (selectedElement.data as GraphNode).properties : null;
 
+  // Where a concept came from is the provenance claim this whole project rests on, so
+  // it has to survive a click. Knowledge-map nodes put the note path in `source`; raw
+  // Concept nodes from Neo4j keep the enum there ('vault' | 'goals' | 'video') and the
+  // real path in `note_path`. Rendering `source` blindly showed 109 concepts sourced
+  // to the literal word "vault".
+  const provenance = useMemo(() => {
+    if (!selectedNodeProps) return null;
+    const source = typeof selectedNodeProps.source === "string" ? selectedNodeProps.source : "";
+    const notePath =
+      typeof selectedNodeProps.note_path === "string" ? selectedNodeProps.note_path : "";
+    const learnedFrom =
+      typeof selectedNodeProps.learned_from === "string" ? selectedNodeProps.learned_from : "";
+
+    if (source === "goals") return { label: "A goal you stated", value: "", raw: "" };
+    if (source === "video")
+      return {
+        label: "Captured from a video",
+        value: learnedFrom || "a video you watched",
+        raw: learnedFrom,
+      };
+    const path = notePath || (source && source !== "vault" ? source : "");
+    if (!path) return null;
+    return { label: "From your notes", value: noteName(path), raw: path };
+  }, [selectedNodeProps]);
+
   // Empty / error states
   if (error) {
     return (
@@ -855,21 +880,25 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                       color: "white",
                     }}
                   >
-                    {KNOWLEDGE_STATUS_LABELS[selectedNodeProps.status as string]}
+                    {/* status:'goal' means two different things depending on the node.
+                        On a video term it means "advances a goal"; on a Concept the node
+                        IS the goal, and calling it "Advances a goal" is nonsense. */}
+                    {selectedNodeProps.status === "goal" &&
+                    (selectedElement?.data as GraphNode)?.labels?.includes("Concept")
+                      ? "Learning goal"
+                      : KNOWLEDGE_STATUS_LABELS[selectedNodeProps.status as string]}
                   </Badge>
 
-                  {typeof selectedNodeProps.source === "string" && selectedNodeProps.source && (
+                  {provenance && (
                     <Box bg="gray.50" p={2} borderRadius="sm">
                       <Text fontWeight="medium" color="gray.600">
-                        From your notes
+                        {provenance.label}
                       </Text>
-                      <Text
-                        color="gray.800"
-                        wordBreak="break-word"
-                        title={selectedNodeProps.source}
-                      >
-                        {noteName(selectedNodeProps.source)}
-                      </Text>
+                      {provenance.value && (
+                        <Text color="gray.800" wordBreak="break-word" title={provenance.raw}>
+                          {provenance.value}
+                        </Text>
+                      )}
                       {typeof selectedNodeProps.matched_concept === "string" &&
                         selectedNodeProps.matched_concept && (
                           <Text color="gray.500">
