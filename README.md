@@ -283,7 +283,7 @@ The first eight are new here; the last five come from the starter.
 
 The three ideas that would make this a product rather than a demo — quiz-driven onboarding,
 recommending from outside the corpus, and spaced repetition over captured concepts — plus a
-dated two-week plan and the known defect list, are in **[`ROADMAP.md`](ROADMAP.md)**.
+three-sprint plan and the known defect list, are in **[`ROADMAP.md`](ROADMAP.md)**.
 
 ---
 

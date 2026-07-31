@@ -1,10 +1,14 @@
 # Roadmap
 
-Written 2026-07-30, the evening the hackathon build ended. Dates are relative to that.
+Written 2026-07-30, the evening the hackathon build ended.
 
 The build works and the thesis holds: put the viewer in the same graph as the corpus, and
 "what should I watch?" becomes a traversal. What follows is what stands between that and
 something a stranger could use.
+
+Three sprints, ordered by dependency rather than by calendar. Sprint 1 gates the other two:
+until the knowledge state reflects a real person, recommending and decaying it are both
+building on sand.
 
 ---
 
@@ -19,11 +23,14 @@ overlap, and the app says so rather than pretending.
 
 `quiz_me` is the right instinct but it is reactive and per-video. The fix is an **onboarding
 pass**: adaptive quizzing over the graph's frontier until the knowledge state reflects the
-person, not their note-taking habits. Everything in Week 2 assumes this exists.
+person, not their note-taking habits. Sprints 2 and 3 both assume this exists.
 
 ---
 
-## Days 3–5 — make it true for someone who isn't us
+## Sprint 1 — make it true for someone who isn't us
+
+*Done when a stranger can point this at their own notes and get a first video that reads
+something other than "watch 100%".*
 
 The corpus is four videos and the vault is one person's. Neither generalizes yet.
 
@@ -42,7 +49,9 @@ The corpus is four videos and the vault is one person's. Neither generalizes yet
   paste-a-URL path fails on a fresh machine. Either ship the cookies flow properly
   (`YTDLP_COOKIES`) or accept direct file upload as the first-class path.
 
-## Days 6–9 — from re-ranker to recommender
+## Sprint 2 — from re-ranker to recommender
+
+*Done when "what should I watch?" can return something that was never ingested.*
 
 `/api/watchlist` can only rank the four videos already ingested. That is a demo, not a
 product.
@@ -58,7 +67,10 @@ product.
   call (~12k tokens), which a judge feels as latency. Summarize per unit and let the agent
   drill in.
 
-## Days 10–14 — knowledge that decays
+## Sprint 3 — knowledge that decays
+
+*Done when the system can resurface something you learned months ago, and when you can
+correct it about what you know.*
 
 Right now `known` is permanent, which is false about people.
 
