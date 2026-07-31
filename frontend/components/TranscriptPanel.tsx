@@ -304,9 +304,9 @@ export function TranscriptPanel({
 
                   {segment.on_screen_text?.trim() && (
                     <HStack
-                      mt={2.5}
-                      px={2.5}
-                      py={1.5}
+                      mt={3}
+                      px={3}
+                      py={2}
                       gap={2}
                       align="start"
                       borderWidth="1px"
@@ -314,12 +314,27 @@ export function TranscriptPanel({
                       borderRadius="8px"
                       bg="#fafafa"
                     >
-                      <Box mt={0.5} flexShrink={0}>
-                        <Type size={11} color="#9aa0a6" />
+                      <Box mt={1} flexShrink={0}>
+                        <Type size={12} color="#9aa0a6" />
                       </Box>
-                      <Text fontSize="10px" color="gray.500" overflowWrap="anywhere">
-                        {segment.on_screen_text.trim()}
-                      </Text>
+                      {/* This is OCR, so it arrives SHOUTING in whatever case was
+                          on the slide. Say what it is, and give it enough size and
+                          contrast to be read rather than squinted at. */}
+                      <Box minW={0}>
+                        <Text fontSize="xs" color="gray.500" mb={1}>
+                          On screen
+                        </Text>
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          lineHeight="1.6"
+                          textTransform="lowercase"
+                          css={{ "&::first-letter": { textTransform: "uppercase" } }}
+                          overflowWrap="anywhere"
+                        >
+                          {segment.on_screen_text.trim()}
+                        </Text>
+                      </Box>
                     </HStack>
                   )}
 

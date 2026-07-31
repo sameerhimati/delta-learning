@@ -234,6 +234,12 @@ function noteName(source: string): string {
   return source.split("/").pop() || source;
 }
 
+// Video titles are derived from filenames, so they arrive as
+// `L8_Principal_s_Agentic_Engineering_Workflow`. Nobody should have to read that.
+function displayTitle(title: string): string {
+  return title.replace(/_s_/g, "'s ").replaceAll("_", " ");
+}
+
 function isKnowledgeNode(properties: Record<string, unknown>): boolean {
   return typeof properties.status === "string" && properties.status in KNOWLEDGE_COLORS;
 }
@@ -518,7 +524,7 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
               ? `Goals: ${(node.properties.advances_goals as string[]).join(", ")}`
               : "",
             (node.properties.videos as string[] | undefined)?.length
-              ? `Taught in: ${(node.properties.videos as string[]).join(", ")}`
+              ? `Taught in: ${(node.properties.videos as string[]).map(displayTitle).join(", ")}`
               : "",
             node.properties.covered_by !== undefined
               ? `${node.properties.covered_by} concepts advance this goal`
@@ -543,14 +549,20 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         id: node.id,
         caption,
         title: tooltip,
-        color: isSelected
-          ? "#E53E3E"
-          : isExpanded
-            ? "#38A169"
-            : isKnowledge
-              ? knowledgeNodeColor(node.properties)
-              : getNodeColor(node.labels, node.properties),
-        size: isSchema ? SCHEMA_NODE_SIZE : isSelected ? baseSize * 1.3 : baseSize,
+        // A node's colour is its knowledge state and nothing else. Selection
+        // used to repaint it red and expansion green — red is not in the
+        // palette and reads as an error, and green already means "you know
+        // this". Both states are carried by the ring and the size instead.
+        color: isKnowledge
+          ? knowledgeNodeColor(node.properties)
+          : getNodeColor(node.labels, node.properties),
+        size: isSchema
+          ? SCHEMA_NODE_SIZE
+          : isSelected
+            ? baseSize * 1.3
+            : isExpanded
+              ? baseSize * 1.15
+              : baseSize,
         selected: isSelected,
       };
     });
@@ -667,20 +679,21 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
         align="center"
       >
         <Box>
+          {/* Sentence case, like the rest of the app. */}
           <Heading size="sm">
             {view === "knowledge"
-              ? "Your Knowledge Map"
+              ? "Your knowledge map"
               : view === "schema"
-                ? "Database Schema"
-                : "Knowledge Graph"}
+                ? "Database schema"
+                : "Knowledge graph"}
           </Heading>
           <Text fontSize="xs" color="gray.500">
             {view === "knowledge"
               ? stats
-                ? `${stats.terms_total} concepts across the corpus · ${stats.goals} learning goals — double-click a concept to see where it is taught`
+                ? `${stats.terms_total} concepts · ${stats.goals} learning goals · you already know ${stats.known_pct}% of the corpus — double-click a concept to see where it is taught`
                 : "Concepts the corpus teaches, coloured by what you already know"
               : view === "schema"
-                ? "Schema view — double-click a label to explore"
+                ? "Double-click a label to explore it"
                 : "Video entity relationships"}
           </Text>
         </Box>
@@ -746,18 +759,10 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                   : ""}
               </Badge>
             ))}
-            {stats && (
-              <Badge
-                size="sm"
-                px={2}
-                py={0.5}
-                whiteSpace="nowrap"
-                variant="outline"
-                colorPalette="gray"
-              >
-                {stats.known_pct}% of the corpus already known
-              </Badge>
-            )}
+            {/* The corpus-known stat used to sit here as a fifth pill. Every
+                other pill in this row is a filter you can click; that one was
+                not, so it taught people the row was decoration. It now lives
+                in the subtitle with the other counts. */}
           </>
         ) : (
           <>
@@ -824,9 +829,17 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
           borderWidth="1px"
           borderColor="gray.200"
         >
-          <Flex justify="space-between" align="center" mb={2}>
-            <Heading size="sm">
-              {selectedElement.type === "node" ? "Node" : "Relationship"} Properties
+          <Flex justify="space-between" align="start" gap={2} mb={3}>
+            {/* Name the thing the viewer clicked. "Node Properties" is what the
+                database calls this panel, not what a person came here for. */}
+            <Heading size="sm" lineHeight="1.3">
+              {selectedElement.type === "node"
+                ? String(
+                    (selectedElement.data as GraphNode).properties.name ??
+                      (selectedElement.data as GraphNode).properties.title ??
+                      "Selected node",
+                  )
+                : "Connection"}
             </Heading>
             <IconButton
               aria-label="Close"
@@ -839,24 +852,19 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
           </Flex>
 
           {selectedElement.type === "node" && (
-            <VStack align="stretch" gap={2}>
-              <HStack flexWrap="wrap" gap={1}>
-                <Text fontSize="xs" fontWeight="bold" color="gray.500">
-                  Labels:
-                </Text>
-                {(selectedElement.data as GraphNode).labels.map((label) => (
-                  <Badge
-                    key={label}
-                    size="sm"
-                    style={{
-                      backgroundColor: NODE_COLORS[label] || "#718096",
-                      color: "white",
-                    }}
-                  >
-                    {label}
-                  </Badge>
-                ))}
-              </HStack>
+            <VStack align="stretch" gap={3}>
+              {/* Neo4j labels are the storage class, not information — and on a
+                  knowledge node the status badge below already says what it is.
+                  Only show them where they are the node's only identity. */}
+              {!(selectedNodeProps && isKnowledgeNode(selectedNodeProps)) && (
+                <HStack flexWrap="wrap" gap={1}>
+                  {(selectedElement.data as GraphNode).labels.map((label) => (
+                    <Badge key={label} size="sm" colorPalette="gray" variant="subtle">
+                      {label}
+                    </Badge>
+                  ))}
+                </HStack>
+              )}
               {onAskAbout && typeof (selectedElement.data as GraphNode).properties.name === "string" && (
                 <Button
                   size="xs"
@@ -901,8 +909,8 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                       )}
                       {typeof selectedNodeProps.matched_concept === "string" &&
                         selectedNodeProps.matched_concept && (
-                          <Text color="gray.500">
-                            matched to {selectedNodeProps.matched_concept}
+                          <Text mt={1} color="gray.500">
+                            That note is what marks this concept known.
                           </Text>
                         )}
                     </Box>
@@ -915,11 +923,9 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                       </Text>
                       <HStack flexWrap="wrap" gap={1}>
                         {(selectedNodeProps.advances_goals as string[]).map((goal) => (
-                          <Badge
-                            key={goal}
-                            size="sm"
-                            style={{ backgroundColor: KNOWLEDGE_COLORS.goal_hub, color: "white" }}
-                          >
+                          // Solid fill on a text-length label read as a stuck
+                          // text selection. Subtle keeps blue meaning "goal".
+                          <Badge key={goal} size="sm" colorPalette="blue" variant="subtle">
                             {goal}
                           </Badge>
                         ))}
@@ -933,10 +939,10 @@ export function ContextGraphView({ externalGraphData, onAskAbout }: ContextGraph
                         Taught in {String(selectedNodeProps.segment_count ?? "")} segment
                         {Number(selectedNodeProps.segment_count) === 1 ? "" : "s"}
                       </Text>
-                      <VStack align="stretch" gap={0.5}>
+                      <VStack align="stretch" gap={1}>
                         {(selectedNodeProps.videos as string[]).map((title) => (
-                          <Text key={title} color="gray.800" wordBreak="break-word">
-                            {title}
+                          <Text key={title} color="gray.800">
+                            {displayTitle(title)}
                           </Text>
                         ))}
                       </VStack>

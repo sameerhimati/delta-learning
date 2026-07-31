@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Badge,
   Box,
   Button,
   Flex,
@@ -94,7 +93,7 @@ function ProvenanceRow({
       textAlign="left"
       w="100%"
       px={3}
-      py={2.5}
+      py={2}
       borderTopWidth={isFirst ? 0 : "1px"}
       borderColor="#eceded"
       cursor={clickable ? "pointer" : "default"}
@@ -107,7 +106,7 @@ function ProvenanceRow({
           <Flex
             align="center"
             justify="center"
-            mt={0.5}
+            mt={1}
             w={5}
             h={5}
             flexShrink={0}
@@ -121,30 +120,24 @@ function ProvenanceRow({
             )}
           </Flex>
           <Box minW={0}>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.800" lineHeight="1.4">
-              {concept.name}
-            </Text>
+            {/* The filename was printed in mono under a title derived from that
+                same filename — the raw path said nothing the heading had not
+                already said. It lives in the tooltip now. */}
             <Text
-              mt={0.5}
-              fontSize="10px"
-              color="gray.500"
-              overflowWrap="anywhere"
-              fontFamily={isVault ? "mono" : undefined}
+              fontSize="sm"
+              fontWeight="medium"
+              color="gray.800"
+              lineHeight="1.4"
+              title={sourceLabel}
             >
-              {sourceLabel}
+              {concept.name}
             </Text>
           </Box>
         </HStack>
         {concept.corpus_hits > 0 && (
-          <Badge
-            flexShrink={0}
-            colorPalette="green"
-            variant="subtle"
-            borderRadius="full"
-            fontSize="10px"
-          >
-            {concept.corpus_hits} in corpus
-          </Badge>
+          <Text flexShrink={0} fontSize="xs" color="gray.500">
+            {concept.corpus_hits} in these talks
+          </Text>
         )}
       </HStack>
     </Box>
@@ -276,15 +269,10 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
         background="linear-gradient(135deg, #181a22 0%, #202334 100%)"
         boxShadow="0 12px 28px rgba(17,19,24,0.14)"
       >
-        <HStack justify="space-between" align="start" mb={4}>
-          <Box>
-            <Text fontSize="xs" fontWeight="semibold" letterSpacing="0.02em" color="#aaa5ff">
-              What I know
-            </Text>
-            <Text mt={1} fontSize="xs" color="whiteAlpha.600">
-              Your vault and your captures, as the graph sees them
-            </Text>
-          </Box>
+        {/* The page header already says "What I know" and says it in almost
+            these exact words. Let the number lead instead of stacking a third
+            copy of the title on top of it. */}
+        <HStack justify="flex-end" align="start" mb={2}>
           <Button
             size="xs"
             variant="ghost"
@@ -347,7 +335,7 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
               <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color={stat.color}>
                 {stat.value}
               </Text>
-              <Text fontSize="10px" color="whiteAlpha.600">{stat.label}</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">{stat.label}</Text>
             </Box>
           ))}
         </Grid>
@@ -363,20 +351,22 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
       >
         <HStack
           px={4}
-          py={3.5}
+          py={3}
           justify="space-between"
           borderBottomWidth="1px"
           borderColor="#e8e9eb"
         >
           <Box>
             <Heading size="sm">Where your notes meet this corpus</Heading>
-            <Text mt={0.5} fontSize="10px" color="gray.400">
+            <Text mt={1} fontSize="xs" color="gray.500">
               The only vault notes these talks can skip for you
             </Text>
           </Box>
-          <Badge colorPalette="green" variant="subtle" borderRadius="full">
-            {matched.length} of {vaultTotal}
-          </Badge>
+          {/* Chip, not highlighter. `variant="subtle"` at 10px with no padding
+              wrapped these counts so tightly they read as stuck text selections. */}
+          <Text flexShrink={0} fontSize="xs" color="gray.600" whiteSpace="nowrap">
+            {matched.length} of {vaultTotal} notes
+          </Text>
         </HStack>
         {matched.length === 0 ? (
           <Box px={4} py={5}>
@@ -391,23 +381,27 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
               <Box
                 key={`${concept.name}-${concept.note || index}`}
                 px={4}
-                py={3.5}
+                py={3}
                 borderTopWidth={{ base: index === 0 ? 0 : "1px", md: 0 }}
                 borderLeftWidth={{ base: 0, md: index === 0 ? 0 : "1px" }}
                 borderColor="#eceded"
               >
-                <Text fontSize="sm" fontWeight="semibold" color="gray.800" lineHeight="1.4">
-                  {concept.name}
-                </Text>
-                <HStack mt={1.5} gap={1.5} align="center">
-                  <FileText size={11} color="#9aa0a6" />
-                  <Text fontSize="10px" fontFamily="mono" color="gray.500" overflowWrap="anywhere">
-                    {noteName(concept.note)}
+                <HStack gap={2} align="center">
+                  <FileText size={12} color="#9aa0a6" />
+                  {/* The filename is the tooltip; the readable name is the label. */}
+                  <Text
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color="gray.800"
+                    lineHeight="1.4"
+                    title={noteName(concept.note)}
+                  >
+                    {concept.name}
                   </Text>
                 </HStack>
-                <Text mt={1.5} fontSize="10px" color="green.700" fontWeight="semibold">
+                <Text mt={2} fontSize="xs" color="gray.500">
                   {concept.corpus_hits} matching{" "}
-                  {concept.corpus_hits === 1 ? "concept" : "concepts"} in the videos
+                  {concept.corpus_hits === 1 ? "concept" : "concepts"} in these talks
                 </Text>
               </Box>
             ))}
@@ -425,7 +419,7 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
       >
         <HStack
           px={4}
-          py={3.5}
+          py={3}
           justify="space-between"
           borderBottomWidth="1px"
           borderColor="#e8e9eb"
@@ -434,14 +428,15 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
             <Target size={16} color={CONCEPT_STATUS_COLORS.goal} />
             <Box>
               <Heading size="sm">Learning goals</Heading>
-              <Text mt={0.5} fontSize="10px" color="gray.400">
-                What you told the graph you want to learn
+              {/* "told the graph" is the implementation talking. */}
+              <Text mt={1} fontSize="xs" color="gray.500">
+                What you said you want to learn
               </Text>
             </Box>
           </HStack>
-          <Badge colorPalette="blue" variant="subtle" borderRadius="full">
+          <Text flexShrink={0} fontSize="xs" color="gray.600" whiteSpace="nowrap">
             {stats.goals_covered} of {stats.goals_total} covered
-          </Badge>
+          </Text>
         </HStack>
 
         {sortedGoals.length === 0 ? (
@@ -486,7 +481,7 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
                 </HStack>
                 <Text
                   flexShrink={0}
-                  fontSize="10px"
+                  fontSize="xs"
                   fontWeight="semibold"
                   color={goal.covered ? "gray.500" : "orange.700"}
                   textAlign="right"
@@ -509,41 +504,51 @@ export function WhatIKnowPanel({ refreshToken, onConceptClick }: WhatIKnowPanelP
         overflow="hidden"
         boxShadow="0 1px 2px rgba(17,24,39,0.035)"
       >
-        <Box px={4} py={3.5} borderBottomWidth="1px" borderColor="#e8e9eb">
+        <Box px={4} py={3} borderBottomWidth="1px" borderColor="#e8e9eb">
           <HStack justify="space-between" align="start" mb={3}>
             <Box>
               <Heading size="sm">What you know</Heading>
-              <Text mt={0.5} fontSize="10px" color="gray.400">
+              <Text mt={1} fontSize="xs" color="gray.500">
                 Split by where the knowledge came from
               </Text>
             </Box>
-            <Text fontSize="10px" color="gray.400">
+            <Text fontSize="xs" color="gray.500">
               {list.length} shown
             </Text>
           </HStack>
 
-          <HStack gap={2} mb={2.5} flexWrap="wrap">
+          {/* A saturated solid pill for a segmented control read as a stuck
+              selection. Same quiet active state the chat tabs use. */}
+          <HStack gap={1} mb={3} flexWrap="wrap">
             {(
               [
                 { key: "vault", label: "From my vault", count: stats.known_from_vault },
                 { key: "video", label: "Captured from video", count: stats.known_from_video },
               ] as { key: Provenance; label: string; count: number }[]
-            ).map((tab) => (
-              <Button
-                key={tab.key}
-                size="xs"
-                borderRadius="full"
-                variant={provenance === tab.key ? "solid" : "outline"}
-                colorPalette={provenance === tab.key ? "purple" : "gray"}
-                onClick={() => setProvenance(tab.key)}
-              >
-                {tab.label} ({tab.count})
-              </Button>
-            ))}
+            ).map((tab) => {
+              const isActive = provenance === tab.key;
+              return (
+                <Button
+                  key={tab.key}
+                  size="xs"
+                  h="28px"
+                  px={3}
+                  borderRadius="8px"
+                  variant="ghost"
+                  fontWeight={isActive ? "medium" : "normal"}
+                  bg={isActive ? "#f4f3ff" : "transparent"}
+                  color={isActive ? "#4640c8" : "gray.500"}
+                  _hover={isActive ? undefined : { bg: "#f3f4f6", color: "gray.700" }}
+                  onClick={() => setProvenance(tab.key)}
+                >
+                  {tab.label} ({tab.count})
+                </Button>
+              );
+            })}
           </HStack>
 
           <HStack
-            px={2.5}
+            px={3}
             gap={2}
             borderWidth="1px"
             borderColor="#e8e9eb"

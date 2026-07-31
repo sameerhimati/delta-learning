@@ -135,28 +135,31 @@ function noteName(source?: string | null): string {
   return source.split(/[\\/]/).pop()?.replace(/\.md$/i, "") || source;
 }
 
+// known was falling through to the novel branch, so a concept you already knew
+// rendered in the "new to you" colour.
+const PILL_STYLE: Record<DeltaConcept["status"], { bg: string; border: string; fg: string }> = {
+  novel: { bg: "#fff8f0", border: "#f2d5b5", fg: "#9a3412" },
+  goal: { bg: "#f3f7fd", border: "#cbdcf8", fg: "#1e40af" },
+  known: { bg: "#f0fdf4", border: "#bbf7d0", fg: "#15803d" },
+};
+
+/** Name only. Every pill used to carry its own `why`, which meant the same
+ *  sentence — "advances your goal 'game theory'" — printed seventeen times
+ *  under seventeen chips. The colour says it once; the legend explains it. */
 function ConceptPill({ concept }: { concept: DeltaConcept }) {
-  const isGoal = concept.status === "goal";
+  const style = PILL_STYLE[concept.status] ?? PILL_STYLE.novel;
   return (
     <Box
-      px={2.5}
-      py={1.5}
+      px={2}
+      py={1}
       borderWidth="1px"
-      borderColor={isGoal ? "#cbdcf8" : "#f2d5b5"}
-      borderRadius="9px"
-      bg={isGoal ? "#f3f7fd" : "#fff8f0"}
+      borderColor={style.border}
+      borderRadius="8px"
+      bg={style.bg}
+      title={concept.why || undefined}
     >
-      <Text
-        fontSize="xs"
-        fontWeight="semibold"
-        color={isGoal ? "blue.800" : "orange.800"}
-        lineHeight="1.3"
-      >
+      <Text fontSize="xs" fontWeight="medium" color={style.fg} lineHeight="1.4">
         {concept.name}
-      </Text>
-      <Text mt={0.5} fontSize="10px" color={isGoal ? "blue.600" : "orange.600"}>
-        {concept.why ||
-          (isGoal ? "you asked to learn this" : "not in your knowledge base")}
       </Text>
     </Box>
   );
@@ -467,16 +470,23 @@ export function YourCutPanel({
         </Box>
       ) : (
         <VStack align="stretch" gap={3}>
-          <HStack justify="space-between" px={1}>
+          <HStack justify="space-between" align="end" gap={4} px={1}>
             <Box>
               <Heading size="sm">Recommended clips</Heading>
-              <Text mt={0.5} fontSize="xs" color="gray.500">
+              <Text mt={1} fontSize="xs" color="gray.500">
                 {data.cuts.length} focused {data.cuts.length === 1 ? "section" : "sections"} in order
               </Text>
             </Box>
-            <HStack gap={1.5}>
-              <Badge colorPalette="orange" variant="subtle" borderRadius="full">new</Badge>
-              <Badge colorPalette="blue" variant="subtle" borderRadius="full">your goal</Badge>
+            {/* The legend the pills no longer repeat. Named once, here. */}
+            <HStack gap={3} flexShrink={0}>
+              <HStack gap={1}>
+                <Box w={2} h={2} borderRadius="full" bg="#f97316" />
+                <Text fontSize="xs" color="gray.600">new to you</Text>
+              </HStack>
+              <HStack gap={1}>
+                <Box w={2} h={2} borderRadius="full" bg="#3b82f6" />
+                <Text fontSize="xs" color="gray.600">advances a goal</Text>
+              </HStack>
             </HStack>
           </HStack>
 
