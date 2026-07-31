@@ -57,22 +57,37 @@ class SearchRequest(BaseModel):
 # Chat
 # ---------------------------------------------------------------------------
 
+# Two process-wide singletons sit behind every chat turn: the Strands Agent
+# (app/agent.py) and the graph collector's event queue (app/context_graph_client.py).
+# Neither tolerates a second caller. Strands raises "Agent is already processing a
+# request", which the handler turns into the assistant's own reply — so the newcomer
+# reads a raw Python exception in a chat bubble — while set_event_queue() silently
+# overwrites the in-flight request's queue, orphaning the first stream until it dies
+# on the 120s idle timeout. The presenter's answer is the one that hangs.
+#
+# One shared backend serving several browsers is this project's actual deployment
+# (a tunnel, in the demo), so "don't do that" is not available. Serializing turns
+# makes the second caller wait instead of breaking both.
+_agent_lock = asyncio.Lock()
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     _require_neo4j()
     try:
-        collector = get_collector()
-        collector.drain()
-        collector.drain_tool_calls()
-        result = await handle_message(request.message, request.session_id)
-        if result.get("graph_data") is None:
-            collected = collector.drain()
-            if collected:
-                result["graph_data"] = {"results": collected}
-        tool_calls = collector.drain_tool_calls()
-        if tool_calls:
-            result["tool_calls"] = tool_calls
-        return result
+        async with _agent_lock:
+            collector = get_collector()
+            collector.drain()
+            collector.drain_tool_calls()
+            result = await handle_message(request.message, request.session_id)
+            if result.get("graph_data") is None:
+                collected = collector.drain()
+                if collected:
+                    result["graph_data"] = {"results": collected}
+            tool_calls = collector.drain_tool_calls()
+            if tool_calls:
+                result["tool_calls"] = tool_calls
+            return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -83,11 +98,7 @@ async def chat_stream(request: ChatRequest):
     _require_neo4j()
     session_id = request.session_id or str(_uuid.uuid4())
     collector = get_collector()
-    collector.drain()
-    collector.drain_tool_calls()
-
     event_queue: asyncio.Queue = asyncio.Queue()
-    collector.set_event_queue(event_queue)
 
     async def run_agent():
         try:
@@ -102,34 +113,44 @@ async def chat_stream(request: ChatRequest):
             collector.clear_event_queue()
 
     async def event_generator():
-        task = asyncio.create_task(run_agent())
+        # Sent before taking the lock so a queued client still gets its session id
+        # immediately rather than looking hung.
         yield f"event: session_id\ndata: {json.dumps({'session_id': session_id})}\n\n"
-        idle_timeout = 120.0
-        overall_timeout = 300.0
-        loop = asyncio.get_event_loop()
-        start_time = loop.time()
-        try:
-            while True:
-                if loop.time() - start_time > overall_timeout:
-                    yield f"event: error\ndata: {json.dumps({'detail': 'Request exceeded maximum duration'})}\n\n"
-                    break
-                try:
-                    event = await asyncio.wait_for(event_queue.get(), timeout=idle_timeout)
-                except asyncio.TimeoutError:
-                    yield f"event: error\ndata: {json.dumps({'detail': 'Request timed out'})}\n\n"
-                    break
-                event_type = event["event"]
-                event_data = json.dumps(event["data"], default=str)
-                yield f"event: {event_type}\ndata: {event_data}\n\n"
-                if event_type in ("done", "error"):
-                    break
-        finally:
-            if not task.done():
-                task.cancel()
-                try:
-                    await task
-                except (asyncio.CancelledError, Exception):
-                    pass
+
+        # Everything that touches the shared agent or the shared collector queue has
+        # to be inside the lock — claiming the queue before waiting our turn is what
+        # stole the previous request's stream.
+        async with _agent_lock:
+            collector.drain()
+            collector.drain_tool_calls()
+            collector.set_event_queue(event_queue)
+            task = asyncio.create_task(run_agent())
+            idle_timeout = 120.0
+            overall_timeout = 300.0
+            loop = asyncio.get_event_loop()
+            start_time = loop.time()
+            try:
+                while True:
+                    if loop.time() - start_time > overall_timeout:
+                        yield f"event: error\ndata: {json.dumps({'detail': 'Request exceeded maximum duration'})}\n\n"
+                        break
+                    try:
+                        event = await asyncio.wait_for(event_queue.get(), timeout=idle_timeout)
+                    except asyncio.TimeoutError:
+                        yield f"event: error\ndata: {json.dumps({'detail': 'Request timed out'})}\n\n"
+                        break
+                    event_type = event["event"]
+                    event_data = json.dumps(event["data"], default=str)
+                    yield f"event: {event_type}\ndata: {event_data}\n\n"
+                    if event_type in ("done", "error"):
+                        break
+            finally:
+                if not task.done():
+                    task.cancel()
+                    try:
+                        await task
+                    except (asyncio.CancelledError, Exception):
+                        pass
 
     return StreamingResponse(
         event_generator(),
