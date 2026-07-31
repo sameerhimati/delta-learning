@@ -1,23 +1,53 @@
 # Session Handoff
-> Last updated: 2026-07-30, end of the long build session.
-> **Next session is the last sprint. Start in plan mode.**
+> Last updated: 2026-07-30, after the presentation.
+> **WE PRESENTED AND IT WENT WELL.** The hackathon is over. This is now a product.
+>
+> **Next session: enter plan mode and produce `ROADMAP.md`. Do not write code first.**
 
-## Opening gambit
+## The decision coming out of today
 
-```zsh
-cd ~/Code/delta-learning && git pull
-make docker-up && make start          # backend :8000, frontend :3000
-docker exec delta-learning-neo4j-1 cypher-shell -u neo4j -p password \
-  "MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c"
-curl -s "localhost:8000/api/delta/A%20Simple%20Strategy" | python3 -m json.tool | head -20
-```
-Must read **`watch_sec: 968, 2 cuts, known: 0`**. If it doesn't, something captured and
-the demo beat is spent — re-run the delete above. Then read this file's *Defects* section
-and enter plan mode. Do not start coding before agreeing the sprint scope.
+This stops being a hackathon entry. The intent is to build it into a real product —
+**a NotebookLM competitor**, open source first, with a plausible path to closed/funded
+and actual revenue. Read everything below through that lens: what exists is a
+demo-grade proof of the core idea, not a product.
+
+### The judge's feedback — the strongest unbuilt idea
+
+> "Imagine if we could take a video interview / quiz of the person, where the AI
+> ingests and judges it."
+
+This lands exactly on the thesis. The knowledge state has two sources today: the vault
+(evidence of what Sameer *wrote down*) and quiz-graded capture (evidence he could answer
+in text). A **spoken** answer, ingested and judged, is the same TwelveLabs-shaped problem
+the corpus side already solves — pointed at the person instead of the material. It also
+makes the product's asymmetry explicit and defensible:
+
+> **NotebookLM models the corpus. We model the person.**
+> A rival can ingest documents. The moat is the longitudinal knowledge state and the
+> evidence behind every claim of "known".
+
+The text quiz already works end to end, so video is an extension of a proven loop, not a
+new one.
+
+### Next session, in order
+
+1. **Plan mode. Write `ROADMAP.md`.** A deep plan, not a task list. It must answer:
+   what is the wedge (a cut list is a feature — what is the product?); who is the first
+   user and what do they do weekly that they cannot do today; what is OSS vs hosted and
+   where does revenue come from; what must be rebuilt to leave hackathon quality; what
+   ships in week 1 / month 1 / month 3; and where the video interview sits.
+2. Consider `/office-hours` **first** to pressure-test the wedge before the roadmap hardens.
+3. Only then code. The *Defects* list below is input to the roadmap, not the roadmap.
 
 ## Current state
 
-- `main` @ `51370c1`, clean, pushed. Backend pytest **4/4**. Frontend `tsc` clean.
+- `main` @ `29c92b0`, clean, **pushed**. Backend pytest **4/4**. Frontend `tsc` clean.
+- To run the demo again, the pre-capture baseline is `watch_sec 968, 2 cuts, known 0`:
+  ```zsh
+  make docker-up && make start
+  docker exec delta-learning-neo4j-1 cypher-shell -u neo4j -p password \
+    "MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c"
+  ```
 - Neo4j in docker (GDS 2.13.2). Cloudflare tunnel was
   `https://mold-oliver-prisoner-payroll.trycloudflare.com` — **ephemeral, re-check**.
 - Corpus: 4 videos — L8 agentic 45:46 (34 seg), Postgres 8:07 (11), Game Theory A
@@ -96,18 +126,30 @@ Sources: three adversarial verifiers + the parallel chat/UX session
 
 ### Tier 3 — visual and copy
 
-9. Green used decoratively where **green means "known"** — the skip badge and progress
-   track render green while `known: 0`. Transcript entity chips are solid orange
-   (`novel`'s colour), so "Microsoft" reads as a new concept.
-10. The same subtitle 17 times: every goal pill says `advances your goal 'game theory'`.
-    Say it once as a row label.
-11. Half-step spacing everywhere (`pb={4.5}`, `px` 28 vs 20 between header and body) —
-    the single biggest contributor to "vibecoded". Snap to 4/8/12/16/24/32.
-12. Titles carry a fullwidth colon `：` (U+FF1A, from yt-dlp filenames) rendering as a wide
-    gap. `displayTitle()` already normalises underscores; add this.
-13. "Show N more concepts" never flips to "Show less".
+**9–13 were fixed on 2026-07-30 in `5bec345` / `29c92b0` and the parallel session's
+commits. Verified in the browser. Do not re-plan them.** Kept here for the record:
+
+9. ~~Green used decoratively where **green means "known"**.~~ Fixed — and the worse case
+   was in the knowledge map, which repainted a *selected* node red (not in the palette at
+   all, reads as an error) and an *expanded* node green (claiming knowledge the graph
+   never asserted). Colour is now knowledge state only; selection/expansion use ring+size.
+10. ~~The same subtitle 17 times on goal pills.~~ Fixed — pills are name-only with one
+    legend. Also fixed a real bug found on the way: `known` concepts fell through to the
+    `novel` branch and rendered orange.
+11. ~~Half-step spacing everywhere.~~ Snapped to 4/8/12/16/24/32 across the panels touched.
+12. ~~Fullwidth colon `：` in titles.~~ Fixed.
+13. ~~"Show N more concepts" never flips to "Show less".~~ Fixed.
+
+Still open:
+
 14. Raw `elementId` and internal props leak into the chat tool-call preview
-    (`context_graph_client.py:226` sets `output_preview = str(records[:2])`).
+    (`context_graph_client.py:226` sets `output_preview = str(records[:2])`). The
+    *frontend* side of this is handled — tool names are humanised and raw JSON inputs
+    with video UUIDs are no longer rendered — but the backend still emits raw records.
+17. **Knowledge map has dead space** under the graph. `nvl.fit()` was tried and reverted:
+    it fits a bounding box including the far-flung uncovered-goal nodes and shrinks the
+    map to an unreadable speck. Comment left in `ContextGraphView.tsx` so nobody retries
+    it. Needs a real layout fix, not a zoom tweak.
 15. `learning_path` tool returns the whole 49KB curriculum (~12k tokens) per call.
 16. Ontology noise still surfaces: "Windows", "Bing", "Lavish Axie", "Grass Camp" appear as
     learnable concepts and even as a curriculum unit title.
