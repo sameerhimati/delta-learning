@@ -70,13 +70,15 @@ The following files are substantially or entirely that upstream's original work 
 are NOT covered by the MIT license above:
 
   backend/app/twelvelabs_client.py   285 lines, unmodified from upstream
-  HOWTO.md                           177 lines, unmodified from upstream
   data/ontology.yaml                 152 lines, 7 modified
   backend/scripts/ingest.py          386 lines, ~75% upstream
   frontend/components/VideoBrowser.tsx  derived from upstream, since largely rewritten
 
+HOWTO.md was a fifth such file, unmodified from upstream, and has been removed from
+this repository rather than republished.
+
 To be plain about what this means: this repository as a whole cannot currently be
-relicensed, and a downstream user cannot rely on the MIT grant for those five files.
+relicensed, and a downstream user cannot rely on the MIT grant for those four files.
 Upstream has been asked to add one:
 https://github.com/jpadams/video-context-graph/issues/2
 If and when a license appears there, this section will be updated or removed.

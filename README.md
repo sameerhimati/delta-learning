@@ -63,14 +63,14 @@ The six concepts it now skips — Game Theory, Prisoner's Dilemma, Dominant Stra
 `(:Concept {source:'video'})` nodes created by the capture, reached through the `SAME_AS`
 edges on terms that both talks share.
 
-Other verified reads on the same graph:
+Other reads on the same graph — every one of these reproduces from `make demo`:
 
 | Question | Answer |
 |---|---|
-| "What in the L8 agentic-engineering talk is new to me?" | watch **43:03 of 45:46** — 51 novel + 15 goal-aligned terms, with the 5 real overlaps cited back to the vault notes that cover them (`agent-harnesses.md`, `05-memory.md`, `02-the-agent-loop.md`) |
-| "What about the Postgres talk?" | watch **all of 0:00–8:06** — 0 known overlap, so nothing is safe to skip, and it says so |
-| "Which of my goals does this corpus cover?" | 1 of the stated goals strictly linked (game theory); volunteers that Postgres/L8 *support* others without a strict link, and names the ones with **no** coverage rather than staying quiet about them |
-| "What should I learn first?" | Neo4j **GDS PageRank** over the co-occurrence graph of terms the viewer does *not* know → PostgreSQL (5.15), and the rule is explained |
+| "What in the L8 agentic-engineering talk is new to me?" | watch **40:21 of 45:45** — 37 novel + 11 goal-aligned terms, with the 4 real overlaps cited back to the notes that cover them (`agent-harnesses.md`, `05-memory.md`, `02-the-agent-loop.md`) |
+| "What about the Postgres talk?" | watch **7:22 of 8:06** — 0 known overlap, so almost nothing is safe to skip, and it says why |
+| "Which of my goals does this corpus cover?" | 3 of 5 covered — game theory (24 terms), database internals (21), context engineering for agents (15). Bayesian statistics is **thin** at 1 term, speculative decoding has **no** coverage at all, and it volunteers both rather than staying quiet |
+| "What should I learn first?" | Neo4j **GDS PageRank** over the co-occurrence graph of terms the viewer does *not* know → PostgreSQL (5.14), ahead of Prisoner's Dilemma (2.94) and Shapley Value (2.12), and the rule is explained |
 
 ---
 
@@ -104,7 +104,7 @@ note bodies** — the vault is written claim-per-file, so the filename *is* the 
 `data/learning_goals.yaml` for things the viewer wants to learn but doesn't know yet.
 
 ```
-(:Concept {status: 'known', source: 'vault', note_path})   # 109 — what they've written down
+(:Concept {status: 'known', source: 'vault', note_path})   # what they've written down
 (:Concept {status: 'goal',  source: 'goals'})              #  from learning_goals.yaml
 (:Concept {status: 'known', source: 'video', key: 'video:…'})  # captured, grows over time
 ```
@@ -183,9 +183,12 @@ without sitting through the video that teaches it. Get it wrong and nothing is c
 | **AWS Strands** | agent + tool orchestration, SSE streaming, 13 tools | Tool results stream to the frontend and auto-render into the graph panel. |
 | **Neo4j** | the graph; 2 vector indexes (`segment_embeddings`, `concept_embeddings`); **GDS 2.13.2** | Viewer and corpus in one graph is the entire premise. GDS PageRank runs over a Cypher-projected co-occurrence graph of terms the viewer does *not* know — that's "what should I learn first". See [`cypher/gds_projections.cypher`](cypher/gds_projections.cypher). |
 
-The graph this was measured on — **4 videos · 83 segments · 63 topics · 109 entities ·
-109 vault concepts** plus the goals in `learning_goals.yaml` — is what ships in
-`data/demo_graph.json`. `make demo` loads it; the exact counts are printed as it does.
+The graph this was measured on holds **4 videos · 83 segments · 63 topics · 109 entities**
+and a knowledge state of 109 notes. `data/demo_graph.json` ships that graph with the
+knowledge state trimmed to its **54** publishable notes — the author's study and writing
+folders — plus the 5 goals in `learning_goals.yaml`. Nothing removed was linked to a video,
+so every number on this page reproduces from `make demo`; the exact counts print as it
+loads.
 
 ---
 
@@ -367,13 +370,13 @@ version, with the full file-level breakdown in [`NOTICE`](NOTICE):
   app, the Strands agent skeleton, the Neo4j client, the NVL graph view, the Docker
   setup, the Makefile. That generator is Apache-2.0 licensed by Neo4j Labs, so those
   files are permissively licensed and safe to redistribute with attribution.
-- **Five files are not.** The fork parent publishes **no license at all**, which under
+- **Four files are not.** The fork parent publishes **no license at all**, which under
   default copyright means no rights are granted to anyone. Its genuinely original
   contribution — the video ingestion pipeline (`backend/scripts/ingest.py`), the
   TwelveLabs wrapper (`backend/app/twelvelabs_client.py`), the video ontology
-  (`data/ontology.yaml`), `HOWTO.md`, and the component `VideoBrowser.tsx` was derived
-  from — is not covered by the MIT grant above, and two of those files are still
-  byte-identical to theirs.
+  (`data/ontology.yaml`), and the component `VideoBrowser.tsx` was derived from — is not
+  covered by the MIT grant above, and one of those files is still byte-identical to
+  theirs.
 
 Practically: forking a public GitHub repo is permitted by GitHub's Terms of Service;
 sublicensing it is not. So this repo as a whole cannot be relicensed, and if you plan to
@@ -387,6 +390,3 @@ Foundation, [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/), see
 [`data/videos/ATTRIBUTION.md`](data/videos/ATTRIBUTION.md). It is downloaded, not
 vendored, so it isn't in this repo. Any video you ingest is your responsibility to have
 the rights to.
-
-Setup troubleshooting and the two-video merge walkthrough from the starter are still in
-[`HOWTO.md`](HOWTO.md).
