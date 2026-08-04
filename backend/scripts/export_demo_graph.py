@@ -19,7 +19,24 @@ Deliberately NOT exported:
                  watching the cut list shrink. Shipping a post-capture graph would
                  hand over the answer and delete the moment.
 
-Run:  uv run python scripts/export_demo_graph.py [--out PATH]
+A NOTE ON PRIVACY, because this script publishes someone's notes:
+
+ingest_vault.py reads note FILENAMES as the claims, so every vault Concept in the graph
+is the title of a real note, and its note_path is a real absolute path on the machine
+that ran it. Exporting those verbatim publishes the shape of a private vault — which
+folders exist, what is being worked on, and often who with. So this script:
+
+  * keeps only the basename of note_path (which is also what the API contract asks for:
+    "source": "note-path.md", not an absolute path), and
+  * drops concepts from EXCLUDED_VAULT_DIRS entirely, since a filename is the claim and
+    "decision-tax-strategy.md" discloses the same thing whether or not it has a folder
+    in front of it.
+
+The exclusions cost nothing: vault concepts only reach a video through SAME_AS, and
+those edges come from a handful of study notes. Override with --include-vault-dir=NAME
+when you know a folder is safe to publish.
+
+Run:  uv run python scripts/export_demo_graph.py [--out PATH] [--include-vault-dir=NAME]
 """
 
 from __future__ import annotations
@@ -41,6 +58,11 @@ from app.context_graph_client import connect_neo4j, close_neo4j, execute_cypher 
 
 DEFAULT_OUT = Path(__file__).resolve().parents[2] / "data" / "demo_graph.json"
 GOALS_FILE = Path(__file__).resolve().parents[2] / "data" / "learning_goals.yaml"
+
+# Vault folders whose note titles are not publishable. Client work, job hunting, company
+# and money decisions, and anything naming a third party live under projects/; ideas/ is
+# unpublished thinking. Both are excluded by default — see the module docstring.
+EXCLUDED_VAULT_DIRS = ("projects", "ideas")
 
 
 def _goal_keys() -> list[str]:
@@ -117,8 +139,41 @@ REL_QUERIES = {
 }
 
 
+def _sanitize_concepts(rows: list[dict], excluded: tuple[str, ...]) -> tuple[list[dict], dict]:
+    """Drop concepts from excluded vault folders and reduce note_path to a basename.
+
+    Returns (kept_rows, dropped_counts_by_folder).
+    """
+    kept, dropped = [], {}
+    for row in rows:
+        path = row.get("note_path")
+        if not path:
+            kept.append(row)          # goals carry no note_path
+            continue
+        parts = Path(path).parts
+        folder = next((p for p in parts if p in excluded), None)
+        if folder:
+            dropped[folder] = dropped.get(folder, 0) + 1
+            continue
+        kept.append({**row, "note_path": Path(path).name})
+    return kept, dropped
+
+
+def _assert_no_paths(rows: list[dict]) -> None:
+    """Fail the export rather than publish a path. Cheap insurance against a future edit
+    reintroducing the disclosure this function exists to prevent."""
+    leaked = [r["note_path"] for r in rows
+              if r.get("note_path") and ("/" in r["note_path"] or "\\" in r["note_path"])]
+    if leaked:
+        log.error("Refusing to write: %d note_path values are still paths, e.g. %s",
+                  len(leaked), leaked[0])
+        sys.exit(1)
+
+
 async def main() -> None:
     out = DEFAULT_OUT
+    included = {a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--include-vault-dir=")}
+    excluded = tuple(d for d in EXCLUDED_VAULT_DIRS if d not in included)
     for arg in sys.argv[1:]:
         if arg.startswith("--out="):
             out = Path(arg.split("=", 1)[1])
@@ -140,10 +195,21 @@ async def main() -> None:
         goal_keys = _goal_keys()
         for name, q in NODE_QUERIES.items():
             rows = await execute_cypher(q, {"goal_keys": goal_keys})
+            if name == "concepts":
+                rows, dropped = _sanitize_concepts(rows, excluded)
+                _assert_no_paths(rows)
+                if dropped:
+                    log.info("excluded %d vault concepts from %s/",
+                             sum(dropped.values()), "/, ".join(sorted(dropped)))
             data["nodes"][name] = rows
             log.info("%-10s %4d", name, len(rows))
+        kept_keys = {c["key"] for c in data["nodes"]["concepts"]}
         for name, q in REL_QUERIES.items():
             rows = await execute_cypher(q)
+            if name in ("same_as", "advances"):
+                # An edge to an excluded concept would load as nothing (the loader MATCHes
+                # the Concept first), but it would still name that concept in the file.
+                rows = [r for r in rows if r["concept_key"] in kept_keys]
             data["relationships"][name] = rows
             log.info("%-10s %4d", name, len(rows))
     finally:

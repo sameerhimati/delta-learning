@@ -13,9 +13,9 @@
     "skip_sec": 2334
   },
   "known_concepts": [
-    { "name": "Agent Orchestration", "status": "known", "matched_concept": "every knowledge tool ive built is half of one loop", "source": "/Users/sameer/Desktop/knowledge/ideas/every-knowledge-tool-ive-built-is-half-of-one-loop.md" },
-    { "name": "Prompt Caching", "status": "known", "matched_concept": "filter first score second saves money", "source": "/Users/sameer/Desktop/knowledge/research/ai-ml/filter-first-score-second-saves-money.md" },
-    { "name": "MCP", "status": "known", "matched_concept": "mcp course notes", "source": "/Users/sameer/Desktop/knowledge/research/ai-ml/mcp-course-notes.md" }
+    { "name": "Agent Orchestration", "status": "known", "matched_concept": "the agent loop", "source": "02-the-agent-loop.md" },
+    { "name": "Prompt Caching", "status": "known", "matched_concept": "context engineering", "source": "06-context-engineering.md" },
+    { "name": "MCP", "status": "known", "matched_concept": "mcp course notes", "source": "mcp-course-notes.md" }
   ],
   "cuts": [
     {

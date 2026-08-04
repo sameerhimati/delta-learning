@@ -1676,77 +1676,63 @@
     "name": "01 what is an agent",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/01-what-is-an-agent.md"
+    "note_path": "01-what-is-an-agent.md"
    },
    {
     "key": "02 the agent loop",
     "name": "02 the agent loop",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/02-the-agent-loop.md"
+    "note_path": "02-the-agent-loop.md"
    },
    {
     "key": "03 llm primitives",
     "name": "03 llm primitives",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/03-llm-primitives.md"
+    "note_path": "03-llm-primitives.md"
    },
    {
     "key": "04 tools skills mcp",
     "name": "04 tools skills mcp",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/04-tools-skills-mcp.md"
+    "note_path": "04-tools-skills-mcp.md"
    },
    {
     "key": "05 memory",
     "name": "05 memory",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/05-memory.md"
+    "note_path": "05-memory.md"
    },
    {
     "key": "06 context engineering",
     "name": "06 context engineering",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/06-context-engineering.md"
+    "note_path": "06-context-engineering.md"
    },
    {
     "key": "07 evals",
     "name": "07 evals",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/07-evals.md"
+    "note_path": "07-evals.md"
    },
    {
     "key": "08 self improving harnesses",
     "name": "08 self improving harnesses",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/08-self-improving-harnesses.md"
+    "note_path": "08-self-improving-harnesses.md"
    },
    {
     "key": "09 multi agent",
     "name": "09 multi agent",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/09-multi-agent.md"
-   },
-   {
-    "key": "2026 pre sf plan",
-    "name": "2026 pre sf plan",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/2026-pre-sf-plan.md"
-   },
-   {
-    "key": "arjun call points",
-    "name": "Arjun call points",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/Arjun-call-points.md"
+    "note_path": "09-multi-agent.md"
    },
    {
     "key": "bayesian statistics",
@@ -1760,189 +1746,119 @@
     "name": "a month off code",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/a-month-off-code.md"
+    "note_path": "a-month-off-code.md"
    },
    {
     "key": "adam optimizer",
     "name": "adam optimizer",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/adam-optimizer.md"
+    "note_path": "adam-optimizer.md"
    },
    {
     "key": "agent anatomy loop harness and the stack",
     "name": "agent anatomy loop harness and the stack",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-anatomy-loop-harness-and-the-stack.md"
+    "note_path": "agent-anatomy-loop-harness-and-the-stack.md"
    },
    {
     "key": "agent harnesses",
     "name": "agent harnesses",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-harnesses.md"
+    "note_path": "agent-harnesses.md"
    },
    {
     "key": "agent stack",
     "name": "agent stack",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/agent-stack.md"
+    "note_path": "agent-stack.md"
    },
    {
     "key": "agent stack landscape",
     "name": "agent stack landscape",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-stack-landscape.md"
-   },
-   {
-    "key": "ai bookkeeping landscape 2026",
-    "name": "ai bookkeeping landscape 2026",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/keepr/ai-bookkeeping-landscape-2026.md"
-   },
-   {
-    "key": "ai collapses research cost unlocking long tail arbitrage",
-    "name": "ai collapses research cost unlocking long tail arbitrage",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ai-collapses-research-cost-unlocking-long-tail-arbitrage.md"
-   },
-   {
-    "key": "ai council architecture for capital allocation",
-    "name": "ai council architecture for capital allocation",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/ai-council-architecture-for-capital-allocation.md"
-   },
-   {
-    "key": "ai product engineer roles",
-    "name": "ai product engineer roles",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/ai-product-engineer-roles.md"
-   },
-   {
-    "key": "ai scoring over large datasets is a reusable pattern",
-    "name": "ai scoring over large datasets is a reusable pattern",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ai-scoring-over-large-datasets-is-a-reusable-pattern.md"
+    "note_path": "agent-stack-landscape.md"
    },
    {
     "key": "alexnet imagenet classification",
     "name": "alexnet imagenet classification",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/alexnet-imagenet-classification.md"
+    "note_path": "alexnet-imagenet-classification.md"
    },
    {
     "key": "all machine learning is a measure of surprise",
     "name": "all machine learning is a measure of surprise",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/all-machine-learning-is-a-measure-of-surprise.md"
-   },
-   {
-    "key": "application answers",
-    "name": "application answers",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/application-answers.md"
-   },
-   {
-    "key": "application track 2026",
-    "name": "application track 2026",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/application-track-2026.md"
+    "note_path": "all-machine-learning-is-a-measure-of-surprise.md"
    },
    {
     "key": "association rules apriori algorithm",
     "name": "association rules apriori algorithm",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/association-rules-apriori-algorithm.md"
+    "note_path": "association-rules-apriori-algorithm.md"
    },
    {
     "key": "attention is all you need",
     "name": "attention is all you need",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/attention-is-all-you-need.md"
+    "note_path": "attention-is-all-you-need.md"
    },
    {
     "key": "autoresearch is autonomous improvement loops",
     "name": "autoresearch is autonomous improvement loops",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/autoresearch-is-autonomous-improvement-loops.md"
-   },
-   {
-    "key": "autoresearch loops for everything",
-    "name": "autoresearch loops for everything",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/autoresearch-loops-for-everything.md"
+    "note_path": "autoresearch-is-autonomous-improvement-loops.md"
    },
    {
     "key": "backprop handwritten zip codes lecun",
     "name": "backprop handwritten zip codes lecun",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/backprop-handwritten-zip-codes-lecun.md"
+    "note_path": "backprop-handwritten-zip-codes-lecun.md"
    },
    {
     "key": "backprop learning representations hinton",
     "name": "backprop learning representations hinton",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/backprop-learning-representations-hinton.md"
-   },
-   {
-    "key": "beli meets google maps with one tap been there rating",
-    "name": "beli meets google maps with one tap been there rating",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/beli-meets-google-maps-with-one-tap-been-there-rating.md"
+    "note_path": "backprop-learning-representations-hinton.md"
    },
    {
     "key": "build mcp tools",
     "name": "build mcp tools",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/build-mcp-tools.md"
+    "note_path": "build-mcp-tools.md"
    },
    {
     "key": "build something useful",
     "name": "build something useful",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/build-something-useful.md"
-   },
-   {
-    "key": "calibrated autonomy is one machine forms and agents route decisions",
-    "name": "calibrated autonomy is one machine forms and agents route decisions",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/calibrated-autonomy-is-one-machine-forms-and-agents-route-decisions.md"
+    "note_path": "build-something-useful.md"
    },
    {
     "key": "chain of thought",
     "name": "chain of thought",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/chain-of-thought.md"
+    "note_path": "chain-of-thought.md"
    },
    {
     "key": "cli is cool again",
     "name": "cli is cool again",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/cli-is-cool-again.md"
+    "note_path": "cli-is-cool-again.md"
    },
    {
     "key": "context engineering for agents",
@@ -1952,20 +1868,6 @@
     "note_path": null
    },
    {
-    "key": "dashless is mcp as a service",
-    "name": "dashless is mcp as a service",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/dashlessai/dashless-is-mcp-as-a-service.md"
-   },
-   {
-    "key": "dashlessai origin",
-    "name": "dashlessai origin",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/dashlessai-origin.md"
-   },
-   {
     "key": "database internals",
     "name": "database internals",
     "status": "goal",
@@ -1973,123 +1875,46 @@
     "note_path": null
    },
    {
-    "key": "decision agents in engines",
-    "name": "decision agents in engines",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-agents-in-engines.md"
-   },
-   {
-    "key": "decision corporate structure",
-    "name": "decision corporate structure",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-corporate-structure.md"
-   },
-   {
-    "key": "decision duckdb",
-    "name": "decision duckdb",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-duckdb.md"
-   },
-   {
-    "key": "decision funding mechanics",
-    "name": "decision funding mechanics",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-funding-mechanics.md"
-   },
-   {
-    "key": "decision propublica",
-    "name": "decision propublica",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/fundlens/decision-propublica.md"
-   },
-   {
-    "key": "decision role specific layouts",
-    "name": "decision role specific layouts",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/decision-role-specific-layouts.md"
-   },
-   {
-    "key": "decision tax strategy",
-    "name": "decision tax strategy",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-tax-strategy.md"
-   },
-   {
     "key": "decision trees induction quinlan",
     "name": "decision trees induction quinlan",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/decision-trees-induction-quinlan.md"
+    "note_path": "decision-trees-induction-quinlan.md"
    },
    {
     "key": "deep ml build track",
     "name": "deep ml build track",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/deep-ml-build-track.md"
+    "note_path": "deep-ml-build-track.md"
    },
    {
     "key": "deep residual learning resnet",
     "name": "deep residual learning resnet",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/deep-residual-learning-resnet.md"
-   },
-   {
-    "key": "email triage with human approval is an ecommerce fde wedge",
-    "name": "email triage with human approval is an ecommerce fde wedge",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/email-triage-with-human-approval-is-an-ecommerce-fde-wedge.md"
+    "note_path": "deep-residual-learning-resnet.md"
    },
    {
     "key": "energy scarcity is the root problem",
     "name": "energy scarcity is the root problem",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/physics/energy-scarcity-is-the-root-problem.md"
+    "note_path": "energy-scarcity-is-the-root-problem.md"
    },
    {
     "key": "enterprise data stack landscape",
     "name": "enterprise data stack landscape",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/enterprise-data-stack-landscape.md"
-   },
-   {
-    "key": "eval harness turns bean usage into hireable agent work",
-    "name": "eval harness turns bean usage into hireable agent work",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/bean/eval-harness-turns-bean-usage-into-hireable-agent-work.md"
-   },
-   {
-    "key": "every knowledge tool ive built is half of one loop",
-    "name": "every knowledge tool ive built is half of one loop",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/every-knowledge-tool-ive-built-is-half-of-one-loop.md"
-   },
-   {
-    "key": "food is in my dna",
-    "name": "food is in my dna",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/food-is-in-my-dna.md"
+    "note_path": "enterprise-data-stack-landscape.md"
    },
    {
     "key": "framework hardware landscape",
     "name": "framework hardware landscape",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/framework-hardware-landscape.md"
+    "note_path": "framework-hardware-landscape.md"
    },
    {
     "key": "game theory",
@@ -2099,305 +1924,130 @@
     "note_path": null
    },
    {
-    "key": "grad programs phil ml exploration",
-    "name": "grad programs phil ml exploration",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/grad-programs-phil-ml-exploration.md"
-   },
-   {
     "key": "hamming art of doing science engineering",
     "name": "hamming art of doing science engineering",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/hamming-art-of-doing-science-engineering.md"
+    "note_path": "hamming-art-of-doing-science-engineering.md"
    },
    {
     "key": "hidden progress parities",
     "name": "hidden progress parities",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/hidden-progress-parities.md"
-   },
-   {
-    "key": "holding system prompt",
-    "name": "holding system prompt",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/itamih/holding-system-prompt.md"
-   },
-   {
-    "key": "humans hold the pen on high stakes money in an agent world",
-    "name": "humans hold the pen on high stakes money in an agent world",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/humans-hold-the-pen-on-high-stakes-money-in-an-agent-world.md"
-   },
-   {
-    "key": "idea ai changes re investing",
-    "name": "idea ai changes re investing",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-ai-changes-re-investing.md"
-   },
-   {
-    "key": "idea ai native operator stack is the dental wedge",
-    "name": "idea ai native operator stack is the dental wedge",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/idea-ai-native-operator-stack-is-the-dental-wedge.md"
-   },
-   {
-    "key": "idea atlas platform modularity",
-    "name": "idea atlas platform modularity",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-atlas-platform-modularity.md"
-   },
-   {
-    "key": "idea autoresearch loop",
-    "name": "idea autoresearch loop",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-autoresearch-loop.md"
-   },
-   {
-    "key": "idea council architecture",
-    "name": "idea council architecture",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-council-architecture.md"
-   },
-   {
-    "key": "idea cre claude skills",
-    "name": "idea cre claude skills",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-cre-claude-skills.md"
-   },
-   {
-    "key": "idea files share ideas not code",
-    "name": "idea files share ideas not code",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/idea-files-share-ideas-not-code.md"
-   },
-   {
-    "key": "idea macro agent layer",
-    "name": "idea macro agent layer",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/itamih/idea-macro-agent-layer.md"
-   },
-   {
-    "key": "idea private markets generalization",
-    "name": "idea private markets generalization",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-private-markets-generalization.md"
-   },
-   {
-    "key": "idea reading buddy is schools first mode",
-    "name": "idea reading buddy is schools first mode",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/libstack/idea-reading-buddy-is-schools-first-mode.md"
-   },
-   {
-    "key": "idea v2 consume dont read voice and swipe",
-    "name": "idea v2 consume dont read voice and swipe",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/libstack/idea-v2-consume-dont-read-voice-and-swipe.md"
-   },
-   {
-    "key": "idea what makes a good deal",
-    "name": "idea what makes a good deal",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-what-makes-a-good-deal.md"
+    "note_path": "hidden-progress-parities.md"
    },
    {
     "key": "karpathy llm knowledge bases",
     "name": "karpathy llm knowledge bases",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/karpathy-llm-knowledge-bases.md"
-   },
-   {
-    "key": "layer 3 consumer agent platform",
-    "name": "layer 3 consumer agent platform",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/layer-3-consumer-agent-platform.md"
+    "note_path": "karpathy-llm-knowledge-bases.md"
    },
    {
     "key": "learnings 000 ai applied foundations",
     "name": "learnings 000 ai applied foundations",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/learnings-000-ai-applied-foundations.md"
+    "note_path": "learnings-000-ai-applied-foundations.md"
    },
    {
     "key": "learnings 001 ai applied prompt engineering and evaluation",
     "name": "learnings 001 ai applied prompt engineering and evaluation",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/learnings-001-ai-applied-prompt-engineering-and-evaluation.md"
+    "note_path": "learnings-001-ai-applied-prompt-engineering-and-evaluation.md"
    },
    {
     "key": "mcp course notes",
     "name": "mcp course notes",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/mcp-course-notes.md"
-   },
-   {
-    "key": "minions background agents",
-    "name": "minions background agents",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/minions-background-agents.md"
-   },
-   {
-    "key": "minions roadmap",
-    "name": "minions roadmap",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/minions-roadmap.md"
+    "note_path": "mcp-course-notes.md"
    },
    {
     "key": "ml from scratch",
     "name": "ml from scratch",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/ml-from-scratch.md"
+    "note_path": "ml-from-scratch.md"
    },
    {
     "key": "muon scalable",
     "name": "muon scalable",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/muon-scalable.md"
+    "note_path": "muon-scalable.md"
    },
    {
     "key": "nanogpt daily log",
     "name": "nanogpt daily log",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/nanogpt-daily-log.md"
+    "note_path": "nanogpt-daily-log.md"
    },
    {
     "key": "neolabs landscape 2026 05",
     "name": "neolabs landscape 2026 05",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/neolabs-landscape-2026-05.md"
+    "note_path": "neolabs-landscape-2026-05.md"
    },
    {
     "key": "note to self",
     "name": "note to self",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/note-to-self.md"
-   },
-   {
-    "key": "one framework many instances",
-    "name": "one framework many instances",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/one-framework-many-instances.md"
-   },
-   {
-    "key": "openclaw agents learn codebases",
-    "name": "openclaw agents learn codebases",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/openclaw-agents-learn-codebases.md"
+    "note_path": "note-to-self.md"
    },
    {
     "key": "outside the agentic loop",
     "name": "outside the agentic loop",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/outside-the-agentic-loop.md"
-   },
-   {
-    "key": "ownership is not the objection done for you wins",
-    "name": "ownership is not the objection done for you wins",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ownership-is-not-the-objection-done-for-you-wins.md"
-   },
-   {
-    "key": "paid consulting generates product rd",
-    "name": "paid consulting generates product rd",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/paid-consulting-generates-product-rd.md"
+    "note_path": "outside-the-agentic-loop.md"
    },
    {
     "key": "pca finds max variance directions",
     "name": "pca finds max variance directions",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/pca-finds-max-variance-directions.md"
-   },
-   {
-    "key": "pristine pearls seo action plan",
-    "name": "pristine pearls seo action plan",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/pristine-pearls-seo-action-plan.md"
+    "note_path": "pca-finds-max-variance-directions.md"
    },
    {
     "key": "react agents",
     "name": "react agents",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/react-agents.md"
+    "note_path": "react-agents.md"
    },
    {
     "key": "reflections 000 reset",
     "name": "reflections 000 reset",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/reflections-000-reset.md"
+    "note_path": "reflections-000-reset.md"
    },
    {
     "key": "reflections 001 the thinking game",
     "name": "reflections 001 the thinking game",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/reflections-001-the-thinking-game.md"
+    "note_path": "reflections-001-the-thinking-game.md"
    },
    {
     "key": "relu intuition",
     "name": "relu intuition",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/relu-intuition.md"
+    "note_path": "relu-intuition.md"
    },
    {
     "key": "roitman hitchhikers guide reading plan",
     "name": "roitman hitchhikers guide reading plan",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/roitman-hitchhikers-guide-reading-plan.md"
-   },
-   {
-    "key": "sambot chief of staff",
-    "name": "sambot chief of staff",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/sambot-chief-of-staff.md"
-   },
-   {
-    "key": "skills practice",
-    "name": "skills practice",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/skills-practice.md"
+    "note_path": "roitman-hitchhikers-guide-reading-plan.md"
    },
    {
     "key": "speculative decoding",
@@ -2407,67 +2057,32 @@
     "note_path": null
    },
    {
-    "key": "staff call demo",
-    "name": "staff call demo",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/staff-call-demo.md"
-   },
-   {
-    "key": "test workflow before reaching for an agent",
-    "name": "test workflow before reaching for an agent",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/test-workflow-before-reaching-for-an-agent.md"
-   },
-   {
     "key": "the gardener and the garden",
     "name": "the gardener and the garden",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/the-gardener-and-the-garden.md"
-   },
-   {
-    "key": "the relationship is the product",
-    "name": "the relationship is the product",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/ideas/the-relationship-is-the-product.md"
-   },
-   {
-    "key": "tools to try",
-    "name": "tools to try",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/tools-to-try.md"
+    "note_path": "the-gardener-and-the-garden.md"
    },
    {
     "key": "useful things machine learning domingos",
     "name": "useful things machine learning domingos",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/useful-things-machine-learning-domingos.md"
+    "note_path": "useful-things-machine-learning-domingos.md"
    },
    {
     "key": "vgg very deep convolutional networks",
     "name": "vgg very deep convolutional networks",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/vgg-very-deep-convolutional-networks.md"
+    "note_path": "vgg-very-deep-convolutional-networks.md"
    },
    {
     "key": "videos general",
     "name": "videos general",
     "status": "known",
     "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/videos-general.md"
-   },
-   {
-    "key": "viet whitelens proposal v1",
-    "name": "viet whitelens proposal v1",
-    "status": "known",
-    "source": "vault",
-    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/whitelens/viet-whitelens-proposal-v1.md"
+    "note_path": "videos-general.md"
    }
   ]
  },
@@ -4334,21 +3949,6 @@
    }
   ],
   "advances": [
-   {
-    "kind": "Entity",
-    "name": "Token Usage",
-    "concept_key": "kv-cache optimization"
-   },
-   {
-    "kind": "Entity",
-    "name": "Verifiable Objective",
-    "concept_key": "reinforcement learning from verifiable rewards"
-   },
-   {
-    "kind": "Topic",
-    "name": "Verifiable Objective",
-    "concept_key": "reinforcement learning from verifiable rewards"
-   },
    {
     "kind": "Topic",
     "name": "Parallel Agent Execution",
