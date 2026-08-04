@@ -180,8 +180,9 @@ without sitting through the video that teaches it. Get it wrong and nothing is c
 | **AWS Strands** | agent + tool orchestration, SSE streaming, 13 tools | Tool results stream to the frontend and auto-render into the graph panel. |
 | **Neo4j** | the graph; 2 vector indexes (`segment_embeddings`, `concept_embeddings`); **GDS 2.13.2** | Viewer and corpus in one graph is the entire premise. GDS PageRank runs over a Cypher-projected co-occurrence graph of terms the viewer does *not* know — that's "what should I learn first". See [`cypher/gds_projections.cypher`](cypher/gds_projections.cypher). |
 
-Current demo graph: **4 videos · 83 segments · 63 topics + 109 entities · 117 concepts**
-(109 vault + 8 goals) · ~58 `SAME_AS` · ~196 `ADVANCES`.
+The graph this was measured on — **4 videos · 83 segments · 63 topics · 109 entities ·
+109 vault concepts** plus the goals in `learning_goals.yaml` — is what ships in
+`data/demo_graph.json`. `make demo` loads it; the exact counts are printed as it does.
 
 ---
 
