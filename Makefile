@@ -4,7 +4,7 @@
 -include .env
 export
 
-.PHONY: start dev dev-backend dev-frontend install schema seed reset test-connection clean test test-e2e lint docker-build docker-prod-up docker-prod-down
+.PHONY: start dev dev-backend dev-frontend install demo export-demo schema seed vault resolve demo-seed reset test-connection clean test test-e2e lint docker-build docker-prod-up docker-prod-down
 
 # Start both backend and frontend
 start:
@@ -32,6 +32,30 @@ install-frontend:
 
 # Install everything
 install: install-backend install-frontend
+
+# Zero-key demo: load a real exported graph, then run the app.
+# The delta traversal is pure Cypher, so this needs Docker and nothing else — no
+# OpenAI key, no TwelveLabs key, no video corpus, no notes of your own.
+demo:
+	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example")
+	@docker compose up -d
+	@printf "Waiting for Neo4j"
+	@for i in $$(seq 1 60); do \
+		if nc -z localhost 7687 2>/dev/null; then echo " ready"; break; fi; \
+		printf "."; sleep 2; \
+		if [ $$i -eq 60 ]; then echo " timed out — is Docker running?"; exit 1; fi; \
+	done
+	@cd backend && uv run python scripts/load_demo_graph.py
+	@echo ""
+	@echo "  Graph loaded. Starting the app — then open http://localhost:3000"
+	@echo "  Pick a video and open 'Your Cut' for a timecoded cut list."
+	@echo "  Chat needs an OPENAI_API_KEY; everything else works without one."
+	@echo ""
+	@$(MAKE) start
+
+# Snapshot the current graph to data/demo_graph.json (what `make demo` loads).
+export-demo:
+	cd backend && uv run python scripts/export_demo_graph.py
 
 # Apply Neo4j schema constraints and indexes only (no data)
 schema:
