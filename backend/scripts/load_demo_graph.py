@@ -16,8 +16,14 @@ import logging
 import sys
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("load_demo_graph")
+
+# The driver logs a GqlStatusObject repr for every "label does not exist" and "cartesian
+# product" hint. On an empty database that is ~6 paragraphs of warning text before the
+# first real line of output, which reads like something went wrong when nothing did.
+logging.getLogger("neo4j").setLevel(logging.ERROR)
+logging.getLogger("neo4j.notifications").setLevel(logging.ERROR)
 
 sys.path.insert(0, ".")
 
@@ -64,6 +70,11 @@ REL_WRITES = [
         UNWIND $rows AS row
         MATCH (v:Video {id: row.video_id}), (s:Segment {id: row.segment_id})
         MERGE (v)-[:HAS_SEGMENT]->(s)
+    """),
+    ("next", """
+        UNWIND $rows AS row
+        MATCH (a:Segment {id: row.from_id}), (b:Segment {id: row.to_id})
+        MERGE (a)-[:NEXT]->(b)
     """),
     ("about", """
         UNWIND $rows AS row
@@ -130,11 +141,11 @@ async def main() -> None:
                 continue
             await execute_cypher(q, {"rows": rows, "domain": settings.domain_id},
                                  collect=False)
-            log.info("loaded %-12s %4d", name, len(rows))
+            log.info("  %-12s %4d", name, len(rows))
     finally:
         await close_neo4j()
 
-    log.info("Demo graph loaded. Start the app with `make start`, then ask for a cut list.")
+    log.info("Demo graph loaded.")
 
 
 if __name__ == "__main__":

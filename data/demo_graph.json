@@ -1,0 +1,4784 @@
+{
+ "_readme": "Snapshot of a real Delta Learning graph, exported by backend/scripts/export_demo_graph.py and loaded by load_demo_graph.py (`make demo`). Embeddings, transcripts and on-screen text are omitted; captured concepts are omitted so the capture beat still has somewhere to go. Segment summaries are model-generated descriptions of third-party talks, included as metadata, not as a reproduction.",
+ "nodes": {
+  "videos": [
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0",
+    "title": "Game Theory： A Simple Strategy That Will Change Your Life Forever",
+    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae86c1ac59f5d1d0a8b0/hlses/playlist.m3u8",
+    "duration_sec": 1066.678277,
+    "summary": "An animated explainer uses a roommate dishwashing scenario to introduce the Prisoner’s Dilemma and game theory. It explains non-cooperative games, dominant strategies, repeated interactions, and Robert Axelrod’s computer tournament, highlighting the success of Tit-for-Tat."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8",
+    "title": "How Decision Making is Actually Science： Game Theory Explained",
+    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae85c1ac59f5d1d0a8a8/hlses/playlist.m3u8",
+    "duration_sec": 589.508209,
+    "summary": "James Grime introduces game theory through the Prisoner's Dilemma and Nash Equilibrium, then explains cooperative game theory and the Shapley Value using a cookie-baking example to show how joint rewards can be divided fairly."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66",
+    "title": "L8_Principal_s_Agentic_Engineering_Workflow",
+    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6baa1c0d774e7cec6c1a66/hlses/playlist.m3u8",
+    "duration_sec": 2745.991837,
+    "summary": "Kun Chen presents an agentic engineering workflow built around terminal tools, memory and skills, automated quality pipelines, long-running agents, parallel worktrees, and a central agent manager that shifts an engineer’s role from implementation toward product leadership."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472",
+    "title": "Postgres_is_the_Only_Database_You_Need_in_2026",
+    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae84eb0afeafecfac472/hlses/playlist.m3u8",
+    "duration_sec": 486.992109,
+    "summary": "The video argues that PostgreSQL can replace many components of a typical application stack by providing relational data modeling, JSON document storage, full-text search, job queues, vector similarity search, and graph queries in one ACID-compliant database. It also covers PostgreSQL’s limitations, including sharding, memory usage, and MVCC table bloat."
+   }
+  ],
+  "segments": [
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#0",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 0,
+    "start_sec": 0.0,
+    "end_sec": 81.0,
+    "summary": "Kun Chen introduces himself and frames the video as a walkthrough of his agentic engineering workflow, citing experience at major technology companies and large-scale systems."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#1",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 1,
+    "start_sec": 81.0,
+    "end_sec": 162.0,
+    "summary": "Kun describes building frontier coding agents and using agents himself to ship dozens of pull requests each day."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#2",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 2,
+    "start_sec": 162.0,
+    "end_sec": 243.0,
+    "summary": "Kun explains that he is sharing the workflow freely rather than turning it into a paid course because he wants to focus his business on building products."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#3",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 3,
+    "start_sec": 243.0,
+    "end_sec": 324.0,
+    "summary": "Kun previews the workflow’s chapters: core setup followed by recruiting and ramping up agents through memory and skills."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#4",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 4,
+    "start_sec": 324.0,
+    "end_sec": 405.0,
+    "summary": "Kun begins his terminal workflow and argues that terminal use keeps hands on the keyboard and provides a consistent environment across platforms."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#5",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 5,
+    "start_sec": 405.0,
+    "end_sec": 486.0,
+    "summary": "Kun demonstrates WezTerm, describing its Lua configuration, customization, long history, and cross-platform availability."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#6",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 6,
+    "start_sec": 486.0,
+    "end_sec": 567.0,
+    "summary": "Kun introduces tmux and demonstrates panes, tabs, and persistent sessions, allowing agents, editors, and the user to share one terminal workspace."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#7",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 7,
+    "start_sec": 567.0,
+    "end_sec": 648.0,
+    "summary": "Kun showcases NeoVim, emphasizing keyboard-centered editing, relative line numbers, navigation, and plugins."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#8",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 8,
+    "start_sec": 648.0,
+    "end_sec": 729.0,
+    "summary": "Kun lists four agent harnesses he uses regularly and discusses their differing strengths and constraints."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#9",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 9,
+    "start_sec": 729.0,
+    "end_sec": 810.0,
+    "summary": "Kun explains onboarding agents with global and project-level memory files that record preferences and lessons learned from mistakes."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#10",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 10,
+    "start_sec": 810.0,
+    "end_sec": 891.0,
+    "summary": "Kun shows how conditionally relevant instructions can be moved out of always-loaded memory files into skills, reducing token consumption."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#11",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 11,
+    "start_sec": 891.0,
+    "end_sec": 972.0,
+    "summary": "Kun warns that unvetted third-party skills can introduce security risks and degrade performance, citing a popular skill’s token overhead."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#12",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 12,
+    "start_sec": 972.0,
+    "end_sec": 1053.0,
+    "summary": "Kun switches to voice input, saying speech is faster than typing and demonstrating OpenSuperWhisper for local transcription."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#13",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 13,
+    "start_sec": 1053.0,
+    "end_sec": 1134.0,
+    "summary": "Kun criticizes GitHub MCP Server for token cost and latency, then promotes Axie principles for designing tools that work more efficiently with agents."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#14",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 14,
+    "start_sec": 1134.0,
+    "end_sec": 1215.0,
+    "summary": "Kun introduces Lavish, which asks agents to create HTML visual prototypes so planning discussions can happen visually rather than through text alone."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#15",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 15,
+    "start_sec": 1215.0,
+    "end_sec": 1296.0,
+    "summary": "Kun demonstrates Lavish’s visual options and comments, explaining that visual feedback makes planning and decisions easier than a terminal text wall."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#16",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 16,
+    "start_sec": 1296.0,
+    "end_sec": 1377.0,
+    "summary": "Kun explains that scaling with agents requires acting more like an engineering manager, trusting automated pipelines instead of manually reviewing every diff."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#17",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 17,
+    "start_sec": 1377.0,
+    "end_sec": 1458.0,
+    "summary": "Kun details the No Mistakes pipeline: branch creation, commits, isolated worktrees, rebasing, adversarial review, end-to-end tests, documentation, and pull request creation."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#18",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 18,
+    "start_sec": 1458.0,
+    "end_sec": 1539.0,
+    "summary": "Kun examines a pull request generated by No Mistakes, including its intent summary, change summary, testing evidence, and risk assessment."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#19",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 19,
+    "start_sec": 1539.0,
+    "end_sec": 1620.0,
+    "summary": "Kun explains that No Mistakes can be triggered directly or as an agent skill, offloading quality-control work and creating more time for planning."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#20",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 20,
+    "start_sec": 1620.0,
+    "end_sec": 1701.0,
+    "summary": "Kun introduces Good Night, Have Fun, a tool that runs long agent loops against an objective until a defined stop condition is reached."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#21",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 21,
+    "start_sec": 1701.0,
+    "end_sec": 1782.0,
+    "summary": "Kun shows Good Night, Have Fun running while he sleeps, with monitoring for token use, iterations, and commits."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#22",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 22,
+    "start_sec": 1782.0,
+    "end_sec": 1863.0,
+    "summary": "Kun explains that long-running loops work best for verifiable objectives such as page-load improvements, end-to-end test coverage, and metric-driven hypothesis experiments."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#23",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 23,
+    "start_sec": 1863.0,
+    "end_sec": 1944.0,
+    "summary": "Kun transitions to parallel agent work and explains that Git worktrees create separate repository directories to prevent agents from conflicting."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#24",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 24,
+    "start_sec": 1944.0,
+    "end_sec": 2025.0,
+    "summary": "Kun introduces Treehouse, a tool he built to create, track, and clean up worktrees automatically."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#25",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 25,
+    "start_sec": 2025.0,
+    "end_sec": 2106.0,
+    "summary": "Kun uses Treehouse to launch three parallel agent sessions to address user feedback from playtesting an AI tutor application."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#26",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 26,
+    "start_sec": 2106.0,
+    "end_sec": 2187.0,
+    "summary": "Kun manages the parallel sessions through tmux tabs and keyboard shortcuts, noting that automated quality pipelines reduce the need for immediate attention."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#27",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 27,
+    "start_sec": 2187.0,
+    "end_sec": 2268.0,
+    "summary": "Kun describes the context-switching burden of managing many agents and introduces FirstMate as a free, open-source central agent manager."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#28",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 28,
+    "start_sec": 2268.0,
+    "end_sec": 2349.0,
+    "summary": "Kun demonstrates FirstMate’s setup process and its role in organizing projects, preferences, and delegated tasks."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#29",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 29,
+    "start_sec": 2349.0,
+    "end_sec": 2430.0,
+    "summary": "Kun asks FirstMate to update three GitHub projects to the latest NPM version, with parallel agents and worktrees handling the work."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#30",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 30,
+    "start_sec": 2430.0,
+    "end_sec": 2511.0,
+    "summary": "Kun asks FirstMate to inspect Lavish Axie’s most recent open issues and identify which are most actionable."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#31",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 31,
+    "start_sec": 2511.0,
+    "end_sec": 2592.0,
+    "summary": "Kun delegates issue 87, concerning annotation mode, to FirstMate while it continues managing other work simultaneously."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#32",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 32,
+    "start_sec": 2592.0,
+    "end_sec": 2673.0,
+    "summary": "Kun reflects that a first mate frees the engineer from execution management and redirects attention to user needs, product direction, and the competitive landscape."
+   },
+   {
+    "id": "6a6baa1c0d774e7cec6c1a66#33",
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "idx": 33,
+    "start_sec": 2673.0,
+    "end_sec": 2745.0,
+    "summary": "Kun concludes by describing the progression from sailor to captain, promoting his open-source tools, and inviting viewers to subscribe."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#0",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 0,
+    "start_sec": 0.0,
+    "end_sec": 44.0,
+    "summary": "The video introduces PostgreSQL as a mature, battle-tested open-source database and argues that it can replace many separate tools in a typical modern technology stack."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#1",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 1,
+    "start_sec": 44.0,
+    "end_sec": 88.0,
+    "summary": "A sponsor segment promotes ZTM's project-based engineering courses and a discount code."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#2",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 2,
+    "start_sec": 88.0,
+    "end_sec": 132.0,
+    "summary": "The narrator introduces an online-store schema with users, products, and orders connected through foreign keys as a standard relational data model."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#3",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 3,
+    "start_sec": 132.0,
+    "end_sec": 176.0,
+    "summary": "A products table uses a JSONB field for flexible product-specific attributes, while GIN indexes make querying those JSON documents fast."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#4",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 4,
+    "start_sec": 176.0,
+    "end_sec": 220.0,
+    "summary": "A SQL query filters products by name and additional conditions, returning large and small t-shirt records while showing the related users, products, and orders schema."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#5",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 5,
+    "start_sec": 220.0,
+    "end_sec": 264.0,
+    "summary": "PostgreSQL full-text search is presented as a solution for natural-language product searches such as red running shoes, with TS Vector supporting stemming and relevance ranking without Elasticsearch."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#6",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 6,
+    "start_sec": 264.0,
+    "end_sec": 308.0,
+    "summary": "A PostgreSQL jobs table functions as a background queue, using SELECT FOR UPDATE SKIP LOCKED to avoid duplicate work and LISTEN and NOTIFY to avoid polling."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#7",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 7,
+    "start_sec": 308.0,
+    "end_sec": 352.0,
+    "summary": "The PG Vector extension adds native vector storage and similarity search, enabling product recommendations constrained by factors such as visual similarity, inventory, and price."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#8",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 8,
+    "start_sec": 352.0,
+    "end_sec": 396.0,
+    "summary": "PostgreSQL 19 native graph queries are used to build a customers-also-bought feature by pattern matching relationships already stored in orders data, without moving data to Neo4j."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#9",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 9,
+    "start_sec": 396.0,
+    "end_sec": 440.0,
+    "summary": "The video reviews PostgreSQL as a unified, extensible ACID-compliant system for document storage, search, queues, vectors, and graph queries."
+   },
+   {
+    "id": "6a6bae84eb0afeafecfac472#10",
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "idx": 10,
+    "start_sec": 440.0,
+    "end_sec": 486.0,
+    "summary": "The narrator identifies PostgreSQL's lack of native sharding, per-connection memory overhead, and MVCC table bloat as limitations, while concluding that it remains suitable for most projects below massive scale."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 0,
+    "start_sec": 0.0,
+    "end_sec": 45.0,
+    "summary": "Animated science imagery leads into James Grime introducing game theory as the study of social interactions and its uses in economics, politics, and biology. He identifies John Nash as a key pioneer."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 1,
+    "start_sec": 45.0,
+    "end_sec": 90.0,
+    "summary": "Grime explains that games involve multiple people whose outcomes depend on one another's choices. He distinguishes cooperative from non-cooperative game theory and introduces Wanda and Fred's Prisoner's Dilemma."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 2,
+    "start_sec": 90.0,
+    "end_sec": 135.0,
+    "summary": "A payoff grid shows the Prisoner's Dilemma outcomes. Mutual silence gives Wanda and Fred the best joint outcome, but each has an incentive to confess because silence could lead to a ten-year sentence if the other betrays them."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 3,
+    "start_sec": 135.0,
+    "end_sec": 180.0,
+    "summary": "Grime identifies mutual confession, with five years in jail each, as the Nash Equilibrium. Confession is a dominant strategy because neither player can improve their outcome by changing alone."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 4,
+    "start_sec": 180.0,
+    "end_sec": 225.0,
+    "summary": "Grime turns to cooperative games, in which players pursue a shared goal, such as splitting a restaurant bill or combating climate change. He introduces coalitions and the problem of dividing benefits fairly among contributors."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 5,
+    "start_sec": 225.0,
+    "end_sec": 270.0,
+    "summary": "Grime introduces the Shapley Value for dividing cooperative rewards. He outlines its axioms and begins a cookie-baking example in which two bakers make 40 cookies together but only 30 separately."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 6,
+    "start_sec": 270.0,
+    "end_sec": 315.0,
+    "summary": "The cookie example calculates a Shapley Value allocation. The first baker's marginal contributions are 10 and 20 cookies across possible orders, averaging to 15, so a $40 reward is divided as $15 and $25."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 7,
+    "start_sec": 315.0,
+    "end_sec": 360.0,
+    "summary": "Grime explains that interchangeable players should receive equal shares and dummy players who add nothing should receive nothing. He notes that applying the latter principle may raise ethical concerns in real situations."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 8,
+    "start_sec": 360.0,
+    "end_sec": 405.0,
+    "summary": "The video shows that Shapley Values can be combined across changing parts of a game, such as different workloads or meal costs. For large coalitions, contributions are averaged over every possible order in which players could join."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 9,
+    "start_sec": 405.0,
+    "end_sec": 450.0,
+    "summary": "Grime summarizes that game theory supports strategic behavior in competitive situations and fair reward allocation in cooperative ones, with the Shapley Value handling complex multiplayer contributions."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#10",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 10,
+    "start_sec": 450.0,
+    "end_sec": 495.0,
+    "summary": "An animation revisits the cookie-baking example, contrasting batches of 10 and 20 cookies with a joint output of 40 cookies, and connecting the combined production to a $40 reward."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#11",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 11,
+    "start_sec": 495.0,
+    "end_sec": 540.0,
+    "summary": "The animation breaks down the shared effort in cookie production, showing how each batch incorporates time spent working on the other baker's output."
+   },
+   {
+    "id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "idx": 12,
+    "start_sec": 540.0,
+    "end_sec": 589.0,
+    "summary": "Grime concludes that cooperation can produce better outcomes than competition, then promotes SciShow, Patreon supporters, related channels, and social media accounts."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#0",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 0,
+    "start_sec": 0.0,
+    "end_sec": 44.0,
+    "summary": "Boot.dev sponsorship and title sequence introduce the video’s Prisoner’s Dilemma theme."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#1",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 1,
+    "start_sec": 44.0,
+    "end_sec": 88.0,
+    "summary": "A young adult moves into a two-bedroom apartment and establishes shared chores with a roommate."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#2",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 2,
+    "start_sec": 88.0,
+    "end_sec": 132.0,
+    "summary": "The roommates assign weekly dishwashing days, setting up a future choice about whether to fulfill the chore."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#3",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 3,
+    "start_sec": 132.0,
+    "end_sec": 176.0,
+    "summary": "After several weeks of mutual compliance, the narrator finds dirty dishes left by the roommate and introduces the strategic conflict."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#4",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 4,
+    "start_sec": 176.0,
+    "end_sec": 220.0,
+    "summary": "The roommate scenario is identified as the Prisoner’s Dilemma, where cooperation benefits both parties but each has an incentive to defect."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#5",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 5,
+    "start_sec": 220.0,
+    "end_sec": 264.0,
+    "summary": "Game theory is defined as the mathematical study of choices whose outcomes depend on other decision-makers’ actions."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#6",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 6,
+    "start_sec": 264.0,
+    "end_sec": 308.0,
+    "summary": "The video describes game theory as a science of strategy applicable from interpersonal interactions to nations."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#7",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 7,
+    "start_sec": 308.0,
+    "end_sec": 352.0,
+    "summary": "A rational choice framework is presented: goals and constraints can identify rational choices and optimal strategies, including through simulation."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#8",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 8,
+    "start_sec": 352.0,
+    "end_sec": 396.0,
+    "summary": "The narrator states that game theory researchers found an unexpectedly effective strategy across many social and natural conditions."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#9",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 9,
+    "start_sec": 396.0,
+    "end_sec": 440.0,
+    "summary": "The video clarifies that a game-theory game is any multi-decision-maker interaction in which each person’s payoff depends on others’ choices."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#10",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 10,
+    "start_sec": 440.0,
+    "end_sec": 484.0,
+    "summary": "Game theory is said to encompass conventional games as well as competitive and cooperative interactions between individuals and groups."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 11,
+    "start_sec": 484.0,
+    "end_sec": 528.0,
+    "summary": "Non-cooperative games are introduced as interactions where players independently pursue self-interest, often producing winners and losers."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#12",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 12,
+    "start_sec": 528.0,
+    "end_sec": 572.0,
+    "summary": "The British game show Golden Balls is introduced as a Prisoner’s Dilemma-style choice between splitting or stealing money."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#13",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 13,
+    "start_sec": 572.0,
+    "end_sec": 616.0,
+    "summary": "The split-or-steal payoff outcomes are explained: mutual splitting shares the money, unilateral stealing takes all, and mutual stealing yields nothing."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#14",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 14,
+    "start_sec": 616.0,
+    "end_sec": 660.0,
+    "summary": "A dominant strategy is defined as the action that gives the best result regardless of the other player’s action."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#15",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 15,
+    "start_sec": 660.0,
+    "end_sec": 704.0,
+    "summary": "In the one-shot split-or-steal setup, stealing is explained as dominant because it does at least as well against either opposing choice."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#16",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 16,
+    "start_sec": 704.0,
+    "end_sec": 748.0,
+    "summary": "The narrator notes that real-life interactions are usually not one-shot games and have continuing consequences."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#17",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 17,
+    "start_sec": 748.0,
+    "end_sec": 792.0,
+    "summary": "Business and international actions illustrate how repeated interactions can lead to retaliation, alliances, resource changes, wars, or peace."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 18,
+    "start_sec": 792.0,
+    "end_sec": 836.0,
+    "summary": "Political scientist Robert Axelrod begins a computer-based experiment comparing decision strategies for the Prisoner’s Dilemma."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#19",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 19,
+    "start_sec": 836.0,
+    "end_sec": 880.0,
+    "summary": "The tournament format has every submitted program play every other program and itself."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#20",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 20,
+    "start_sec": 880.0,
+    "end_sec": 924.0,
+    "summary": "The tournament scoring rules award three points for mutual cooperation, five to a defector against a cooperator, zero to the cooperator, and one each for mutual defection."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#21",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 21,
+    "start_sec": 924.0,
+    "end_sec": 968.0,
+    "summary": "Each matchup lasts 200 rounds; fourteen submissions plus a random strategy compete, and total points determine the winner."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#22",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 22,
+    "start_sec": 968.0,
+    "end_sec": 1012.0,
+    "summary": "The submitted programs include cooperative, early-defecting, exploitative, and randomized strategies such as Grass Camp and Joss."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 23,
+    "start_sec": 1012.0,
+    "end_sec": 1056.0,
+    "summary": "Repeated tournament runs produce consistent results, with the same strategy—Tit For Tat—emerging as the surprising winner."
+   },
+   {
+    "id": "6a6bae86c1ac59f5d1d0a8b0#24",
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "idx": 24,
+    "start_sec": 1056.0,
+    "end_sec": 1066.0,
+    "summary": "The video ends with a brief thank-you and farewell."
+   }
+  ],
+  "topics": [
+   {
+    "name": "ACID Transaction",
+    "key": "acid transaction",
+    "learnable": true
+   },
+   {
+    "name": "Adversarial Review",
+    "key": "adversarial review",
+    "learnable": true
+   },
+   {
+    "name": "Agent Memory",
+    "key": "agent memory",
+    "learnable": true
+   },
+   {
+    "name": "Agent Orchestration",
+    "key": "agent orchestration",
+    "learnable": true
+   },
+   {
+    "name": "Agent Skill",
+    "key": "agent skill",
+    "learnable": true
+   },
+   {
+    "name": "Agent-Optimized Tool Design",
+    "key": "agent-optimized tool design",
+    "learnable": true
+   },
+   {
+    "name": "Automated Quality Pipeline",
+    "key": "automated quality pipeline",
+    "learnable": true
+   },
+   {
+    "name": "Axelrod's Tournament",
+    "key": "axelrod's tournament",
+    "learnable": true
+   },
+   {
+    "name": "Coalition",
+    "key": "coalition",
+    "learnable": true
+   },
+   {
+    "name": "Cooperative Game Theory",
+    "key": "cooperative game theory",
+    "learnable": true
+   },
+   {
+    "name": "Database Extensibility",
+    "key": "database extensibility",
+    "learnable": true
+   },
+   {
+    "name": "Database Sharding",
+    "key": "database sharding",
+    "learnable": true
+   },
+   {
+    "name": "Database-Backed Job Queue",
+    "key": "database-backed job queue",
+    "learnable": true
+   },
+   {
+    "name": "Dominant Strategy",
+    "key": "dominant strategy",
+    "learnable": true
+   },
+   {
+    "name": "Dummy Player",
+    "key": "dummy player",
+    "learnable": true
+   },
+   {
+    "name": "End-To-End Testing",
+    "key": "end-to-end testing",
+    "learnable": true
+   },
+   {
+    "name": "Foreign Key",
+    "key": "foreign key",
+    "learnable": true
+   },
+   {
+    "name": "Full-Text Search",
+    "key": "full-text search",
+    "learnable": true
+   },
+   {
+    "name": "GIN Index",
+    "key": "gin index",
+    "learnable": true
+   },
+   {
+    "name": "Game Theory",
+    "key": "game theory",
+    "learnable": true
+   },
+   {
+    "name": "Git Worktree",
+    "key": "git worktree",
+    "learnable": true
+   },
+   {
+    "name": "Graph Query",
+    "key": "graph query",
+    "learnable": true
+   },
+   {
+    "name": "Hypothesis Testing",
+    "key": "hypothesis testing",
+    "learnable": true
+   },
+   {
+    "name": "Interchangeable Player",
+    "key": "interchangeable player",
+    "learnable": true
+   },
+   {
+    "name": "Issue Triage",
+    "key": "issue triage",
+    "learnable": true
+   },
+   {
+    "name": "JSONB",
+    "key": "jsonb",
+    "learnable": true
+   },
+   {
+    "name": "LISTEN And NOTIFY",
+    "key": "listen and notify",
+    "learnable": true
+   },
+   {
+    "name": "Long-Running Agent Loop",
+    "key": "long-running agent loop",
+    "learnable": true
+   },
+   {
+    "name": "MVCC",
+    "key": "mvcc",
+    "learnable": true
+   },
+   {
+    "name": "Marginal Contribution",
+    "key": "marginal contribution",
+    "learnable": true
+   },
+   {
+    "name": "Multi-Repository Update",
+    "key": "multi-repository update",
+    "learnable": true
+   },
+   {
+    "name": "Nash Equilibrium",
+    "key": "nash equilibrium",
+    "learnable": true
+   },
+   {
+    "name": "Non-Cooperative Game",
+    "key": "non-cooperative game",
+    "learnable": true
+   },
+   {
+    "name": "Non-Cooperative Game Theory",
+    "key": "non-cooperative game theory",
+    "learnable": true
+   },
+   {
+    "name": "Optimal Strategy",
+    "key": "optimal strategy",
+    "learnable": true
+   },
+   {
+    "name": "PG Vector",
+    "key": "pg vector",
+    "learnable": true
+   },
+   {
+    "name": "Parallel Agent Execution",
+    "key": "parallel agent execution",
+    "learnable": true
+   },
+   {
+    "name": "Pattern Matching",
+    "key": "pattern matching",
+    "learnable": true
+   },
+   {
+    "name": "Payoff Matrix",
+    "key": "payoff matrix",
+    "learnable": true
+   },
+   {
+    "name": "PostgreSQL Consolidation",
+    "key": "postgresql consolidation",
+    "learnable": true
+   },
+   {
+    "name": "Prisoner's Dilemma",
+    "key": "prisoner's dilemma",
+    "learnable": true
+   },
+   {
+    "name": "Product Discovery",
+    "key": "product discovery",
+    "learnable": true
+   },
+   {
+    "name": "Rational Choice Theory",
+    "key": "rational choice theory",
+    "learnable": true
+   },
+   {
+    "name": "Relational Data Modeling",
+    "key": "relational data modeling",
+    "learnable": true
+   },
+   {
+    "name": "Repeated Game",
+    "key": "repeated game",
+    "learnable": true
+   },
+   {
+    "name": "Reproducibility",
+    "key": "reproducibility",
+    "learnable": true
+   },
+   {
+    "name": "Risk Assessment",
+    "key": "risk assessment",
+    "learnable": true
+   },
+   {
+    "name": "Round-Robin Tournament",
+    "key": "round-robin tournament",
+    "learnable": true
+   },
+   {
+    "name": "SELECT FOR UPDATE SKIP LOCKED",
+    "key": "select for update skip locked",
+    "learnable": true
+   },
+   {
+    "name": "SQL Query",
+    "key": "sql query",
+    "learnable": true
+   },
+   {
+    "name": "Shapley Value",
+    "key": "shapley value",
+    "learnable": true
+   },
+   {
+    "name": "Stemming",
+    "key": "stemming",
+    "learnable": true
+   },
+   {
+    "name": "TS Vector",
+    "key": "ts vector",
+    "learnable": true
+   },
+   {
+    "name": "Task Delegation",
+    "key": "task delegation",
+    "learnable": true
+   },
+   {
+    "name": "Terminal Multiplexing",
+    "key": "terminal multiplexing",
+    "learnable": true
+   },
+   {
+    "name": "Third-Party Skill Evaluation",
+    "key": "third-party skill evaluation",
+    "learnable": true
+   },
+   {
+    "name": "Tit For Tat",
+    "key": "tit for tat",
+    "learnable": true
+   },
+   {
+    "name": "Vacuum",
+    "key": "vacuum",
+    "learnable": true
+   },
+   {
+    "name": "Vector Similarity Search",
+    "key": "vector similarity search",
+    "learnable": true
+   },
+   {
+    "name": "Verifiable Objective",
+    "key": "verifiable objective",
+    "learnable": true
+   },
+   {
+    "name": "Visual Feedback",
+    "key": "visual feedback",
+    "learnable": true
+   },
+   {
+    "name": "Visual Prototyping",
+    "key": "visual prototyping",
+    "learnable": true
+   },
+   {
+    "name": "Voice Input",
+    "key": "voice input",
+    "learnable": true
+   }
+  ],
+  "entities": [
+   {
+    "name": "AGENTS.md",
+    "key": "agents.md",
+    "type": "object",
+    "learnable": true
+   },
+   {
+    "name": "AI Tutor",
+    "key": "ai tutor",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Adversarial Review",
+    "key": "adversarial review",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Agent Harness",
+    "key": "agent harness",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Agent Loop",
+    "key": "agent loop",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Agent Memory",
+    "key": "agent memory",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Agent Skill",
+    "key": "agent skill",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Annotation Mode",
+    "key": "annotation mode",
+    "type": "concept",
+    "learnable": false
+   },
+   {
+    "name": "Anthropic",
+    "key": "anthropic",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "Atlassian",
+    "key": "atlassian",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "Automated Quality Pipeline",
+    "key": "automated quality pipeline",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Axie",
+    "key": "axie",
+    "type": "concept",
+    "learnable": false
+   },
+   {
+    "name": "Bing",
+    "key": "bing",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Boot.dev",
+    "key": "boot.dev",
+    "type": "brand",
+    "learnable": false
+   },
+   {
+    "name": "Chess",
+    "key": "chess",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Chrome DevTools Axie",
+    "key": "chrome devtools axie",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Claude Code",
+    "key": "claude code",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Coalition",
+    "key": "coalition",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Codex CLI",
+    "key": "codex cli",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Coding Agent",
+    "key": "coding agent",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Context Switching",
+    "key": "context switching",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Cooperative Game Theory",
+    "key": "cooperative game theory",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Dale Copenhaver",
+    "key": "dale copenhaver",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "Dominant Strategy",
+    "key": "dominant strategy",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Dummy Player",
+    "key": "dummy player",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Elasticsearch",
+    "key": "elasticsearch",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "End-To-End Testing",
+    "key": "end-to-end testing",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "FRIENDS10",
+    "key": "friends10",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Facebook",
+    "key": "facebook",
+    "type": "brand",
+    "learnable": false
+   },
+   {
+    "name": "FirstMate",
+    "key": "firstmate",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Fred",
+    "key": "fred",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "GIN Index",
+    "key": "gin index",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Game Theory",
+    "key": "game theory",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Git Worktree",
+    "key": "git worktree",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "GitHub",
+    "key": "github",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "GitHub Axie",
+    "key": "github axie",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "GitHub Issue",
+    "key": "github issue",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "GitHub MCP Server",
+    "key": "github mcp server",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Golden Balls",
+    "key": "golden balls",
+    "type": "event",
+    "learnable": false
+   },
+   {
+    "name": "Good Night, Have Fun",
+    "key": "good night, have fun",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Grass Camp",
+    "key": "grass camp",
+    "type": "concept",
+    "learnable": false
+   },
+   {
+    "name": "HTML",
+    "key": "html",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Hank Green",
+    "key": "hank green",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "Hypothesis Testing",
+    "key": "hypothesis testing",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Interchangeable Player",
+    "key": "interchangeable player",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "JSONB",
+    "key": "jsonb",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "James Grime",
+    "key": "james grime",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "John Nash",
+    "key": "john nash",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "Joss",
+    "key": "joss",
+    "type": "concept",
+    "learnable": false
+   },
+   {
+    "name": "Kun Chen",
+    "key": "kun chen",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "LISTEN And NOTIFY",
+    "key": "listen and notify",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Lavish",
+    "key": "lavish",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Lavish Axie",
+    "key": "lavish axie",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "Lua",
+    "key": "lua",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "MVCC",
+    "key": "mvcc",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Marginal Contribution",
+    "key": "marginal contribution",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Meta",
+    "key": "meta",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "Microsoft",
+    "key": "microsoft",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "NPM",
+    "key": "npm",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Nash Equilibrium",
+    "key": "nash equilibrium",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Neo4j",
+    "key": "neo4j",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Neovim",
+    "key": "neovim",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "No Mistakes",
+    "key": "no mistakes",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Non-Cooperative Game",
+    "key": "non-cooperative game",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Non-Cooperative Game Theory",
+    "key": "non-cooperative game theory",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "OpenCode",
+    "key": "opencode",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "OpenSuperWhisper",
+    "key": "opensuperwhisper",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "PG Vector",
+    "key": "pg vector",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Parallel Agent Execution",
+    "key": "parallel agent execution",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Patreon",
+    "key": "patreon",
+    "type": "brand",
+    "learnable": false
+   },
+   {
+    "name": "Payoff",
+    "key": "payoff",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Pi",
+    "key": "pi",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Poker",
+    "key": "poker",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "PostgreSQL",
+    "key": "postgresql",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "PostgreSQL 19",
+    "key": "postgresql 19",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Prisoner's Dilemma",
+    "key": "prisoner's dilemma",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Product Vision",
+    "key": "product vision",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Pull Request",
+    "key": "pull request",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "RabbitMQ",
+    "key": "rabbitmq",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Random Strategy",
+    "key": "random strategy",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Rational Choice Theory",
+    "key": "rational choice theory",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Redis",
+    "key": "redis",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Repeated Game",
+    "key": "repeated game",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Risk Assessment",
+    "key": "risk assessment",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Robert Axelrod",
+    "key": "robert axelrod",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "Rock-Paper-Scissors",
+    "key": "rock-paper-scissors",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "SELECT FOR UPDATE SKIP LOCKED",
+    "key": "select for update skip locked",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "SciLife",
+    "key": "scilife",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "SciShow",
+    "key": "scishow",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "SciSquatch",
+    "key": "scisquatch",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "Shapley Value",
+    "key": "shapley value",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Speech Recognition",
+    "key": "speech recognition",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Stanford University",
+    "key": "stanford university",
+    "type": "organization",
+    "learnable": false
+   },
+   {
+    "name": "Stop Condition",
+    "key": "stop condition",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "TS Vector",
+    "key": "ts vector",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Terminal",
+    "key": "terminal",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Terminal Multiplexer",
+    "key": "terminal multiplexer",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Tit For Tat",
+    "key": "tit for tat",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Tmux",
+    "key": "tmux",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Token Usage",
+    "key": "token usage",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Treehouse",
+    "key": "treehouse",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Vacuum",
+    "key": "vacuum",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Verifiable Objective",
+    "key": "verifiable objective",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Vim",
+    "key": "vim",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Visual Prototype",
+    "key": "visual prototype",
+    "type": "concept",
+    "learnable": true
+   },
+   {
+    "name": "Wanda",
+    "key": "wanda",
+    "type": "person",
+    "learnable": false
+   },
+   {
+    "name": "WezTerm",
+    "key": "wezterm",
+    "type": "product",
+    "learnable": true
+   },
+   {
+    "name": "Windows",
+    "key": "windows",
+    "type": "product",
+    "learnable": false
+   },
+   {
+    "name": "ZTM",
+    "key": "ztm",
+    "type": "organization",
+    "learnable": false
+   }
+  ],
+  "concepts": [
+   {
+    "key": "01 what is an agent",
+    "name": "01 what is an agent",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/01-what-is-an-agent.md"
+   },
+   {
+    "key": "02 the agent loop",
+    "name": "02 the agent loop",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/02-the-agent-loop.md"
+   },
+   {
+    "key": "03 llm primitives",
+    "name": "03 llm primitives",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/03-llm-primitives.md"
+   },
+   {
+    "key": "04 tools skills mcp",
+    "name": "04 tools skills mcp",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/04-tools-skills-mcp.md"
+   },
+   {
+    "key": "05 memory",
+    "name": "05 memory",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/05-memory.md"
+   },
+   {
+    "key": "06 context engineering",
+    "name": "06 context engineering",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/06-context-engineering.md"
+   },
+   {
+    "key": "07 evals",
+    "name": "07 evals",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/07-evals.md"
+   },
+   {
+    "key": "08 self improving harnesses",
+    "name": "08 self improving harnesses",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/08-self-improving-harnesses.md"
+   },
+   {
+    "key": "09 multi agent",
+    "name": "09 multi agent",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/09-multi-agent.md"
+   },
+   {
+    "key": "2026 pre sf plan",
+    "name": "2026 pre sf plan",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/2026-pre-sf-plan.md"
+   },
+   {
+    "key": "arjun call points",
+    "name": "Arjun call points",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/Arjun-call-points.md"
+   },
+   {
+    "key": "bayesian statistics",
+    "name": "Bayesian statistics",
+    "status": "goal",
+    "source": "goals",
+    "note_path": null
+   },
+   {
+    "key": "a month off code",
+    "name": "a month off code",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/a-month-off-code.md"
+   },
+   {
+    "key": "adam optimizer",
+    "name": "adam optimizer",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/adam-optimizer.md"
+   },
+   {
+    "key": "agent anatomy loop harness and the stack",
+    "name": "agent anatomy loop harness and the stack",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-anatomy-loop-harness-and-the-stack.md"
+   },
+   {
+    "key": "agent harnesses",
+    "name": "agent harnesses",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-harnesses.md"
+   },
+   {
+    "key": "agent stack",
+    "name": "agent stack",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/agent-stack.md"
+   },
+   {
+    "key": "agent stack landscape",
+    "name": "agent stack landscape",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/agent-stack-landscape.md"
+   },
+   {
+    "key": "ai bookkeeping landscape 2026",
+    "name": "ai bookkeeping landscape 2026",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/keepr/ai-bookkeeping-landscape-2026.md"
+   },
+   {
+    "key": "ai collapses research cost unlocking long tail arbitrage",
+    "name": "ai collapses research cost unlocking long tail arbitrage",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ai-collapses-research-cost-unlocking-long-tail-arbitrage.md"
+   },
+   {
+    "key": "ai council architecture for capital allocation",
+    "name": "ai council architecture for capital allocation",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/ai-council-architecture-for-capital-allocation.md"
+   },
+   {
+    "key": "ai product engineer roles",
+    "name": "ai product engineer roles",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/ai-product-engineer-roles.md"
+   },
+   {
+    "key": "ai scoring over large datasets is a reusable pattern",
+    "name": "ai scoring over large datasets is a reusable pattern",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ai-scoring-over-large-datasets-is-a-reusable-pattern.md"
+   },
+   {
+    "key": "alexnet imagenet classification",
+    "name": "alexnet imagenet classification",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/alexnet-imagenet-classification.md"
+   },
+   {
+    "key": "all machine learning is a measure of surprise",
+    "name": "all machine learning is a measure of surprise",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/all-machine-learning-is-a-measure-of-surprise.md"
+   },
+   {
+    "key": "application answers",
+    "name": "application answers",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/application-answers.md"
+   },
+   {
+    "key": "application track 2026",
+    "name": "application track 2026",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/application-track-2026.md"
+   },
+   {
+    "key": "association rules apriori algorithm",
+    "name": "association rules apriori algorithm",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/association-rules-apriori-algorithm.md"
+   },
+   {
+    "key": "attention is all you need",
+    "name": "attention is all you need",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/attention-is-all-you-need.md"
+   },
+   {
+    "key": "autoresearch is autonomous improvement loops",
+    "name": "autoresearch is autonomous improvement loops",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/autoresearch-is-autonomous-improvement-loops.md"
+   },
+   {
+    "key": "autoresearch loops for everything",
+    "name": "autoresearch loops for everything",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/autoresearch-loops-for-everything.md"
+   },
+   {
+    "key": "backprop handwritten zip codes lecun",
+    "name": "backprop handwritten zip codes lecun",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/backprop-handwritten-zip-codes-lecun.md"
+   },
+   {
+    "key": "backprop learning representations hinton",
+    "name": "backprop learning representations hinton",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/backprop-learning-representations-hinton.md"
+   },
+   {
+    "key": "beli meets google maps with one tap been there rating",
+    "name": "beli meets google maps with one tap been there rating",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/beli-meets-google-maps-with-one-tap-been-there-rating.md"
+   },
+   {
+    "key": "build mcp tools",
+    "name": "build mcp tools",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/build-mcp-tools.md"
+   },
+   {
+    "key": "build something useful",
+    "name": "build something useful",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/build-something-useful.md"
+   },
+   {
+    "key": "calibrated autonomy is one machine forms and agents route decisions",
+    "name": "calibrated autonomy is one machine forms and agents route decisions",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/calibrated-autonomy-is-one-machine-forms-and-agents-route-decisions.md"
+   },
+   {
+    "key": "chain of thought",
+    "name": "chain of thought",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/chain-of-thought.md"
+   },
+   {
+    "key": "cli is cool again",
+    "name": "cli is cool again",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/cli-is-cool-again.md"
+   },
+   {
+    "key": "context engineering for agents",
+    "name": "context engineering for agents",
+    "status": "goal",
+    "source": "goals",
+    "note_path": null
+   },
+   {
+    "key": "dashless is mcp as a service",
+    "name": "dashless is mcp as a service",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/dashlessai/dashless-is-mcp-as-a-service.md"
+   },
+   {
+    "key": "dashlessai origin",
+    "name": "dashlessai origin",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/dashlessai-origin.md"
+   },
+   {
+    "key": "database internals",
+    "name": "database internals",
+    "status": "goal",
+    "source": "goals",
+    "note_path": null
+   },
+   {
+    "key": "decision agents in engines",
+    "name": "decision agents in engines",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-agents-in-engines.md"
+   },
+   {
+    "key": "decision corporate structure",
+    "name": "decision corporate structure",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-corporate-structure.md"
+   },
+   {
+    "key": "decision duckdb",
+    "name": "decision duckdb",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-duckdb.md"
+   },
+   {
+    "key": "decision funding mechanics",
+    "name": "decision funding mechanics",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-funding-mechanics.md"
+   },
+   {
+    "key": "decision propublica",
+    "name": "decision propublica",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/fundlens/decision-propublica.md"
+   },
+   {
+    "key": "decision role specific layouts",
+    "name": "decision role specific layouts",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/decision-role-specific-layouts.md"
+   },
+   {
+    "key": "decision tax strategy",
+    "name": "decision tax strategy",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/decision-tax-strategy.md"
+   },
+   {
+    "key": "decision trees induction quinlan",
+    "name": "decision trees induction quinlan",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/decision-trees-induction-quinlan.md"
+   },
+   {
+    "key": "deep ml build track",
+    "name": "deep ml build track",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/deep-ml-build-track.md"
+   },
+   {
+    "key": "deep residual learning resnet",
+    "name": "deep residual learning resnet",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/deep-residual-learning-resnet.md"
+   },
+   {
+    "key": "email triage with human approval is an ecommerce fde wedge",
+    "name": "email triage with human approval is an ecommerce fde wedge",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/email-triage-with-human-approval-is-an-ecommerce-fde-wedge.md"
+   },
+   {
+    "key": "energy scarcity is the root problem",
+    "name": "energy scarcity is the root problem",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/physics/energy-scarcity-is-the-root-problem.md"
+   },
+   {
+    "key": "enterprise data stack landscape",
+    "name": "enterprise data stack landscape",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/enterprise-data-stack-landscape.md"
+   },
+   {
+    "key": "eval harness turns bean usage into hireable agent work",
+    "name": "eval harness turns bean usage into hireable agent work",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/bean/eval-harness-turns-bean-usage-into-hireable-agent-work.md"
+   },
+   {
+    "key": "every knowledge tool ive built is half of one loop",
+    "name": "every knowledge tool ive built is half of one loop",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/every-knowledge-tool-ive-built-is-half-of-one-loop.md"
+   },
+   {
+    "key": "food is in my dna",
+    "name": "food is in my dna",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/food-is-in-my-dna.md"
+   },
+   {
+    "key": "framework hardware landscape",
+    "name": "framework hardware landscape",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/framework-hardware-landscape.md"
+   },
+   {
+    "key": "game theory",
+    "name": "game theory",
+    "status": "goal",
+    "source": "goals",
+    "note_path": null
+   },
+   {
+    "key": "grad programs phil ml exploration",
+    "name": "grad programs phil ml exploration",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/grad-programs-phil-ml-exploration.md"
+   },
+   {
+    "key": "hamming art of doing science engineering",
+    "name": "hamming art of doing science engineering",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/hamming-art-of-doing-science-engineering.md"
+   },
+   {
+    "key": "hidden progress parities",
+    "name": "hidden progress parities",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/hidden-progress-parities.md"
+   },
+   {
+    "key": "holding system prompt",
+    "name": "holding system prompt",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/itamih/holding-system-prompt.md"
+   },
+   {
+    "key": "humans hold the pen on high stakes money in an agent world",
+    "name": "humans hold the pen on high stakes money in an agent world",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/humans-hold-the-pen-on-high-stakes-money-in-an-agent-world.md"
+   },
+   {
+    "key": "idea ai changes re investing",
+    "name": "idea ai changes re investing",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-ai-changes-re-investing.md"
+   },
+   {
+    "key": "idea ai native operator stack is the dental wedge",
+    "name": "idea ai native operator stack is the dental wedge",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/idea-ai-native-operator-stack-is-the-dental-wedge.md"
+   },
+   {
+    "key": "idea atlas platform modularity",
+    "name": "idea atlas platform modularity",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-atlas-platform-modularity.md"
+   },
+   {
+    "key": "idea autoresearch loop",
+    "name": "idea autoresearch loop",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-autoresearch-loop.md"
+   },
+   {
+    "key": "idea council architecture",
+    "name": "idea council architecture",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-council-architecture.md"
+   },
+   {
+    "key": "idea cre claude skills",
+    "name": "idea cre claude skills",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-cre-claude-skills.md"
+   },
+   {
+    "key": "idea files share ideas not code",
+    "name": "idea files share ideas not code",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/idea-files-share-ideas-not-code.md"
+   },
+   {
+    "key": "idea macro agent layer",
+    "name": "idea macro agent layer",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/itamih/idea-macro-agent-layer.md"
+   },
+   {
+    "key": "idea private markets generalization",
+    "name": "idea private markets generalization",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-private-markets-generalization.md"
+   },
+   {
+    "key": "idea reading buddy is schools first mode",
+    "name": "idea reading buddy is schools first mode",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/libstack/idea-reading-buddy-is-schools-first-mode.md"
+   },
+   {
+    "key": "idea v2 consume dont read voice and swipe",
+    "name": "idea v2 consume dont read voice and swipe",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/libstack/idea-v2-consume-dont-read-voice-and-swipe.md"
+   },
+   {
+    "key": "idea what makes a good deal",
+    "name": "idea what makes a good deal",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/atlas/idea-what-makes-a-good-deal.md"
+   },
+   {
+    "key": "karpathy llm knowledge bases",
+    "name": "karpathy llm knowledge bases",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/karpathy-llm-knowledge-bases.md"
+   },
+   {
+    "key": "layer 3 consumer agent platform",
+    "name": "layer 3 consumer agent platform",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/layer-3-consumer-agent-platform.md"
+   },
+   {
+    "key": "learnings 000 ai applied foundations",
+    "name": "learnings 000 ai applied foundations",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/learnings-000-ai-applied-foundations.md"
+   },
+   {
+    "key": "learnings 001 ai applied prompt engineering and evaluation",
+    "name": "learnings 001 ai applied prompt engineering and evaluation",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/learnings-001-ai-applied-prompt-engineering-and-evaluation.md"
+   },
+   {
+    "key": "mcp course notes",
+    "name": "mcp course notes",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/mcp-course-notes.md"
+   },
+   {
+    "key": "minions background agents",
+    "name": "minions background agents",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/minions-background-agents.md"
+   },
+   {
+    "key": "minions roadmap",
+    "name": "minions roadmap",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/minions-roadmap.md"
+   },
+   {
+    "key": "ml from scratch",
+    "name": "ml from scratch",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/ml-from-scratch.md"
+   },
+   {
+    "key": "muon scalable",
+    "name": "muon scalable",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/muon-scalable.md"
+   },
+   {
+    "key": "nanogpt daily log",
+    "name": "nanogpt daily log",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/reading-notes/nanogpt-daily-log.md"
+   },
+   {
+    "key": "neolabs landscape 2026 05",
+    "name": "neolabs landscape 2026 05",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/landscapes/neolabs-landscape-2026-05.md"
+   },
+   {
+    "key": "note to self",
+    "name": "note to self",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/note-to-self.md"
+   },
+   {
+    "key": "one framework many instances",
+    "name": "one framework many instances",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/one-framework-many-instances.md"
+   },
+   {
+    "key": "openclaw agents learn codebases",
+    "name": "openclaw agents learn codebases",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/openclaw-agents-learn-codebases.md"
+   },
+   {
+    "key": "outside the agentic loop",
+    "name": "outside the agentic loop",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/outside-the-agentic-loop.md"
+   },
+   {
+    "key": "ownership is not the objection done for you wins",
+    "name": "ownership is not the objection done for you wins",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/ownership-is-not-the-objection-done-for-you-wins.md"
+   },
+   {
+    "key": "paid consulting generates product rd",
+    "name": "paid consulting generates product rd",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/paid-consulting-generates-product-rd.md"
+   },
+   {
+    "key": "pca finds max variance directions",
+    "name": "pca finds max variance directions",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/pca-finds-max-variance-directions.md"
+   },
+   {
+    "key": "pristine pearls seo action plan",
+    "name": "pristine pearls seo action plan",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/pristine-pearls-seo-action-plan.md"
+   },
+   {
+    "key": "react agents",
+    "name": "react agents",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/papers/react-agents.md"
+   },
+   {
+    "key": "reflections 000 reset",
+    "name": "reflections 000 reset",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/reflections-000-reset.md"
+   },
+   {
+    "key": "reflections 001 the thinking game",
+    "name": "reflections 001 the thinking game",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/reflections-001-the-thinking-game.md"
+   },
+   {
+    "key": "relu intuition",
+    "name": "relu intuition",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/relu-intuition.md"
+   },
+   {
+    "key": "roitman hitchhikers guide reading plan",
+    "name": "roitman hitchhikers guide reading plan",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/research/ai-ml/roitman-hitchhikers-guide-reading-plan.md"
+   },
+   {
+    "key": "sambot chief of staff",
+    "name": "sambot chief of staff",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/horus/sambot-chief-of-staff.md"
+   },
+   {
+    "key": "skills practice",
+    "name": "skills practice",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/skills-practice.md"
+   },
+   {
+    "key": "speculative decoding",
+    "name": "speculative decoding",
+    "status": "goal",
+    "source": "goals",
+    "note_path": null
+   },
+   {
+    "key": "staff call demo",
+    "name": "staff call demo",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/clinic/staff-call-demo.md"
+   },
+   {
+    "key": "test workflow before reaching for an agent",
+    "name": "test workflow before reaching for an agent",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/test-workflow-before-reaching-for-an-agent.md"
+   },
+   {
+    "key": "the gardener and the garden",
+    "name": "the gardener and the garden",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/the-gardener-and-the-garden.md"
+   },
+   {
+    "key": "the relationship is the product",
+    "name": "the relationship is the product",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/ideas/the-relationship-is-the-product.md"
+   },
+   {
+    "key": "tools to try",
+    "name": "tools to try",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/job-search/tools-to-try.md"
+   },
+   {
+    "key": "useful things machine learning domingos",
+    "name": "useful things machine learning domingos",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/useful-things-machine-learning-domingos.md"
+   },
+   {
+    "key": "vgg very deep convolutional networks",
+    "name": "vgg very deep convolutional networks",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/vgg-very-deep-convolutional-networks.md"
+   },
+   {
+    "key": "videos general",
+    "name": "videos general",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/writing/archive/agent-series/videos-general.md"
+   },
+   {
+    "key": "viet whitelens proposal v1",
+    "name": "viet whitelens proposal v1",
+    "status": "known",
+    "source": "vault",
+    "note_path": "/Users/sameer/Desktop/knowledge/projects/_archive/whitelens/viet-whitelens-proposal-v1.md"
+   }
+  ]
+ },
+ "relationships": {
+  "has_segment": [
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#28"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#33"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#14"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#20"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#2"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#30"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#24"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#26"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#18"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#25"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#32"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#12"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#4"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#19"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#27"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#23"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#11"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#9"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#1"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#16"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#31"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#3"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#15"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#21"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#10"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#7"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#5"
+   },
+   {
+    "video_id": "6a6baa1c0d774e7cec6c1a66",
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#6"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#5"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#10"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#9"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#0"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#2"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#4"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#7"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#6"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#3"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#1"
+   },
+   {
+    "video_id": "6a6bae84eb0afeafecfac472",
+    "segment_id": "6a6bae84eb0afeafecfac472#8"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#0"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#11"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#10"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#9"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1"
+   },
+   {
+    "video_id": "6a6bae85c1ac59f5d1d0a8a8",
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#17"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#16"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#14"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#20"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#4"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#1"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#21"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#23"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#7"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#24"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#11"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#10"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#15"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#12"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#5"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#9"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#13"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#22"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#3"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#8"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#0"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#6"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#18"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#2"
+   },
+   {
+    "video_id": "6a6bae86c1ac59f5d1d0a8b0",
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#19"
+   }
+  ],
+  "next": [
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#1"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#2"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#3"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#4"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#0",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#1"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#1",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#2"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#2",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#3"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#3",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#4"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#4",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#5"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#5",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#6"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#6",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#7"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#1"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#1",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#2"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#2",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#3"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#3",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#4"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#7",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#8"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#8",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#9"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#5"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#6"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#7"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#9",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#10"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#4",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#5"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#5",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#6"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#6",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#7"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#7",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#8"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#9"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#9",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#10"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#10",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#11"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#11",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#12"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#0",
+    "to_id": "6a6bae84eb0afeafecfac472#1"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#1",
+    "to_id": "6a6bae84eb0afeafecfac472#2"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#2",
+    "to_id": "6a6bae84eb0afeafecfac472#3"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#3",
+    "to_id": "6a6bae84eb0afeafecfac472#4"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#4",
+    "to_id": "6a6bae84eb0afeafecfac472#5"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#5",
+    "to_id": "6a6bae84eb0afeafecfac472#6"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#6",
+    "to_id": "6a6bae84eb0afeafecfac472#7"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#7",
+    "to_id": "6a6bae84eb0afeafecfac472#8"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#8",
+    "to_id": "6a6bae84eb0afeafecfac472#9"
+   },
+   {
+    "from_id": "6a6bae84eb0afeafecfac472#9",
+    "to_id": "6a6bae84eb0afeafecfac472#10"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#8"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#9"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#10"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#10",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#11"
+   },
+   {
+    "from_id": "6a6bae85c1ac59f5d1d0a8a8#11",
+    "to_id": "6a6bae85c1ac59f5d1d0a8a8#12"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#10",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#11"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#12"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#12",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#13"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#13",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#14"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#14",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#15"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#15",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#16"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#16",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#17"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#17",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#18"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#19"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#19",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#20"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#20",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#21"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#21",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#22"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#22",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#23"
+   },
+   {
+    "from_id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "to_id": "6a6bae86c1ac59f5d1d0a8b0#24"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#12",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#13"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#14"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#14",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#15"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#15",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#16"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#16",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#17"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#18"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#18",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#19"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#19",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#20"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#20",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#21"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#21",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#22"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#23"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#23",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#24"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#24",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#25"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#25",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#26"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#26",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#27"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#27",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#28"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#28",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#29"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#30"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#30",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#31"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#31",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#32"
+   },
+   {
+    "from_id": "6a6baa1c0d774e7cec6c1a66#32",
+    "to_id": "6a6baa1c0d774e7cec6c1a66#33"
+   }
+  ],
+  "about": [
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#12",
+    "name": "Voice Input"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#23",
+    "name": "Git Worktree"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#28",
+    "name": "Agent Orchestration"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#2",
+    "name": "Foreign Key"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#3",
+    "name": "GIN Index"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#3",
+    "name": "JSONB"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "Full-Text Search"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#8",
+    "name": "Graph Query"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#8",
+    "name": "Pattern Matching"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#5",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#9",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#4",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "Nash Equilibrium"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#20",
+    "name": "Payoff Matrix"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#13",
+    "name": "Payoff Matrix"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "name": "Coalition"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#10",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#11",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "Dummy Player"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "name": "Tit For Tat"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "name": "Non-Cooperative Game"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#15",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#14",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#7",
+    "name": "Optimal Strategy"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "name": "Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Non-Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#6",
+    "name": "Terminal Multiplexing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "End-To-End Testing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "Adversarial Review"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#18",
+    "name": "Risk Assessment"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "TS Vector"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "MVCC"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "Interchangeable Player"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#16",
+    "name": "Repeated Game"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#17",
+    "name": "Repeated Game"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#9",
+    "name": "Agent Memory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "Verifiable Objective"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#30",
+    "name": "Issue Triage"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#0",
+    "name": "PostgreSQL Consolidation"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#2",
+    "name": "Relational Data Modeling"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#4",
+    "name": "SQL Query"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "Stemming"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "SELECT FOR UPDATE SKIP LOCKED"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "LISTEN And NOTIFY"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "Database-Backed Job Queue"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#7",
+    "name": "Vector Similarity Search"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#7",
+    "name": "PG Vector"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#9",
+    "name": "ACID Transaction"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#9",
+    "name": "Database Extensibility"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "Database Sharding"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "Vacuum"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#7",
+    "name": "Rational Choice Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "name": "Axelrod's Tournament"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#19",
+    "name": "Round-Robin Tournament"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "name": "Reproducibility"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#10",
+    "name": "Agent Skill"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#11",
+    "name": "Third-Party Skill Evaluation"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "Agent-Optimized Tool Design"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#14",
+    "name": "Visual Prototyping"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#15",
+    "name": "Visual Feedback"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#16",
+    "name": "Automated Quality Pipeline"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#20",
+    "name": "Long-Running Agent Loop"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "Hypothesis Testing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#25",
+    "name": "Parallel Agent Execution"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "Multi-Repository Update"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#31",
+    "name": "Task Delegation"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#32",
+    "name": "Product Discovery"
+   }
+  ],
+  "mentions": [
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "name": "John Nash"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#0",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Non-Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Fred"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#1",
+    "name": "Wanda"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "name": "Wanda"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#2",
+    "name": "Fred"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "Nash Equilibrium"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#3",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "name": "Cooperative Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#4",
+    "name": "Coalition"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#0",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#0",
+    "name": "Boot.dev"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#3",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#3",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#4",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#4",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#5",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#6",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#7",
+    "name": "Rational Choice Theory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Microsoft"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Facebook"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Meta"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Bing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Atlassian"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Kun Chen"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#0",
+    "name": "Windows"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#1",
+    "name": "Coding Agent"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#1",
+    "name": "Atlassian"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#1",
+    "name": "Pull Request"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#1",
+    "name": "Kun Chen"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#2",
+    "name": "Kun Chen"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#3",
+    "name": "Agent Skill"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#3",
+    "name": "Agent Memory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#4",
+    "name": "Terminal"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#4",
+    "name": "WezTerm"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#4",
+    "name": "Tmux"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#8",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#9",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#9",
+    "name": "Payoff"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#5",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#6",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "Dummy Player"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#7",
+    "name": "Interchangeable Player"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#10",
+    "name": "Chess"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#10",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#10",
+    "name": "Poker"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#5",
+    "name": "GitHub"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#5",
+    "name": "Lua"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#5",
+    "name": "WezTerm"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#6",
+    "name": "Terminal Multiplexer"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#6",
+    "name": "Tmux"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#7",
+    "name": "Vim"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#7",
+    "name": "Neovim"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "Claude Code"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "OpenCode"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "Pi"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "Agent Harness"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "Anthropic"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#8",
+    "name": "Codex CLI"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#9",
+    "name": "AGENTS.md"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#9",
+    "name": "Agent Memory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#10",
+    "name": "Agent Skill"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#10",
+    "name": "Token Usage"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#10",
+    "name": "Agent Memory"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#11",
+    "name": "Agent Skill"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#11",
+    "name": "Token Usage"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#11",
+    "name": "GitHub"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#12",
+    "name": "OpenSuperWhisper"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#12",
+    "name": "Speech Recognition"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#12",
+    "name": "Stanford University"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#0",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#1",
+    "name": "ZTM"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#1",
+    "name": "FRIENDS10"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#2",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#3",
+    "name": "JSONB"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#3",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#3",
+    "name": "GIN Index"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#4",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "TS Vector"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#5",
+    "name": "Elasticsearch"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "LISTEN And NOTIFY"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "SELECT FOR UPDATE SKIP LOCKED"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "Redis"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#6",
+    "name": "RabbitMQ"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#7",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#7",
+    "name": "PG Vector"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#8",
+    "name": "Neo4j"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#8",
+    "name": "PostgreSQL 19"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#9",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#9",
+    "name": "PG Vector"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "Vacuum"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "PostgreSQL"
+   },
+   {
+    "segment_id": "6a6bae84eb0afeafecfac472#10",
+    "name": "MVCC"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#8",
+    "name": "Coalition"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "name": "Game Theory"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#9",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#10",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#11",
+    "name": "Marginal Contribution"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#11",
+    "name": "Shapley Value"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "SciSquatch"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "SciLife"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "Dale Copenhaver"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "Hank Green"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "Patreon"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "SciShow"
+   },
+   {
+    "segment_id": "6a6bae85c1ac59f5d1d0a8a8#12",
+    "name": "James Grime"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "name": "Non-Cooperative Game"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "name": "Rock-Paper-Scissors"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#11",
+    "name": "Golden Balls"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#12",
+    "name": "Golden Balls"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#12",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#13",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#13",
+    "name": "Golden Balls"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#14",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#15",
+    "name": "Dominant Strategy"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#15",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#16",
+    "name": "Repeated Game"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#17",
+    "name": "Repeated Game"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "name": "Tit For Tat"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#18",
+    "name": "Robert Axelrod"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#19",
+    "name": "Tit For Tat"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#19",
+    "name": "Robert Axelrod"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#20",
+    "name": "Prisoner's Dilemma"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#21",
+    "name": "Random Strategy"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#21",
+    "name": "Robert Axelrod"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#22",
+    "name": "Tit For Tat"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#22",
+    "name": "Grass Camp"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#22",
+    "name": "Joss"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "name": "Robert Axelrod"
+   },
+   {
+    "segment_id": "6a6bae86c1ac59f5d1d0a8b0#23",
+    "name": "Tit For Tat"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "Chrome DevTools Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "GitHub MCP Server"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "GitHub Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#13",
+    "name": "Codex CLI"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#14",
+    "name": "HTML"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#14",
+    "name": "Lavish"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#14",
+    "name": "Visual Prototype"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#15",
+    "name": "Visual Prototype"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#15",
+    "name": "Lavish"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#16",
+    "name": "Automated Quality Pipeline"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#16",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "Pull Request"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "Git Worktree"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "End-To-End Testing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#17",
+    "name": "Adversarial Review"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#18",
+    "name": "Pull Request"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#18",
+    "name": "Risk Assessment"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#18",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#19",
+    "name": "Agent Skill"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#19",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#20",
+    "name": "Good Night, Have Fun"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#20",
+    "name": "Stop Condition"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#20",
+    "name": "Agent Loop"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#21",
+    "name": "Good Night, Have Fun"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#21",
+    "name": "Token Usage"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "End-To-End Testing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "Good Night, Have Fun"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "Hypothesis Testing"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#22",
+    "name": "Verifiable Objective"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#23",
+    "name": "Git Worktree"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#24",
+    "name": "Treehouse"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#24",
+    "name": "Git Worktree"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#25",
+    "name": "Treehouse"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#25",
+    "name": "Claude Code"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#25",
+    "name": "AI Tutor"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#26",
+    "name": "Tmux"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#26",
+    "name": "Parallel Agent Execution"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#26",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#27",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#27",
+    "name": "Context Switching"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#28",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "NPM"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "GitHub Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "No Mistakes"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "Lavish Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#29",
+    "name": "Chrome DevTools Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#30",
+    "name": "Lavish Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#30",
+    "name": "GitHub Issue"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#30",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#31",
+    "name": "Lavish Axie"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#31",
+    "name": "Annotation Mode"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#31",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#32",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#32",
+    "name": "Product Vision"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#33",
+    "name": "GitHub"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#33",
+    "name": "FirstMate"
+   },
+   {
+    "segment_id": "6a6baa1c0d774e7cec6c1a66#33",
+    "name": "Kun Chen"
+   }
+  ],
+  "same_as": [
+   {
+    "kind": "Entity",
+    "name": "Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Memory",
+    "concept_key": "05 memory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Harness",
+    "concept_key": "agent harnesses"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Loop",
+    "concept_key": "02 the agent loop"
+   },
+   {
+    "kind": "Topic",
+    "name": "Long-Running Agent Loop",
+    "concept_key": "02 the agent loop"
+   },
+   {
+    "kind": "Topic",
+    "name": "Agent Memory",
+    "concept_key": "05 memory"
+   }
+  ],
+  "advances": [
+   {
+    "kind": "Entity",
+    "name": "Token Usage",
+    "concept_key": "kv-cache optimization"
+   },
+   {
+    "kind": "Entity",
+    "name": "Verifiable Objective",
+    "concept_key": "reinforcement learning from verifiable rewards"
+   },
+   {
+    "kind": "Topic",
+    "name": "Verifiable Objective",
+    "concept_key": "reinforcement learning from verifiable rewards"
+   },
+   {
+    "kind": "Topic",
+    "name": "Parallel Agent Execution",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Long-Running Agent Loop",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Agent-Optimized Tool Design",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Parallel Agent Execution",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Loop",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Agent Memory",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Task Delegation",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Token Usage",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Harness",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "GitHub MCP Server",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Skill",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Agent Memory",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Coding Agent",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Codex CLI",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Claude Code",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Full-Text Search",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Topic",
+    "name": "Agent Orchestration",
+    "concept_key": "context engineering for agents"
+   },
+   {
+    "kind": "Entity",
+    "name": "Non-Cooperative Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Round-Robin Tournament",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Axelrod's Tournament",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Rational Choice Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Random Strategy",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Rock-Paper-Scissors",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Repeated Game",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Interchangeable Player",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Payoff",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Non-Cooperative Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Cooperative Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Repeated Game",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Non-Cooperative Game",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Cooperative Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Dominant Strategy",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Poker",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Optimal Strategy",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Dominant Strategy",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Non-Cooperative Game",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Tit For Tat",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Nash Equilibrium",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Prisoner's Dilemma",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Golden Balls",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Tit For Tat",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Dummy Player",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Marginal Contribution",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Shapley Value",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Coalition",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Payoff Matrix",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Nash Equilibrium",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Prisoner's Dilemma",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Game Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Dummy Player",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Rational Choice Theory",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Marginal Contribution",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Shapley Value",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Coalition",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Entity",
+    "name": "Chess",
+    "concept_key": "game theory"
+   },
+   {
+    "kind": "Topic",
+    "name": "Hypothesis Testing",
+    "concept_key": "bayesian statistics"
+   },
+   {
+    "kind": "Entity",
+    "name": "Hypothesis Testing",
+    "concept_key": "bayesian statistics"
+   },
+   {
+    "kind": "Topic",
+    "name": "PG Vector",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Database Sharding",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Database Extensibility",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "ACID Transaction",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "PostgreSQL",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "GIN Index",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "JSONB",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "SELECT FOR UPDATE SKIP LOCKED",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "PostgreSQL 19",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Foreign Key",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "GIN Index",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "JSONB",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Full-Text Search",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "Elasticsearch",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "Redis",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "Neo4j",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "MVCC",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Vacuum",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "LISTEN And NOTIFY",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "MVCC",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Entity",
+    "name": "Vacuum",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "PostgreSQL Consolidation",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Relational Data Modeling",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "SQL Query",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "SELECT FOR UPDATE SKIP LOCKED",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "LISTEN And NOTIFY",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Database-Backed Job Queue",
+    "concept_key": "database internals"
+   },
+   {
+    "kind": "Topic",
+    "name": "Vector Similarity Search",
+    "concept_key": "database internals"
+   }
+  ]
+ }
+}

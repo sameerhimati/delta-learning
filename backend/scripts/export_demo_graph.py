@@ -30,6 +30,8 @@ import logging
 import sys
 from pathlib import Path
 
+import yaml
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("export_demo_graph")
 
@@ -38,6 +40,14 @@ sys.path.insert(0, ".")
 from app.context_graph_client import connect_neo4j, close_neo4j, execute_cypher  # noqa: E402
 
 DEFAULT_OUT = Path(__file__).resolve().parents[2] / "data" / "demo_graph.json"
+GOALS_FILE = Path(__file__).resolve().parents[2] / "data" / "learning_goals.yaml"
+
+
+def _goal_keys() -> list[str]:
+    if not GOALS_FILE.exists():
+        return []
+    data = yaml.safe_load(GOALS_FILE.read_text()) or {}
+    return [" ".join(g.strip().lower().split()) for g in data.get("goals", []) if g and g.strip()]
 
 NODE_QUERIES = {
     "videos": """
@@ -62,10 +72,15 @@ NODE_QUERIES = {
         RETURN e.name AS name, e.key AS key, e.type AS type, e.learnable AS learnable
         ORDER BY e.name
     """,
-    # Vault + goal concepts only. Captured ones are excluded on purpose (see module docstring).
+    # Vault + goal concepts only. Captured ones are excluded on purpose (see module
+    # docstring). Goals are additionally filtered to what learning_goals.yaml lists today:
+    # MERGE never forgot goals that were edited out, so a long-lived graph accumulates
+    # every goal it has ever seen, and exporting those would ship a knowledge state no one
+    # could reproduce from the files in the repo.
     "concepts": """
         MATCH (c:Concept)
         WHERE coalesce(c.source, '') <> 'video'
+          AND (c.status <> 'goal' OR c.key IN $goal_keys)
         RETURN c.key AS key, c.name AS name, c.status AS status,
                c.source AS source, c.note_path AS note_path
         ORDER BY c.name
@@ -76,6 +91,10 @@ REL_QUERIES = {
     "has_segment": """
         MATCH (v:Video)-[:HAS_SEGMENT]->(s:Segment)
         RETURN v.id AS video_id, s.id AS segment_id
+    """,
+    "next": """
+        MATCH (a:Segment)-[:NEXT]->(b:Segment)
+        RETURN a.id AS from_id, b.id AS to_id
     """,
     "about": """
         MATCH (s:Segment)-[:ABOUT]->(t:Topic)
@@ -118,8 +137,9 @@ async def main() -> None:
             "nodes": {},
             "relationships": {},
         }
+        goal_keys = _goal_keys()
         for name, q in NODE_QUERIES.items():
-            rows = await execute_cypher(q)
+            rows = await execute_cypher(q, {"goal_keys": goal_keys})
             data["nodes"][name] = rows
             log.info("%-10s %4d", name, len(rows))
         for name, q in REL_QUERIES.items():
