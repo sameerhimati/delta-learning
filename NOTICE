@@ -77,8 +77,9 @@ are NOT covered by the MIT license above:
 
 To be plain about what this means: this repository as a whole cannot currently be
 relicensed, and a downstream user cannot rely on the MIT grant for those five files.
-Upstream has been asked to add a license. If and when one appears, this section will
-be updated or removed.
+Upstream has been asked to add one:
+https://github.com/jpadams/video-context-graph/issues/2
+If and when a license appears there, this section will be updated or removed.
 
 If you need a cleanly licensed derivative before then, the delta layer in section 1
 does not depend on section 3 except through backend/scripts/ingest.py (video
@@ -86,11 +87,14 @@ ingestion) and backend/app/twelvelabs_client.py (the TwelveLabs API wrapper); bo
 are replaceable.
 
 ================================================================================
-4. Vendored media — CC-BY 3.0
+4. Sample media — CC-BY 3.0
 ================================================================================
 
-  data/videos/bbb_1080p_30fps_normal_85sec.mp4
-
-An 85-second excerpt of "Big Buck Bunny" (2008), (c) copyright Blender Foundation,
+No video files are distributed in this repository. The clip `make seed` falls back to
+downloading is "Big Buck Bunny" (2008), (c) copyright Blender Foundation,
 www.bigbuckbunny.org, licensed CC-BY 3.0 (https://creativecommons.org/licenses/by/3.0/).
-See data/videos/ATTRIBUTION.md. Any other video you ingest is your responsibility.
+See data/videos/ATTRIBUTION.md. Any video you ingest is your responsibility.
+
+The demo snapshot data/demo_graph.json describes third-party conference talks: their
+titles, timecodes, extracted topics, and model-generated segment summaries. It contains
+no transcripts, no on-screen text, and no video or audio.

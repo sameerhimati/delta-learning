@@ -33,8 +33,12 @@ Thumbs.db
 data/documents/*.json
 data/documents/*.txt
 
-# Downloaded demo talks — too big for git, fetched via yt-dlp
+# Video files — too big for git. Talks are fetched with yt-dlp; the Big Buck Bunny
+# sample comes from SAMPLE_VIDEO_URLS in .env (see data/videos/ATTRIBUTION.md).
 data/videos/*.mp4
+
+# Sample data for the starter's agent-memory domain, which this project doesn't use.
+data/fixtures.json
 
 # agent scratch scripts
 frontend/_*.mjs

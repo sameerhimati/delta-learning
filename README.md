@@ -287,9 +287,10 @@ Notes:
   learn but don't know yet.
 - Expect a thin first result. A fresh vault overlaps a talk far less than you'd guess —
   see *Honest limitations*. The capture loop is what produces contrast.
-- `make seed` with **no** `VIDEOS=` ingests every `.mp4` in `data/videos/` (falling back to
-  `SAMPLE_VIDEO_URLS`), including the vendored Big Buck Bunny sample. Pass explicit paths
-  for a real corpus.
+- `make seed` with **no** `VIDEOS=` ingests every `.mp4` you've put in `data/videos/`, and
+  if that's empty it downloads `SAMPLE_VIDEO_URLS` from `.env` — a short, license-clean
+  Big Buck Bunny clip, so the pipeline has something to chew on. Pass explicit paths for a
+  real corpus.
 - Already indexed in TwelveLabs? Skip the upload:
   `make seed VIDEOS="--index-id=<TL_INDEX_ID> --video-id=<TL_VIDEO_ID>"`.
 - Ingestion is idempotent — re-seeding replaces a video's segments, never duplicates them.
@@ -372,15 +373,16 @@ version, with the full file-level breakdown in [`NOTICE`](NOTICE):
 
 Practically: forking a public GitHub repo is permitted by GitHub's Terms of Service;
 sublicensing it is not. So this repo as a whole cannot be relicensed, and if you plan to
-redistribute or build commercially on it, read [`NOTICE`](NOTICE) first. The moment
-upstream adds a license this gets simpler for everyone, and they've been asked. The delta
-layer itself depends on that code only through video ingestion, which is replaceable.
+redistribute or build commercially on it, read [`NOTICE`](NOTICE) first. Upstream has
+been [asked to add a license](https://github.com/jpadams/video-context-graph/issues/2),
+which would make this simpler for everyone. The delta layer itself depends on that code
+only through video ingestion, which is replaceable.
 
-The vendored sample clip `data/videos/bbb_1080p_30fps_normal_85sec.mp4` is an 85-second
-excerpt of *Big Buck Bunny* — © 2008 Blender Foundation,
-[CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/), see
-[`data/videos/ATTRIBUTION.md`](data/videos/ATTRIBUTION.md). Any other video you ingest is
-your responsibility to have the rights to.
+The sample clip `make seed` falls back to is *Big Buck Bunny* — © 2008 Blender
+Foundation, [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/), see
+[`data/videos/ATTRIBUTION.md`](data/videos/ATTRIBUTION.md). It is downloaded, not
+vendored, so it isn't in this repo. Any video you ingest is your responsibility to have
+the rights to.
 
 Setup troubleshooting and the two-video merge walkthrough from the starter are still in
 [`HOWTO.md`](HOWTO.md).
