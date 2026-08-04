@@ -5,8 +5,11 @@
 Built for *Hack the Video Agent Context Graph* (TwelveLabs · OpenAI · Neo4j · AWS), on top of
 the [`video-context-graph`](https://github.com/jpadams/video-context-graph) starter.
 
+![Watch one talk, and a different talk gets shorter](demo/cut-list.gif)
+
 > **See it first, read second.** `make install && make demo` loads a real graph and gives
-> you a real timecoded cut list. Docker is the only prerequisite — no API keys.
+> you a real timecoded cut list. Docker is the only prerequisite — no API keys. Everything
+> in the recording above runs against the snapshot in this repo.
 > [Details below.](#try-it-without-keys)
 
 ---
