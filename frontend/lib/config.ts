@@ -24,7 +24,7 @@ export const NODE_COLORS: Record<string, string> = {
   Concept: "#22c55e", // viewer knowledge; status-based override in ContextGraphView
 };
 
-// Concept nodes color by knowledge status, not label (Luke: apply in ContextGraphView).
+// Concept nodes color by knowledge status, not label — applied in ContextGraphView.
 export const CONCEPT_STATUS_COLORS: Record<string, string> = {
   known: "#22c55e", // green — already in the knowledge base
   goal: "#3b82f6", // blue — explicitly wants to learn

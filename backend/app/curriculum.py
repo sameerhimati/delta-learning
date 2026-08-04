@@ -19,7 +19,7 @@ Matrix", "PostgreSQL" before "PostgreSQL 19"). 11 such pairs exist in the corpus
   first-teaching time, across videos              0 / 1     rejected for cross-video use
   GDS PageRank over co-occurrence                 7 / 11    REJECTED as prerequisite
 
-PageRank fails the exact test Sameer named: it scores Shapley Value 2.119 above Game
+PageRank fails the exact test above: it scores Shapley Value 2.119 above Game
 Theory 1.816, i.e. it would teach the specialisation before the field. PageRank measures
 how densely a term is discussed, which is a leverage signal (that is what
 `learning_frontier` correctly uses it for), not a foundation signal. It is not used here.

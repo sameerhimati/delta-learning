@@ -93,7 +93,7 @@ def validate_url(url: str) -> tuple[str, str | None]:
 
     A filesystem path must never reach the pipeline through this API:
     ``ingest.ingest_new`` treats any non-http input as a local file, which would
-    turn a paste box into "read any file on Sameer's laptop and upload it to
+    turn a paste box into "read any file on the server's filesystem and upload it to
     TwelveLabs". Private/loopback hosts are refused for the same reason — the
     downloader would happily fetch from 169.254.169.254 or localhost:8000.
     """
