@@ -5,6 +5,10 @@
 Built for *Hack the Video Agent Context Graph* (TwelveLabs · OpenAI · Neo4j · AWS), on top of
 the [`video-context-graph`](https://github.com/jpadams/video-context-graph) starter.
 
+> **See it first, read second.** `make install && make demo` loads a real graph and gives
+> you a real timecoded cut list. Docker is the only prerequisite — no API keys.
+> [Details below.](#try-it-without-keys)
+
 ---
 
 ## The wedge
@@ -29,6 +33,11 @@ And it compounds: capture what a video taught you, and the knowledge state grows
 ---
 
 ## The measured beat
+
+Measured on the author's graph — four talks, one person's Obsidian vault — on 2026-07-30.
+That exact graph ships as `data/demo_graph.json`, so every number below is reproducible
+with `make demo` and no API keys. Your own corpus will read differently; see
+*Honest limitations* for why a fresh vault starts out overlapping very little.
 
 Two game-theory talks, ingested independently, no shared metadata — just shared concepts
 that MERGE'd into the same graph nodes.
@@ -57,7 +66,7 @@ Other verified reads on the same graph:
 |---|---|
 | "What in the L8 agentic-engineering talk is new to me?" | watch **43:03 of 45:46** — 51 novel + 15 goal-aligned terms, with the 5 real overlaps cited back to the vault notes that cover them (`agent-harnesses.md`, `05-memory.md`, `02-the-agent-loop.md`) |
 | "What about the Postgres talk?" | watch **all of 0:00–8:06** — 0 known overlap, so nothing is safe to skip, and it says so |
-| "Which of my goals does this corpus cover?" | 1 of 8 strictly linked (game theory); volunteers that Postgres/L8 *support* two more without a strict link, and that KV-cache, GPU memory hierarchy and speculative decoding have **no** coverage |
+| "Which of my goals does this corpus cover?" | 1 of the stated goals strictly linked (game theory); volunteers that Postgres/L8 *support* others without a strict link, and names the ones with **no** coverage rather than staying quiet about them |
 | "What should I learn first?" | Neo4j **GDS PageRank** over the co-occurrence graph of terms the viewer does *not* know → PostgreSQL (5.15), and the rule is explained |
 
 ---
@@ -93,7 +102,7 @@ note bodies** — the vault is written claim-per-file, so the filename *is* the 
 
 ```
 (:Concept {status: 'known', source: 'vault', note_path})   # 109 — what they've written down
-(:Concept {status: 'goal',  source: 'goals'})              #   8 — what they want
+(:Concept {status: 'goal',  source: 'goals'})              #  from learning_goals.yaml
 (:Concept {status: 'known', source: 'video', key: 'video:…'})  # captured, grows over time
 ```
 
@@ -199,13 +208,57 @@ Current demo graph: **4 videos · 83 segments · 63 topics + 109 entities · 117
 
 ---
 
-## Run it
+## Try it without keys
 
-**Prerequisites:** [uv](https://docs.astral.sh/uv/) (Python 3.10–3.13) · Node 18+ ·
-Docker (or Neo4j Aura) · OpenAI + TwelveLabs API keys.
+Building a graph needs OpenAI and TwelveLabs. *Reading* one doesn't — the delta
+traversal is pure Cypher. So the repo ships a snapshot of a real graph, and you can get
+a real cut list without an account anywhere.
+
+**Prerequisites:** Docker · [uv](https://docs.astral.sh/uv/) (Python 3.10–3.13) · Node 18+.
 
 ```bash
-cp .env.example .env      # NEO4J_*, OPENAI_API_KEY, TWELVE_LABS_API_KEY
+make install     # uv sync + npm install
+make demo        # Neo4j + load the shipped graph + start the app
+```
+
+Open **http://localhost:3000**, pick a talk, open **Your Cut**. You get timecoded
+ranges, orange badges for concepts new to you and blue for ones matching a stated goal,
+and a skip figure — *watch 9:32 of 17:46* — with each skipped concept traced to the note
+that already covers it.
+
+Then run the loop this project exists for. Capture a different talk and watch this one
+shrink:
+
+```bash
+curl -X POST localhost:8000/api/capture -H 'content-type: application/json' \
+  -d '{"video": "How Decision Making"}'
+```
+
+Reload Your Cut on *A Simple Strategy*. Same corpus, same graph, less to watch — the
+concepts moved.
+
+The snapshot is the author's own graph: four talks, and a knowledge state built from one
+person's Obsidian vault. It carries segment summaries, topics, entities and resolved
+concept edges, but no embeddings, no transcripts, and no captured concepts. Chat needs
+an `OPENAI_API_KEY`; everything above works without one.
+
+To put it back the way it started:
+
+```cypher
+MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
+```
+
+---
+
+## Run it on your own videos and your own notes
+
+This is the full pipeline, and it costs money: TwelveLabs indexes and analyzes every
+video, OpenAI structures the output and adjudicates every concept match.
+
+**Also needs:** OpenAI API key · TwelveLabs API key · your own notes.
+
+```bash
+cp .env.example .env      # NEO4J_*, OPENAI_API_KEY, TWELVE_LABS_API_KEY, VAULT_DIRS
 make docker-up            # local Neo4j 5.26 — docker-compose ships APOC + GDS 2.13.2
 make install              # uv sync + npm install
 
@@ -227,27 +280,34 @@ actually new to me?"*
 
 Notes:
 
+- **The knowledge state is the part that's yours.** `make vault` reads folders of
+  claim-per-file markdown — **filenames only, never note bodies** — from `VAULT_DIRS` in
+  `.env` or `--vault-dir=`. There is no default, deliberately: the only default possible
+  would be someone else's folders. Edit `data/learning_goals.yaml` for things you want to
+  learn but don't know yet.
+- Expect a thin first result. A fresh vault overlaps a talk far less than you'd guess —
+  see *Honest limitations*. The capture loop is what produces contrast.
 - `make seed` with **no** `VIDEOS=` ingests every `.mp4` in `data/videos/` (falling back to
   `SAMPLE_VIDEO_URLS`), including the vendored Big Buck Bunny sample. Pass explicit paths
   for a real corpus.
 - Already indexed in TwelveLabs? Skip the upload:
   `make seed VIDEOS="--index-id=<TL_INDEX_ID> --video-id=<TL_VIDEO_ID>"`.
-- `make vault` defaults to the author's vault folders. Point it at yours:
-  `cd backend && uv run python scripts/ingest_vault.py --vault-dir=~/notes --vault-dir=~/ideas`
 - Ingestion is idempotent — re-seeding replaces a video's segments, never duplicates them.
+- `make export-demo` snapshots your graph the way the shipped one was made.
 - `make test` — backend pytest + frontend `tsc --noEmit` + e2e discovery.
 
-### Reset capture artifacts between demos
+### Undo a capture
 
-Capture is the finale, so rehearsing spends it. This puts the graph back to the clean
-pre-capture state without touching the vault or goal concepts (different key namespace):
+Capture is one-way by design, so re-running the before/after comparison needs a reset.
+This drops captured concepts without touching the vault or goal ones (different key
+namespace):
 
 ```cypher
 MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 ```
 
 > `make reset` exists and **wipes the entire Neo4j database** — videos, segments, vault,
-> goals, everything. It is not the demo reset. Use the Cypher above.
+> goals, everything. It is not this. Use the Cypher above.
 
 ---
 
@@ -287,13 +347,34 @@ three-sprint plan and the known defect list, are in **[`ROADMAP.md`](ROADMAP.md)
 
 ---
 
-## Attribution
+## License and attribution
 
-Started from [`video-context-graph`](https://github.com/jpadams/video-context-graph) /
-[create-context-graph](https://github.com/neo4j-labs/create-context-graph). The starter's
-ingest pipeline, NVL graph view, and five generic graph tools are its work; the knowledge
-state, resolution pass, delta traversal, capture loop, quiz, GDS projections, and the
-"Your Cut" panel are ours.
+The original work here — the knowledge state, resolution pass, delta traversal, capture
+loop, quiz, and the "Your Cut" panel — is **MIT** licensed. See [`LICENSE`](LICENSE).
+
+The rest of the tree has two other origins, and one of them is unresolved. The short
+version, with the full file-level breakdown in [`NOTICE`](NOTICE):
+
+- **Most of the inherited scaffold is Apache-2.0.** This project is a fork of
+  [`video-context-graph`](https://github.com/jpadams/video-context-graph), which was
+  itself generated by
+  [create-context-graph](https://github.com/neo4j-labs/create-context-graph) — the FastAPI
+  app, the Strands agent skeleton, the Neo4j client, the NVL graph view, the Docker
+  setup, the Makefile. That generator is Apache-2.0 licensed by Neo4j Labs, so those
+  files are permissively licensed and safe to redistribute with attribution.
+- **Five files are not.** The fork parent publishes **no license at all**, which under
+  default copyright means no rights are granted to anyone. Its genuinely original
+  contribution — the video ingestion pipeline (`backend/scripts/ingest.py`), the
+  TwelveLabs wrapper (`backend/app/twelvelabs_client.py`), the video ontology
+  (`data/ontology.yaml`), `HOWTO.md`, and the component `VideoBrowser.tsx` was derived
+  from — is not covered by the MIT grant above, and two of those files are still
+  byte-identical to theirs.
+
+Practically: forking a public GitHub repo is permitted by GitHub's Terms of Service;
+sublicensing it is not. So this repo as a whole cannot be relicensed, and if you plan to
+redistribute or build commercially on it, read [`NOTICE`](NOTICE) first. The moment
+upstream adds a license this gets simpler for everyone, and they've been asked. The delta
+layer itself depends on that code only through video ingestion, which is replaceable.
 
 The vendored sample clip `data/videos/bbb_1080p_30fps_normal_85sec.mp4` is an 85-second
 excerpt of *Big Buck Bunny* — © 2008 Blender Foundation,

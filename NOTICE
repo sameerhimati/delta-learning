@@ -77,8 +77,8 @@ are NOT covered by the MIT license above:
 
 To be plain about what this means: this repository as a whole cannot currently be
 relicensed, and a downstream user cannot rely on the MIT grant for those five files.
-An issue has been opened upstream asking for a license to be added. If and when one
-appears, this section will be updated or removed.
+Upstream has been asked to add a license. If and when one appears, this section will
+be updated or removed.
 
 If you need a cleanly licensed derivative before then, the delta layer in section 1
 does not depend on section 3 except through backend/scripts/ingest.py (video
