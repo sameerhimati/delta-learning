@@ -1,6 +1,8 @@
 # Roadmap
 
-Written 2026-07-30, the evening the hackathon build ended.
+Written 2026-07-30, the evening the hackathon build ended. Kept as a record of what we'd
+have done next — **not a plan anyone is working through.** The project is parked; see the
+README's status note. The *What not to build* section at the bottom has aged the best.
 
 The build works and the thesis holds: put the viewer in the same graph as the corpus, and
 "what should I watch?" becomes a traversal. What follows is what stands between that and

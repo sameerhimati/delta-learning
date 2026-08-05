@@ -1,7 +1,15 @@
 # Contributing
 
-Contributions are welcome. This was built in a weekend for a hackathon, so there is a lot
-of obvious work left — most of it already written down.
+**Read this first: nobody is actively developing this.** It was built in a weekend for a
+hackathon, finished properly afterwards, and parked. Issues and pull requests may sit for a
+long time or go unanswered — that's not rudeness, it's the honest state of the project.
+
+Which doesn't make it a dead end. It's MIT, it runs with no API keys, the graph shape is
+documented, and the two findings in the README's *What we learned* took a weekend to
+discover. **Forking it is a completely reasonable thing to do**, and probably a better use
+of your time than waiting on a PR review here.
+
+If you do open a PR anyway, the notes below are what a good one looks like.
 
 ## Start here
 
@@ -12,9 +20,10 @@ of obvious work left — most of it already written down.
 - **[`AGENTS.md`](AGENTS.md)** — orientation: the graph shape, why `known` beats `goal`,
   and which invariants not to break. Worth reading whether or not you code with an agent.
 
-The single highest-value contribution is the first item in Sprint 1: **quiz-driven
-onboarding**, so a stranger's knowledge state reflects them rather than one person's notes.
-Everything else in the roadmap assumes it exists.
+If you're looking for the interesting unfinished thread: onboarding has a working backend
+but **no first-run UI**, so the people who need it most — anyone opening the app with no
+notes of their own — never find it. That's the gap between this being a demo and being
+usable by a stranger.
 
 ## Getting a working copy
 

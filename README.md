@@ -2,8 +2,15 @@
 
 **"The corpus didn't change. I changed."**
 
-Built for *Hack the Video Agent Context Graph* (TwelveLabs · OpenAI · Neo4j · AWS), on top of
-the [`video-context-graph`](https://github.com/jpadams/video-context-graph) starter.
+Built for *Hack the Video Agent Context Graph* (TwelveLabs · OpenAI · Neo4j · AWS) on
+30 July 2026, where it won its track, on top of the
+[`video-context-graph`](https://github.com/jpadams/video-context-graph) starter.
+
+> **Status: finished artifact, not an active project.** It works, it's documented, and
+> `make demo` runs with no API keys — but nobody is developing it. Issues and PRs may sit.
+> The parts most worth your time are the two findings in
+> [What we learned](#what-we-learned), which cost a weekend to discover and are stated
+> plainly rather than sold.
 
 ![Watch one talk, and a different talk gets shorter](demo/cut-list.gif)
 
@@ -386,11 +393,52 @@ The first ten are new here; the last five come from the starter.
 
 ---
 
+## What we learned
+
+Two findings survived the weekend. Both are negative results in the sense that matters —
+they killed an approach that sounded obviously right — and both are the reason the rest of
+the code looks the way it does.
+
+**1. There is no cosine threshold that resolves claim-shaped text to noun-phrase terms.**
+
+Vault concepts are claims (*"test the workflow before reaching for an agent"*). Video terms
+are bare noun phrases (*"Agent Orchestration"*). They mean the same thing and the embedding
+space does not care: **median best-match cosine on this corpus is 0.43 — for pairs a human
+confirms are true matches.** Any threshold that accepts them also accepts noise, and every
+threshold that rejects noise also rejects true matches. We measured this before designing
+around it.
+
+So the two models split the job by what each is actually good at. **Marengo ranks and never
+rejects** — top-8 nearest concepts per term. **OpenAI adjudicates** with structured outputs,
+in two passes asking different questions: *identity* (`SAME_AS`) and *topical relevance*
+(`ADVANCES`). Nothing merges, so every verdict stays inspectable as an edge in the graph.
+If you are matching informal human text against extracted terms, this is the part to steal.
+
+**2. PageRank is a leverage signal, not a foundation signal — so it cannot order a
+curriculum.**
+
+The obvious idea: run PageRank over the concept co-occurrence graph and teach the
+highest-ranked things first. It fails on its own test. It scores **Shapley Value 2.119 above
+Game Theory 1.816** — it would teach the specialisation before the field, because PageRank
+measures how *densely discussed* a term is, not how *foundational* it is.
+
+What works instead is embarrassingly simple: **first-teaching time within a video.** A
+speaker builds up in order, so the order they introduce terms is a prerequisite graph you
+get for free. 10/10 on our test set, against 7/11 for PageRank.
+
+PageRank is still in the codebase — it's exactly right for `learning_frontier` ("what
+unlocks the most other unknown material"), which is a leverage question. It is just the
+wrong tool for "where do I start."
+
+---
+
 ## Roadmap
 
-The three ideas that would make this a product rather than a demo — quiz-driven onboarding,
-recommending from outside the corpus, and spaced repetition over captured concepts — plus a
-three-sprint plan and the known defect list, are in **[`ROADMAP.md`](ROADMAP.md)**.
+The three ideas that would make this a product rather than a demo — quiz-driven onboarding
+(since [partly built](#7-onboarding--the-way-in-for-someone-with-no-vault)), recommending
+from outside the corpus, and spaced repetition over captured concepts — plus the known
+defect list, are in **[`ROADMAP.md`](ROADMAP.md)**. It's a record of what we'd have done
+next, not a plan anyone is working through.
 
 ---
 
