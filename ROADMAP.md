@@ -25,6 +25,14 @@ overlap, and the app says so rather than pretending.
 pass**: adaptive quizzing over the graph's frontier until the knowledge state reflects the
 person, not their note-taking habits. Sprints 2 and 3 both assume this exists.
 
+**Update:** the onboarding pass now exists as an API and a pair of agent tools
+(`backend/app/onboarding.py`), and it demonstrably moves a cold-start knowledge state. Two
+honest caveats before treating this as solved. It has **no first-run UI**, so nobody
+discovers it by opening the app. And proving a concept in two sentences is its own proxy —
+better evidence than a filename, but not the same as knowing something, and nothing here
+decays, so a term proven once stays known forever. Sprint 3's spaced repetition is the
+other half of this problem, not a separate feature.
+
 ---
 
 ## Sprint 1 — make it true for someone who isn't us
@@ -34,11 +42,15 @@ something other than "watch 100%".*
 
 The corpus is four videos and the vault is one person's. Neither generalizes yet.
 
-- **Quiz-driven onboarding (the big one).** At first run, walk the frontier — highest-degree
-  unknown concepts first, using the GDS PageRank projection that already exists in
-  `cypher/gds_projections.cypher` — and ask ~15 adaptive questions. Write results as
-  `(:Concept {status:'known', source:'quiz'})`. Success test: a stranger's first video reads
-  something other than *watch 100%*.
+- ~~**Quiz-driven onboarding (the big one).**~~ **Backend shipped** — `backend/app/
+  onboarding.py`, `GET /api/onboarding/questions`, `POST /api/onboarding/grade`, and the
+  `onboarding_quiz` / `grade_onboarding` agent tools. Walks the GDS PageRank frontier,
+  writes `(:Concept {status:'known', source:'quiz'})`, and adapts by recomputing the
+  frontier per batch rather than by scoring. Success test passes: on a cold start with no
+  vault, Game Theory moves 90.7% → 82.5% after five questions.
+  **Still to do:** a first-run UI. Today onboarding is reachable by asking the agent or by
+  curling the endpoints, which means the people who most need it — anyone opening the app
+  for the first time — won't find it. That is now the highest-value frontend work.
 - **Bring your own vault.** `make vault` still defaults to the author's folders. Needs a
   real onboarding path: point at a directory, show what got extracted, let the person delete
   what's wrong before it becomes their knowledge state.

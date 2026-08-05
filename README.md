@@ -170,6 +170,36 @@ an answer key. The agent asks them, grades the replies, and calls `capture_learn
 **only** the concepts answered correctly. Prove a concept, and it becomes `known` immediately
 without sitting through the video that teaches it. Get it wrong and nothing is captured.
 
+### 7. Onboarding — the way in for someone with no vault
+
+The quiz above is reactive: you have to already be looking at a video, and it only tests
+what that video teaches. Someone arriving with no notes at all still faces four videos that
+all read "watch 91–100%", which is the least persuasive possible first impression.
+
+`GET /api/onboarding/questions` (and the `onboarding_quiz` tool) walks the **whole corpus**
+instead, asking about the terms that unlock the most other unknown material first — GDS
+PageRank over the co-occurrence graph of terms nobody has claimed yet, the same projection
+`learning_frontier` uses. Fifteen questions asked in that order move a knowledge state
+much further than fifty asked alphabetically.
+
+The adaptivity is a property of the projection rather than a scoring rule: the frontier
+excludes anything already `SAME_AS` a known Concept, so each batch is recomputed against
+what the last one proved. Ask in rounds of five and the questions narrow on their own.
+
+Measured on the shipped snapshot with the vault concepts removed — a genuine cold start:
+
+```
+before   L8 94.1%   Postgres 90.8%   Game Theory 90.7%    0 of 136 terms known
+  5 questions, 3 answered properly and 2 waved at
+after    L8 94.1%   Postgres 90.8%   Game Theory 82.5%    5 of 136 terms known
+```
+
+The two vague answers were refused, which is the point — `PostgreSQL`,
+`Prisoner's Dilemma` and `Shapley Value` were captured as `(:Concept {source:'quiz'})`,
+and the two hand-waves stayed unknown and are still recommended. Note that Postgres does
+not move even though `PostgreSQL` is now known: one term out of many in a segment does not
+clear the novelty-density bar, and pretending otherwise would be the dishonest version.
+
 ---
 
 ## Where each sponsor is load-bearing
@@ -180,7 +210,7 @@ without sitting through the video that teaches it. Get it wrong and nothing is c
 | **TwelveLabs — Marengo** | indexing + embedding **both sides**: video terms *and* vault concepts, one 512-d space | This is the load-bearing one. Video terms and a person's notes are only comparable because the same model embedded both. It ranks candidates for resolution and powers segment vector search. |
 | **OpenAI — `gpt-5.6`** | Strands agent brain (`OpenAIResponsesModel`) | Runs the tools, grades the quiz, and narrates *why* a range is skippable. |
 | **OpenAI — structured outputs (`gpt-5.6-terra`)** | Pegasus prose → typed segments; resolution adjudication; quiz generation | Every schema-validated boundary in the pipeline. The `SAME_AS` / `ADVANCES` acceptance gate *is* an OpenAI structured-output verdict. |
-| **AWS Strands** | agent + tool orchestration, SSE streaming, 13 tools | Tool results stream to the frontend and auto-render into the graph panel. |
+| **AWS Strands** | agent + tool orchestration, SSE streaming, 15 tools | Tool results stream to the frontend and auto-render into the graph panel. |
 | **Neo4j** | the graph; 2 vector indexes (`segment_embeddings`, `concept_embeddings`); **GDS 2.13.2** | Viewer and corpus in one graph is the entire premise. GDS PageRank runs over a Cypher-projected co-occurrence graph of terms the viewer does *not* know — that's "what should I learn first". See [`cypher/gds_projections.cypher`](cypher/gds_projections.cypher). |
 
 The graph this was measured on holds **4 videos · 83 segments · 63 topics · 109 entities**
@@ -196,8 +226,15 @@ loads.
 
 - **The vault is evidence of what was written down, not of what is known.** Someone can
   understand Nash equilibria perfectly and have never made a note about them. This is the
-  system's biggest weakness and it is exactly why `quiz_me` exists — but the quiz is
-  per-video and reactive; there is no onboarding pass that bootstraps a knowledge state.
+  system's biggest weakness. `quiz_me` and the onboarding pass below both attack it, but
+  neither is a complete answer: what someone can demonstrate in two sentences is its own
+  kind of proxy, and nothing here decays, so a concept proven once stays known forever.
+- **Onboarding inherits the term classifier's misses.** It spends questions on the
+  highest-leverage *unknown* terms, and if `classify_terms.py` failed to mark something as
+  transcript noise, that noise is a candidate. On the shipped corpus, 2 of the first 5
+  questions land on junk terms from one talk (`No Mistakes`, `FirstMate`). `x.learnable`
+  is a node property, so overriding one is a single Cypher write — but a scarce question
+  spent on noise costs more than a noisy badge in a cut list does.
 - **Before any capture, every video in this corpus reads 91–100% watch.** That is honest,
   not a bug: this vault genuinely contains no game theory and no Postgres, and little on
   agentic engineering. Widening the vault scan from one folder to four moved it 33 → 109
@@ -326,6 +363,7 @@ MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 | `GET /api/delta/{video}` | **The cut list.** `video` = id or title fragment. Returns `stats` (`known` / `novel` / `goal_hits` / `watch_sec` / `skip_sec`), `known_concepts` with the vault note that covers each, `cuts` (timecoded, with per-concept `why`), plus `skipped` and `minor_concepts`. |
 | `POST /api/capture` | `{"video": "...", "concepts": [...] \| null}` — null captures everything the cut list recommended. |
 | `GET /api/quiz/{video}?count=5` | Questions (with answer keys) testing whether the viewer *already* knows what this video teaches. |
+| `GET /api/onboarding/questions?count=5` · `POST /api/onboarding/grade` · `GET /api/onboarding/progress` | **Bootstrap a knowledge state without a vault.** Corpus-wide, highest-leverage concepts first. Ask in small batches — the frontier recomputes each call, so later rounds skip what earlier ones proved. Needs an OpenAI key. |
 | `GET /api/watchlist` | All ingested videos ranked by novelty density for this viewer. |
 | `POST /api/chat` · `/api/chat/stream` | Agent turn (one-shot / SSE). |
 | `GET /api/videos` · `/api/videos/{id}/segments` | Corpus + segments in order. |
@@ -338,12 +376,13 @@ MATCH (c:Concept) WHERE c.key STARTS WITH 'video:' DETACH DELETE c
 | `GET /api/schema` · `POST /api/expand` · `POST /api/cypher` | Graph schema, drill-down, read-only Cypher. |
 | `GET /health` | Backend + Neo4j status. |
 
-**Agent tools** (Strands, 13): `knowledge_delta` · `capture_learning` · `quiz_me` ·
-`what_should_i_watch` · `learning_path` · `learning_frontier` (GDS PageRank) ·
-`find_outside_material` · `add_video` · `search_video_moments` · `explore_graph` ·
-`twelvelabs_search` · `run_cypher` · `get_graph_schema`.
+**Agent tools** (Strands, 15): `knowledge_delta` · `capture_learning` · `quiz_me` ·
+`onboarding_quiz` · `grade_onboarding` · `what_should_i_watch` · `learning_path` ·
+`learning_frontier` (GDS PageRank) · `find_outside_material` · `add_video` ·
+`search_video_moments` · `explore_graph` · `twelvelabs_search` · `run_cypher` ·
+`get_graph_schema`.
 
-The first eight are new here; the last five come from the starter.
+The first ten are new here; the last five come from the starter.
 
 ---
 
