@@ -1,6 +1,9 @@
 Delta Learning
 Copyright (c) 2026 Sameer Himati
 
+READ THIS BEFORE RELYING ON THE MIT GRANT IN `LICENSE`. That file is plain MIT and
+covers the original work here, but it does not cover the whole tree.
+
 This project is a fork of jpadams/video-context-graph, which was itself scaffolded
 by neo4j-labs/create-context-graph. Three different licensing situations apply to
 different files, and one of them is unresolved. This file says which is which, so
