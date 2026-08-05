@@ -190,6 +190,26 @@ def quiz_me(video: str, count: int = 5) -> str:
 
 
 @tool
+def onboarding_quiz(count: int = 5) -> str:
+    """Bootstrap the viewer's knowledge state by testing them across the WHOLE corpus, highest-leverage concepts first (GDS PageRank over the terms they have not claimed). Use on a first run, or for "what do I already know", "set me up", "I haven't told you anything about myself", "why does everything say watch 100%". Unlike quiz_me this is not tied to one video. Ask the returned questions, then call grade_onboarding with the answers. Small batches are better than one big one: the frontier recomputes after each round, so later questions adapt to what was just proven."""
+    from app.onboarding import onboarding_questions
+    return json.dumps(_run_sync(onboarding_questions(count)), default=str)
+
+
+@tool
+def grade_onboarding(answers_json: str) -> str:
+    """Grade onboarding answers and record ONLY the concepts the viewer demonstrated, as known Concepts sourced to the quiz. `answers_json` is a JSON list of {"concept": "...", "answer": "..."}. Anything wrong or vague stays unknown, so the cut lists keep recommending it. Returns per-concept verdicts plus how much of the corpus the viewer now accounts for."""
+    from app.onboarding import grade_onboarding as _grade
+    try:
+        answers = json.loads(answers_json)
+    except Exception as e:
+        return json.dumps({"error": f"answers_json must be a JSON list: {e}"})
+    if not isinstance(answers, list):
+        return json.dumps({"error": "answers_json must be a JSON list of objects."})
+    return json.dumps(_run_sync(_grade(answers)), default=str)
+
+
+@tool
 def learning_path(goal: str = "") -> str:
     """Build an ordered curriculum through the corpus: units of related concepts, in the order they should be learned, skipping what the viewer already knows. Use for "what's my learning path", "give me a curriculum", "how should I work through this", "where do I start and what comes after". `goal` restricts the path to one stated learning goal; empty covers everything. Each unit carries its timecoded lessons and how far through it the viewer already is."""
     from app.curriculum import build_curriculum
@@ -220,38 +240,14 @@ def what_should_i_watch() -> str:
 
 # Neo4j GDS: co-occurrence graph of the terms the viewer does NOT know yet, then
 # PageRank over it. See cypher/gds_projections.cypher for the annotated versions.
-_FRONTIER_DROP = "CALL gds.graph.drop('delta_frontier', false) YIELD graphName RETURN graphName"
-
-_FRONTIER_PROJECT = """
-MATCH (s:Segment)-[:ABOUT|MENTIONS]->(a)
-MATCH (s)-[:ABOUT|MENTIONS]->(b)
-WHERE ((a:Topic) OR (a:Entity AND a.type IN $learnable_types))
-  AND ((b:Topic) OR (b:Entity AND b.type IN $learnable_types))
-  AND coalesce(a.learnable, true) AND coalesce(b.learnable, true)
-  AND elementId(a) < elementId(b)
-  AND NOT (a)-[:SAME_AS]->(:Concept {status: 'known'})
-  AND NOT (b)-[:SAME_AS]->(:Concept {status: 'known'})
-WITH a, b, count(DISTINCT s) AS w
-WITH gds.graph.project('delta_frontier', a, b,
-  {relationshipProperties: {weight: w}}, {undirectedRelationshipTypes: ['*']}) AS g
-RETURN g.nodeCount AS nodes, g.relationshipCount AS rels
-"""
-
-_FRONTIER_RANK = """
-CALL gds.pageRank.stream('delta_frontier', {relationshipWeightProperty: 'weight'})
-YIELD nodeId, score
-WITH gds.util.asNode(nodeId) AS x, score
-MATCH (v:Video)-[:HAS_SEGMENT]->(s:Segment)-[:ABOUT|MENTIONS]->(x)
-OPTIONAL MATCH (x)-[:ADVANCES]->(g:Concept {status: 'goal'})
-WITH x.name AS term, max(score) AS pagerank, collect(DISTINCT g.name) AS goals,
-     count(DISTINCT v) AS video_count, count(DISTINCT s) AS segment_count,
-     collect(DISTINCT {video: v.title, start_sec: s.start_sec, end_sec: s.end_sec})[0..2]
-       AS where_taught
-RETURN term, round(pagerank, 3) AS pagerank,
-       CASE WHEN size(goals) > 0 THEN 'goal' ELSE 'novel' END AS status,
-       goals[0] AS serves_goal, video_count, segment_count, where_taught
-ORDER BY pagerank DESC LIMIT $limit
-"""
+# Defined in app.onboarding, which walks the same frontier to bootstrap a knowledge
+# state — one copy, so the two can't drift into ranking things differently.
+from app.onboarding import (  # noqa: E402
+    FRONTIER_DROP as _FRONTIER_DROP,
+    FRONTIER_GRAPH_NAME as _FRONTIER_GRAPH_NAME,
+    FRONTIER_PROJECT as _FRONTIER_PROJECT,
+    FRONTIER_RANK as _FRONTIER_RANK,
+)
 
 # Light up the top frontier terms in the graph panel.
 _FRONTIER_GRAPH = """
@@ -270,7 +266,9 @@ def learning_frontier(limit: int = 8) -> str:
         _run_sync(execute_cypher(_FRONTIER_DROP, collect=False))
         projection = _run_sync(execute_cypher(_FRONTIER_PROJECT, params, collect=False))
         rows = _run_sync(execute_cypher(
-            _FRONTIER_RANK, {"limit": max(1, min(int(limit), 25))}, collect=False,
+            _FRONTIER_RANK,
+            {"graph_name": _FRONTIER_GRAPH_NAME, "limit": max(1, min(int(limit), 25))},
+            collect=False,
         ))
         _run_sync(execute_cypher(_FRONTIER_DROP, collect=False))
     except Exception as e:
@@ -325,6 +323,8 @@ agent = Agent(
         knowledge_delta,
         capture_learning,
         quiz_me,
+        onboarding_quiz,
+        grade_onboarding,
         what_should_i_watch,
         learning_path,
         find_outside_material,

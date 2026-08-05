@@ -298,6 +298,47 @@ async def quiz_grade(request: QuizGradeRequest):
     return result
 
 
+@router.get("/onboarding/questions")
+async def onboarding_questions_route(count: int = 5):
+    """Bootstrap a knowledge state: quiz the viewer across the whole corpus, highest-
+    leverage concepts first.
+
+    A vault records what someone wrote down, not what they know, so a fresh knowledge
+    state makes every video read "watch 100%". This is the way out of that, and it is
+    corpus-wide rather than per-video. Ask in small batches — the frontier is recomputed
+    each call, so later rounds skip what earlier ones proved.
+    """
+    _require_neo4j()
+    from app.onboarding import onboarding_questions
+    result = await onboarding_questions(count)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+class OnboardingGradeRequest(BaseModel):
+    answers: list[dict]
+
+
+@router.post("/onboarding/grade")
+async def onboarding_grade_route(request: OnboardingGradeRequest):
+    """Grade onboarding answers; record only what was demonstrated."""
+    _require_neo4j()
+    from app.onboarding import grade_onboarding
+    result = await grade_onboarding(request.answers)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+@router.get("/onboarding/progress")
+async def onboarding_progress_route():
+    """How much of what this corpus teaches the viewer already accounts for."""
+    _require_neo4j()
+    from app.onboarding import progress
+    return await progress()
+
+
 @router.get("/knowledge-map")
 async def knowledge_map_view(limit: int = 90):
     """Concept-level map of the corpus coloured by the viewer's knowledge state.
