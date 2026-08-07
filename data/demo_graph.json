@@ -5,28 +5,24 @@
    {
     "id": "6a6bae86c1ac59f5d1d0a8b0",
     "title": "Game Theory： A Simple Strategy That Will Change Your Life Forever",
-    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae86c1ac59f5d1d0a8b0/hlses/playlist.m3u8",
     "duration_sec": 1066.678277,
     "summary": "An animated explainer uses a roommate dishwashing scenario to introduce the Prisoner’s Dilemma and game theory. It explains non-cooperative games, dominant strategies, repeated interactions, and Robert Axelrod’s computer tournament, highlighting the success of Tit-for-Tat."
    },
    {
     "id": "6a6bae85c1ac59f5d1d0a8a8",
     "title": "How Decision Making is Actually Science： Game Theory Explained",
-    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae85c1ac59f5d1d0a8a8/hlses/playlist.m3u8",
     "duration_sec": 589.508209,
     "summary": "James Grime introduces game theory through the Prisoner's Dilemma and Nash Equilibrium, then explains cooperative game theory and the Shapley Value using a cookie-baking example to show how joint rewards can be divided fairly."
    },
    {
     "id": "6a6baa1c0d774e7cec6c1a66",
     "title": "L8_Principal_s_Agentic_Engineering_Workflow",
-    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6baa1c0d774e7cec6c1a66/hlses/playlist.m3u8",
     "duration_sec": 2745.991837,
     "summary": "Kun Chen presents an agentic engineering workflow built around terminal tools, memory and skills, automated quality pipelines, long-running agents, parallel worktrees, and a central agent manager that shifts an engineer’s role from implementation toward product leadership."
    },
    {
     "id": "6a6bae84eb0afeafecfac472",
     "title": "Postgres_is_the_Only_Database_You_Need_in_2026",
-    "url": "https://deuqpmn4rs7j5.cloudfront.net/6a6b8e5a308815828b42f18d/assets/6a6bae84eb0afeafecfac472/hlses/playlist.m3u8",
     "duration_sec": 486.992109,
     "summary": "The video argues that PostgreSQL can replace many components of a typical application stack by providing relational data modeling, JSON document storage, full-text search, job queues, vector similarity search, and graph queries in one ACID-compliant database. It also covers PostgreSQL’s limitations, including sharding, memory usage, and MVCC table bloat."
    }

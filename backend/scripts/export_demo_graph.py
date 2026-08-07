@@ -72,9 +72,13 @@ def _goal_keys() -> list[str]:
     return [" ".join(g.strip().lower().split()) for g in data.get("goals", []) if g and g.strip()]
 
 NODE_QUERIES = {
+    # No url: it points at the source talk on the TwelveLabs CDN, which means shipping a
+    # direct link to someone else's video through this account — the same thing NOTICE
+    # says the repo doesn't do — and the link rots when the asset expires, leaving the
+    # demo looking broken. The cut list never needed it; it cites timecodes, not a player.
     "videos": """
         MATCH (v:Video)
-        RETURN v.id AS id, v.title AS title, v.url AS url,
+        RETURN v.id AS id, v.title AS title,
                v.duration_sec AS duration_sec, v.summary AS summary
         ORDER BY v.title
     """,

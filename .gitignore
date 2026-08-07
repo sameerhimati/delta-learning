@@ -47,3 +47,6 @@ frontend/app/_*/
 # yt-dlp auth for the URL-ingest path — session cookies, never commit
 cookies.txt
 *.cookies
+
+# Raw screen recordings — only the finished GIF is committed
+demo/raw/

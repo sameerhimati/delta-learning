@@ -24,6 +24,6 @@ its cut list is meaningless. Use real talks to see the delta do anything interes
 
 ## Your own videos
 
-Drop `.mp4` files here and `make seed` picks them up, or pass paths explicitly (see the
-README, "Run it on your own videos and your own notes"). **Ensure you have the rights to
+Drop `.mp4` files here and `make seed` picks them up, or pass paths explicitly (see
+[`docs/self-host.md`](../../docs/self-host.md)). **Ensure you have the rights to
 any media you add** — and note that ingestion uploads it to TwelveLabs for analysis.
